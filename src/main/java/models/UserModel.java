@@ -1,13 +1,10 @@
 package models;
 
-import models.Spec.UserSpec;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -26,35 +23,43 @@ public class UserModel {
     @Size(min=1, message="is required")
     private String password;
 
-    @Column(name = "enabled", nullable = false)
-    @Type(type = "org.hibernate.type.NumericBooleanType")
-    private boolean active = true;
+    @Column(name = "firstname")
+    private String firstName;
 
-    private String role;
+    @Column(name = "lastname")
+    private String lastName;
 
-    @Column(name = "rating")
-    private double rating;
-
-    @Column(name = "extensions_rated")
-    private int extensionsRated;
-
-    @Column(name = "image_id")
-    private String profileImage;
+    @Column(name = "age")
+    private int age;
 
     @Column(name = "country")
     private String country;
 
-    @Column(name = "info")
-    private String info;
+    @OneToMany(cascade = CascadeType.ALL , fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinTable(name = "chats",joinColumns ={@JoinColumn(name ="first_user")},
+            inverseJoinColumns = @JoinColumn(name ="second_user" ))
+    private List<Chat> chats;
+
+    @Column(name = "profile_picture")
+    private String profilePicture;
+
+    private String role;
 
     public UserModel(){
 
     }
 
-    public UserModel(String username, String password, String role) {
+    public UserModel(String username, String password, String role, String firstName,
+                     String lastName, int age, String country, String profilePicture) {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+        this.country = country;
+        this.profilePicture = profilePicture;
+        this.restaurant = restaurant;
     }
 
     public UserModel(UserSpec userSpec, String role) {
@@ -87,14 +92,6 @@ public class UserModel {
         this.id = id;
     }
 
-    public boolean getIsActive() {
-        return active;
-    }
-
-    public void setIsActive(boolean active) {
-        this.active = active;
-    }
-
     public String getRole() {
         return role;
     }
@@ -103,28 +100,28 @@ public class UserModel {
         this.role = role;
     }
 
-    public double getRating() {
-        return rating;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setRating(double rating) {
-        this.rating = rating;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public int getExtensionsRated() {
-        return extensionsRated;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setExtensionsRated(int extensionsRated) {
-        this.extensionsRated = extensionsRated;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
-    public String getProfileImage() {
-        return profileImage;
+    public int getAge() {
+        return age;
     }
 
-    public void setProfileImage(String profileImage) {
-        this.profileImage = profileImage;
+    public void setAge(int age) {
+        this.age = age;
     }
 
     public String getCountry() {
@@ -135,11 +132,19 @@ public class UserModel {
         this.country = country;
     }
 
-    public String getInfo() {
-        return info;
+    public List<Chat> getChats() {
+        return chats;
     }
 
-    public void setInfo(String info) {
-        this.info = info;
+    public void setChats(List<Chat> chats) {
+        this.chats = chats;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
