@@ -1,6 +1,8 @@
 package models;
 
 
+import models.Spec.UserSpec;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -59,7 +61,6 @@ public class UserModel {
         this.age = age;
         this.country = country;
         this.profilePicture = profilePicture;
-        this.restaurant = restaurant;
     }
 
     public UserModel(UserSpec userSpec, String role) {
