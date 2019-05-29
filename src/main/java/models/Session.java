@@ -5,6 +5,7 @@ import models.compositePK.SessionPK;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @IdClass(SessionPK.class)

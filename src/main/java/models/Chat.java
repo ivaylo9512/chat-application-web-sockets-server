@@ -12,11 +12,11 @@ public class Chat {
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "first_user", insertable = false, updatable = false)
-    private com.vision.project.models.UserModel firstUserModel;
+    private UserModel firstUserModel;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "second_user", insertable = false, updatable = false)
-    private com.vision.project.models.UserModel secondUserModel;
+    private UserModel secondUserModel;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "chat", cascade = CascadeType.ALL)
     private List<Session> sessions;
@@ -24,24 +24,24 @@ public class Chat {
     public Chat() {
     }
 
-    public Chat(com.vision.project.models.UserModel firstUserModel, com.vision.project.models.UserModel secondUserModel) {
+    public Chat(UserModel firstUserModel, UserModel secondUserModel) {
         this.firstUserModel = firstUserModel;
         this.secondUserModel = secondUserModel;
     }
 
-    public com.vision.project.models.UserModel getFirstUserModel() {
+    public UserModel getFirstUserModel() {
         return firstUserModel;
     }
 
-    public void setFirstUserModel(com.vision.project.models.UserModel firstUserModel) {
+    public void setFirstUserModel(UserModel firstUserModel) {
         this.firstUserModel = firstUserModel;
     }
 
-    public com.vision.project.models.UserModel getSecondUserModel() {
+    public UserModel getSecondUserModel() {
         return secondUserModel;
     }
 
-    public void setSecondUserModel(com.vision.project.models.UserModel secondUserModel) {
+    public void setSecondUserModel(UserModel secondUserModel) {
         this.secondUserModel = secondUserModel;
     }
 
