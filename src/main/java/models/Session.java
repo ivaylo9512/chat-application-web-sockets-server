@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import models.compositePK.SessionPK;
 
 import javax.persistence.*;
 import java.time.LocalDate;
