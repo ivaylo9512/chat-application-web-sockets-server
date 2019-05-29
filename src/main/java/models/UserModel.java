@@ -1,0 +1,145 @@
+package models;
+
+import models.Spec.UserSpec;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
+@Table(name = "users")
+public class UserModel {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @NotNull(message="is required")
+    @Size(min=1, message="is required")
+    @Column(name = "username")
+    private String username;
+
+    @NotNull(message="is required")
+    @Size(min=1, message="is required")
+    private String password;
+
+    @Column(name = "enabled", nullable = false)
+    @Type(type = "org.hibernate.type.NumericBooleanType")
+    private boolean active = true;
+
+    private String role;
+
+    @Column(name = "rating")
+    private double rating;
+
+    @Column(name = "extensions_rated")
+    private int extensionsRated;
+
+    @Column(name = "image_id")
+    private String profileImage;
+
+    @Column(name = "country")
+    private String country;
+
+    @Column(name = "info")
+    private String info;
+
+    public UserModel(){
+
+    }
+
+    public UserModel(String username, String password, String role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
+
+    public UserModel(UserSpec userSpec, String role) {
+        this.setUsername(userSpec.getUsername());
+        this.setPassword(userSpec.getPassword());
+        this.setRole(role);
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public boolean getIsActive() {
+        return active;
+    }
+
+    public void setIsActive(boolean active) {
+        this.active = active;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public int getExtensionsRated() {
+        return extensionsRated;
+    }
+
+    public void setExtensionsRated(int extensionsRated) {
+        this.extensionsRated = extensionsRated;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+}
