@@ -1,4 +1,4 @@
-package com.tick42.quicksilver.security;
+package security;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
