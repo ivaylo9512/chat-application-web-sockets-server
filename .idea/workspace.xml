@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c97d3029-464a-4b04-8f6c-7326c32c8bd2" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="c97d3029-464a-4b04-8f6c-7326c32c8bd2" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
     <ignored path="$PROJECT_DIR$/build/" />
@@ -21,42 +19,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="UserSpec.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/models/Spec/UserSpec.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="UserModel.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/models/UserModel.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1003">
-              <caret line="64" selection-start-line="64" selection-end-line="64" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Chat.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/models/Chat.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="578">
-              <caret line="39" column="11" selection-start-line="39" selection-start-column="11" selection-end-line="39" selection-end-column="11" />
-              <folding>
-                <element signature="e#1033#1034#0" expanded="true" />
-                <element signature="e#1085#1086#0" expanded="true" />
-                <element signature="e#1313#1314#0" expanded="true" />
-                <element signature="e#1338#1339#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Session.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/models/Session.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -102,7 +64,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ChatDto.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ChatDto.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/models/DTOs/ChatDto.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="17">
@@ -111,11 +73,35 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SessionPK.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/models/compositePK/SessionPK.java">
+      <file leaf-file-name="Jwt.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/security/Jwt.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="28" selection-start-line="28" selection-end-line="28" />
+            <state relative-caret-position="34">
+              <caret line="2" column="7" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FailureHandler.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/security/FailureHandler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="34">
+              <caret line="2" column="7" lean-forward="true" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AuthorizationProvider.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/security/AuthorizationProvider.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="17">
+              <caret line="1" column="7" selection-start-line="1" selection-start-column="7" selection-end-line="1" selection-end-column="7" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -470,6 +456,9 @@
         <option value="$PROJECT_DIR$/src/main/java/models/UserDetails.java" />
         <option value="$PROJECT_DIR$/src/main/java/models/DTOs/UserDto.java" />
         <option value="$PROJECT_DIR$/src/main/java/models/DTOs/ChatDto.java" />
+        <option value="$PROJECT_DIR$/src/main/java/security/Jwt.java" />
+        <option value="$PROJECT_DIR$/src/main/java/security/FailureHandler.java" />
+        <option value="$PROJECT_DIR$/src/main/java/security/AuthorizationProvider.java" />
       </list>
     </option>
   </component>
@@ -543,6 +532,14 @@
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="models" type="462c0819:PsiDirectoryNode" />
               <item name="Spec" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="chat-sockets" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Chat-Application-Web-Sockets-server" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="8a07ba80:GradleTreeStructureProvider$GradleModuleDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="security" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -638,8 +635,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="0" width="1260" height="640" extended-state="7" />
-    <editor active="true" />
+    <frame x="-7" y="-7" width="1295" height="735" extended-state="6" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -653,7 +649,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25166667" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24453442" />
       <window_info anchor="right" id="Gradle" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -948,6 +944,42 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="3" column="7" selection-start-line="3" selection-start-column="7" selection-end-line="3" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/security/AuthorizationFilter.java">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/security/AuthenticationFilter.java">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/security/Jwt.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="7" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/security/AuthorizationProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="7" selection-start-line="1" selection-start-column="7" selection-end-line="1" selection-end-column="7" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/security/FailureHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="7" lean-forward="true" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
