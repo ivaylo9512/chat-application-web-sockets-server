@@ -1,6 +1,6 @@
-package com.vision.project.models.DTOs;
+package models.DTOs;
 
-import com.vision.project.models.Message;
+import models.Message;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

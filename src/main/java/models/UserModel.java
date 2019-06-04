@@ -1,7 +1,8 @@
 package models;
 
 
-import models.Spec.UserSpec;
+
+import models.specs.UserSpec;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
