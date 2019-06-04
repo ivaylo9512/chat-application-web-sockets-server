@@ -1,4 +1,4 @@
-package base;
+package repositories.base;
 
 import models.UserModel;
 import org.springframework.data.jpa.repository.JpaRepository;

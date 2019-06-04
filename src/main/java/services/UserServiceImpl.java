@@ -1,10 +1,9 @@
 package services;
-
+import repositories.base.UserRepository;
 import exceptions.UsernameExistsException;
 import models.UserDetails;
 import models.UserModel;
 import models.specs.UserSpec;
-import repositories.base.UserRepository;
 import services.base.UserService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
