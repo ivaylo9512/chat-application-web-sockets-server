@@ -1,5 +1,6 @@
 package services;
 
+import exceptions.UsernameExistsException;
 import models.UserDetails;
 import models.UserModel;
 import models.specs.UserSpec;
@@ -42,7 +43,9 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     public UserModel register(UserSpec userSpec, String role) {
         UserModel userModel = userRepository.findByUsername(userSpec.getUsername());
 
-
+        if (userModel != null) {
+            throw new UsernameExistsException("Username is already taken.");
+        }
 
         userModel = new UserModel(userSpec, role);
         userModel.setPassword(BCrypt.hashpw(userModel.getPassword(),BCrypt.gensalt(4)));
