@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c97d3029-464a-4b04-8f6c-7326c32c8bd2" name="Default" comment="" />
+    <list default="true" id="c97d3029-464a-4b04-8f6c-7326c32c8bd2" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
     <ignored path="$PROJECT_DIR$/build/" />
@@ -19,18 +21,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Session.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/models/Session.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="544">
-              <caret line="44" column="14" selection-start-line="44" selection-start-column="14" selection-end-line="44" selection-end-column="14" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Message.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/models/Message.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -76,8 +66,8 @@
       <file leaf-file-name="Jwt.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/security/Jwt.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="183">
-              <caret line="17" column="13" selection-start-line="17" selection-start-column="13" selection-end-line="17" selection-end-column="13" />
+            <state relative-caret-position="918">
+              <caret line="54" column="104" selection-start-line="54" selection-start-column="104" selection-end-line="54" selection-end-column="104" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -109,7 +99,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AuthenticationFilter.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="AuthenticationFilter.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/security/AuthenticationFilter.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="299">
@@ -117,6 +107,15 @@
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="application.properties" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/resources/application.properties">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="357">
+              <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
             </state>
           </provider>
         </entry>
@@ -480,15 +479,16 @@
         <option value="$PROJECT_DIR$/src/main/java/models/UserDetails.java" />
         <option value="$PROJECT_DIR$/src/main/java/models/DTOs/UserDto.java" />
         <option value="$PROJECT_DIR$/src/main/java/models/DTOs/ChatDto.java" />
-        <option value="$PROJECT_DIR$/src/main/java/security/Jwt.java" />
         <option value="$PROJECT_DIR$/src/main/java/security/FailureHandler.java" />
         <option value="$PROJECT_DIR$/src/main/java/security/AuthorizationProvider.java" />
         <option value="$PROJECT_DIR$/src/main/java/security/AuthorizationFilter.java" />
         <option value="$PROJECT_DIR$/src/main/java/security/AuthenticationFilter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/security/Jwt.java" />
+        <option value="$PROJECT_DIR$/src/main/resources/application.properties" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-12" />
     <option name="width" value="1890" />
     <option name="height" value="960" />
@@ -590,6 +590,7 @@
       <recent name="" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ivail\OneDrive\Работен плот\projects\Chat-Application-Web-Sockets-server\src\main\resources" />
       <recent name="C:\Users\ivail\OneDrive\Работен плот\projects\Chat-Application-Web-Sockets-server\src\main\java" />
       <recent name="C:\Users\ivail\OneDrive\Работен плот\projects\Chat-Application-Web-Sockets-server\src\main\java\models" />
     </key>
@@ -1008,8 +1009,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/security/Jwt.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="17" column="13" selection-start-line="17" selection-start-column="13" selection-end-line="17" selection-end-column="13" />
+        <state relative-caret-position="918">
+          <caret line="54" column="104" selection-start-line="54" selection-start-column="104" selection-end-line="54" selection-end-column="104" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1023,6 +1024,13 @@
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/application.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="21" />
         </state>
       </provider>
     </entry>
