@@ -8,7 +8,7 @@ import com.chat.app.services.base.UserService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.chat.app.exceptions.UserNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     @Override
     public UserModel findById(int id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User doesn't exist."));
+                .orElseThrow(() -> new UserNotFoundException("User doesn't exist."));
     }
 
     @Override
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UserNotFoundException {
 
         UserModel userModel = userRepository.findByUsername(username);
         if(userModel == null){
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     @Override
     public UserModel changeUserInfo(int loggedUser, UserSpec userSpec){
         UserModel user = userRepository.findById(loggedUser)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found."));
+                .orElseThrow(() -> new UserNotFoundException("Username not found."));
         user.setFirstName(userSpec.getFirstName());
         user.setLastName(userSpec.getLastName());
         user.setAge(userSpec.getAge());
