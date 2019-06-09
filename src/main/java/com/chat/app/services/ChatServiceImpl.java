@@ -1,5 +1,6 @@
 package com.chat.app.services;
 
+import com.chat.app.exceptions.ChatNotFoundException;
 import com.chat.app.models.Chat;
 import com.chat.app.models.DTOs.ChatDto;
 import com.chat.app.models.DTOs.MessageDto;
@@ -58,10 +59,15 @@ public class ChatServiceImpl implements ChatService {
         int sender = messageDto.getSenderId();
         int receiver = messageDto.getReceiverId();
 
-        Chat chat = chatRepository.findById(messageDto.getChatId());
+        Chat chat = chatRepository.findById(messageDto.getChatId())
+                .orElseThrow(()-> new ChatNotFoundException("Chat with id: " + messageDto.getChatId() + "is not found."));
 
         int chatFirstUser = chat.getFirstUserModel().getId();
         int chatSecondUser = chat.getSecondUserModel().getId();
+
+        if ((sender != chatFirstUser && sender != chatSecondUser) || (receiver != chatFirstUser && receiver != chatSecondUser)) {
+            throw new ChatNotFoundException("Users don't match the given chat.");
+        }
 
         Session session = sessionRepository.findById(new SessionPK(chat,LocalDate.now()))
                 .orElse(new Session(chat, LocalDate.now()));
