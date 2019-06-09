@@ -27,9 +27,20 @@ public class ChatServiceImpl implements ChatService {
         this.sessionRepository = sessionRepository;
     }
 
+    @Override
+    public List<ChatDto> findUserChats(int id, int pageSize) {
+        List<Chat> chats = chatRepository.findUserChats(id);
+        chats.forEach(chat -> chat
+                .setSessions(sessionRepository
+                        .getSessions(chat,
+                                PageRequest.of(0, pageSize, Sort.Direction.DESC, "session_date"))));
+        return chats.stream()
+                .map(ChatDto::new)
+                .collect(Collectors.toList());
+    }
 
     @Override
-    public ChatDto createChat(int loggedUserId , int requestedUserId) {
+    public ChatDto createChat(int loggedUserId, int requestedUserId) {
 
         UserModel loggedUser = userService.findById(loggedUserId);
         UserModel requestedUser = userService.findById(requestedUserId);
