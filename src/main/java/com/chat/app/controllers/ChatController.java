@@ -1,15 +1,13 @@
 package com.chat.app.controllers;
 
 import com.chat.app.models.DTOs.ChatDto;
+import com.chat.app.models.DTOs.MessageDto;
 import com.chat.app.models.Session;
 import com.chat.app.models.UserDetails;
 import com.chat.app.services.base.ChatService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -53,6 +51,12 @@ public class ChatController {
         int loggedUserId = loggedUser.getId();
 
         return chatService.createChat(loggedUserId, requestedUserId);
+    }
+    @PostMapping(value = "/newMessage")
+    public MessageDto newMessage(@RequestBody MessageDto message){
+        UserDetails userDetails = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getDetails();
+        message.setSenderId(userDetails.getId());
+        return chatService.addNewMessage(message);
     }
 
 }
