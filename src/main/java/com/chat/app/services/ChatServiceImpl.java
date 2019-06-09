@@ -2,6 +2,7 @@ package com.chat.app.services;
 
 import com.chat.app.models.Chat;
 import com.chat.app.models.DTOs.ChatDto;
+import com.chat.app.models.Session;
 import com.chat.app.models.UserModel;
 import com.chat.app.repositories.base.ChatRepository;
 import com.chat.app.repositories.base.SessionRepository;
@@ -28,7 +29,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<ChatDto> findUserChats(int id, int pageSize) {
+    public List<ChatDto> getUserChats(int id, int pageSize) {
         List<Chat> chats = chatRepository.findUserChats(id);
         chats.forEach(chat -> chat
                 .setSessions(sessionRepository
@@ -37,6 +38,11 @@ public class ChatServiceImpl implements ChatService {
         return chats.stream()
                 .map(ChatDto::new)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Session> getChatSessions(int chatId, int page, int pageSize){
+        return sessionRepository.getSessions(chatRepository.getOne(chatId), PageRequest.of(page, pageSize, Sort.Direction.DESC, "session_date"));
     }
 
     @Override

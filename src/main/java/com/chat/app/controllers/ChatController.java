@@ -1,6 +1,7 @@
 package com.chat.app.controllers;
 
 import com.chat.app.models.DTOs.ChatDto;
+import com.chat.app.models.Session;
 import com.chat.app.models.UserDetails;
 import com.chat.app.services.base.ChatService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,8 +32,16 @@ public class ChatController {
                 .getDetails();
         int userId = userDetails.getId();
 
-        return chatService.findUserChats(userId, pageSize);
+        return chatService.getUserChats(userId, pageSize);
 
+    }
+
+    @GetMapping(value = "/nextSessions")
+    public List<Session> getChatSessions(
+            @RequestParam(name = "chatId") int chatId,
+            @RequestParam(name = "page") int page,
+            @RequestParam(name = "pageSize") int pageSize){
+        return chatService.getChatSessions(chatId, page, pageSize);
     }
 
     @PostMapping("auth/create")
