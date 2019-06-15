@@ -5,6 +5,7 @@ import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.DTOs.UserDto;
 import com.chat.app.models.UserDetails;
+import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.services.base.UserService;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -35,6 +38,13 @@ public class UserController {
     @GetMapping(value = "/findById/{id}")
     public UserDto findById(@PathVariable(name = "id") int id){
         return new UserDto(userService.findById(id));
+    }
+    @GetMapping(value = "/users/searchForUsers/{username}")
+    public List<UserDto> findByUsername(@PathVariable(name = "username") String username){
+        return userService.findByUsernameWithRegex(username)
+                .stream()
+                .map(UserDto::new)
+                .collect(Collectors.toList());
     }
 
     @PostMapping(value = "/changeUserInfo")

@@ -11,6 +11,8 @@ public interface UserService {
 
     UserModel findById(int id);
 
+    List<UserModel> findByUsernameWithRegex(String username);
+
     UserModel register(UserSpec userSpec, String role);
 
     UserModel changeUserInfo(int loggedUser, UserSpec userSpec);

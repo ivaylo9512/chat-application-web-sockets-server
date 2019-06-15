@@ -37,6 +37,10 @@ public class UserServiceImpl implements UserService,UserDetailsService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User doesn't exist."));
     }
+    @Override
+    public List<UserModel> findByUsernameWithRegex(String username){
+        return userRepository.findByUsernameWithRegex(username);
+    }
 
     @Override
     public UserModel register(UserSpec userSpec, String role) {
