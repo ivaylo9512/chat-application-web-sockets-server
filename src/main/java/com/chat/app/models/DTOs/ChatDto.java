@@ -7,8 +7,7 @@ import java.util.List;
 
 public class ChatDto {
     private int id;
-    private UserDto firstUser;
-    private UserDto secondUser;
+    private UserDto user;
     private List<Session> sessions;
 
     public ChatDto() {
@@ -16,25 +15,15 @@ public class ChatDto {
 
     public ChatDto(Chat chat) {
         this.id = chat.getId();
-        this.firstUser = new UserDto(chat.getFirstUserModel());
-        this.secondUser = new UserDto(chat.getSecondUserModel());
         this.sessions = chat.getSessions();
     }
 
-    public UserDto getFirstUser() {
-        return firstUser;
+    public UserDto getUser() {
+        return user;
     }
 
-    public void setFirstUser(UserDto firstUser) {
-        this.firstUser = firstUser;
-    }
-
-    public UserDto getSecondUser() {
-        return secondUser;
-    }
-
-    public void setSecondUser(UserDto secondUser) {
-        this.secondUser = secondUser;
+    public void setUser(UserDto user) {
+        this.user = user;
     }
 
     public int getId() {

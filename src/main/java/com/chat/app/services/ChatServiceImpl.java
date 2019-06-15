@@ -4,6 +4,7 @@ import com.chat.app.exceptions.ChatNotFoundException;
 import com.chat.app.models.Chat;
 import com.chat.app.models.DTOs.ChatDto;
 import com.chat.app.models.DTOs.MessageDto;
+import com.chat.app.models.DTOs.UserDto;
 import com.chat.app.models.Message;
 import com.chat.app.models.Session;
 import com.chat.app.models.UserModel;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,9 +46,17 @@ public class ChatServiceImpl implements ChatService {
                 .setSessions(sessionRepository
                         .getSessions(chat,
                                 PageRequest.of(0, pageSize, Sort.Direction.DESC, "session_date"))));
-        return chats.stream()
-                .map(ChatDto::new)
-                .collect(Collectors.toList());
+        List<ChatDto> chatDtos = new ArrayList<>();
+        chats.forEach(chat -> {
+            ChatDto chatDto = new ChatDto(chat);
+            if(chat.getFirstUserModel().getId() == id){
+                chatDto.setUser(new UserDto(chat.getSecondUserModel()));
+            }else{
+                chatDto.setUser(new UserDto(chat.getFirstUserModel()));
+            }
+            chatDtos.add(chatDto);
+        });
+        return chatDtos;
     }
 
     @Override

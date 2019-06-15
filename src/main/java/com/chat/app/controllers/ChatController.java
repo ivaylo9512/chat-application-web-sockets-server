@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@Controller
-@RequestMapping("/chat")
+@RestController
+@RequestMapping("/api")
 public class ChatController {
     private final ChatService chatService;
 
@@ -21,9 +21,8 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    @GetMapping("/getChats")
+    @GetMapping("/auth/chat/getChats")
     public List<ChatDto> getChats(@RequestParam(name = "pageSize") int pageSize){
-
         UserDetails userDetails = (UserDetails)SecurityContextHolder
                 .getContext()
                 .getAuthentication()
@@ -34,7 +33,7 @@ public class ChatController {
 
     }
 
-    @GetMapping(value = "/nextSessions")
+    @GetMapping(value = "/chat/auth/nextSessions")
     public List<Session> getChatSessions(
             @RequestParam(name = "chatId") int chatId,
             @RequestParam(name = "page") int page,
