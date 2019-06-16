@@ -4,6 +4,7 @@ import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.UserSpec;
+import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.UserService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,10 +21,12 @@ import java.util.List;
 public class UserServiceImpl implements UserService,UserDetailsService {
 
     private final UserRepository userRepository;
+    private final ChatService chatService;
     private PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, ChatService chatService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.chatService = chatService;
         this.passwordEncoder = passwordEncoder;
     }
 
