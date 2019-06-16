@@ -58,7 +58,12 @@ public class ChatServiceImpl implements ChatService {
         });
         return chatDtos;
     }
+    @Override
+    public boolean findIfUsersHaveChat(int firstUser, int secondUser){
+      boolean haveChat = chatRepository.findIfUsersHaveChat(firstUser, secondUser) != null;
 
+      return haveChat;
+    }
     @Override
     public List<Session> getChatSessions(int chatId, int page, int pageSize){
         return sessionRepository.getSessions(chatRepository.getOne(chatId), PageRequest.of(page, pageSize, Sort.Direction.DESC, "session_date"));

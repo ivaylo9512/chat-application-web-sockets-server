@@ -13,6 +13,8 @@ public interface ChatService {
 
     ChatDto createChat(int loggedUserId, int requestedUserId);
 
+    boolean findIfUsersHaveChat(int firstUser, int secondUser);
+
     List<Session> getChatSessions(int chatId, int page, int pageSize);
 
 }
