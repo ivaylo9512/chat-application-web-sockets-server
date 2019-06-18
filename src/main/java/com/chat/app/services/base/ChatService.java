@@ -3,6 +3,7 @@ package com.chat.app.services.base;
 import com.chat.app.models.DTOs.ChatDto;
 import com.chat.app.models.DTOs.MessageDto;
 import com.chat.app.models.Session;
+import com.chat.app.models.UserModel;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public interface ChatService {
 
     MessageDto addNewMessage(MessageDto messageDto);
 
-    ChatDto createChat(int loggedUserId, int requestedUserId);
+    ChatDto createChat(UserModel loggedUserId, UserModel requestedUserId);
 
     boolean findIfUsersHaveChat(int firstUser, int secondUser);
 

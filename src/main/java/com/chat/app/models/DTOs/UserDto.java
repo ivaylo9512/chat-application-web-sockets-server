@@ -15,6 +15,7 @@ public class UserDto {
     private String country;
     private String role;
     private String profilePicture;
+    private boolean hasChatWithLoggedUser;
 
     public UserDto(UserDetails userDetails){
         this.id = userDetails.getId();
@@ -101,5 +102,13 @@ public class UserDto {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public boolean isHasChatWithLoggedUser() {
+        return hasChatWithLoggedUser;
+    }
+
+    public void setHasChatWithLoggedUser(boolean hasChatWithLoggedUser) {
+        this.hasChatWithLoggedUser = hasChatWithLoggedUser;
     }
 }

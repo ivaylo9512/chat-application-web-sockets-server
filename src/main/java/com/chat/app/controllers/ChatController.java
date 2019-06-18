@@ -4,9 +4,10 @@ import com.chat.app.models.DTOs.ChatDto;
 import com.chat.app.models.DTOs.MessageDto;
 import com.chat.app.models.Session;
 import com.chat.app.models.UserDetails;
+import com.chat.app.models.UserModel;
 import com.chat.app.services.base.ChatService;
+import com.chat.app.services.base.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,9 +17,11 @@ import java.util.List;
 @RequestMapping("/api")
 public class ChatController {
     private final ChatService chatService;
+    private final UserService userService;
 
-    public ChatController(ChatService chatService) {
+    public ChatController(ChatService chatService, UserService userService) {
         this.chatService = chatService;
+        this.userService = userService;
     }
 
     @GetMapping("/auth/chat/getChats")
@@ -43,13 +46,16 @@ public class ChatController {
 
     @PostMapping("auth/create")
     public ChatDto createChat(@RequestParam("userId") int requestedUserId){
-        UserDetails loggedUser = (UserDetails) SecurityContextHolder
+        UserDetails loggedUserDetails = (UserDetails) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getDetails();
-        int loggedUserId = loggedUser.getId();
+        int loggedUserId = loggedUserDetails.getId();
 
-        return chatService.createChat(loggedUserId, requestedUserId);
+        UserModel loggedUser = userService.findById(loggedUserId);
+        UserModel requestedUser = userService.findById(requestedUserId);
+
+        return chatService.createChat(loggedUser, requestedUser);
     }
     @PostMapping(value = "/newMessage")
     public MessageDto newMessage(@RequestBody MessageDto message){

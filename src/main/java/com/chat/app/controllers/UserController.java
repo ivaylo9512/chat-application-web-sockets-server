@@ -46,11 +46,11 @@ public class UserController {
     public List<UserDto> findByUsername(@PathVariable(name = "username") String username){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
-        List<UserDto> userDtos = new ArrayList<>();
+        List<UserDto> userDTOs = new ArrayList<>();
         userService.findByUsernameWithRegex(username).forEach(userModel -> {
             UserDto userDto = new UserDto(userModel);
-            userDto.hasChat(chatService.findIfUsersHaveChat(userModel.getId(), loggedUser.getId()));
-            userDtos.add(userDto);
+            userDto.setHasChatWithLoggedUser(chatService.findIfUsersHaveChat(userModel.getId(), loggedUser.getId()));
+            userDTOs.add(userDto);
         });
         return userService.findByUsernameWithRegex(username)
                 .stream()

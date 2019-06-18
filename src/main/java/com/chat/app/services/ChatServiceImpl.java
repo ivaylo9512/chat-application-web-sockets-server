@@ -13,7 +13,6 @@ import com.chat.app.repositories.base.ChatRepository;
 import com.chat.app.repositories.base.MessageRepository;
 import com.chat.app.repositories.base.SessionRepository;
 import com.chat.app.services.base.ChatService;
-import com.chat.app.services.base.UserService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -22,18 +21,15 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ChatServiceImpl implements ChatService {
 
-    private UserService userService;
     private ChatRepository chatRepository;
     private SessionRepository sessionRepository;
     private MessageRepository messageRepository;
 
-    ChatServiceImpl(UserService userService, ChatRepository chatRepository, SessionRepository sessionRepository, MessageRepository messageRepository){
-        this.userService = userService;
+    ChatServiceImpl(ChatRepository chatRepository, SessionRepository sessionRepository, MessageRepository messageRepository){
         this.chatRepository = chatRepository;
         this.sessionRepository = sessionRepository;
         this.messageRepository = messageRepository;
@@ -96,10 +92,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDto createChat(int loggedUserId, int requestedUserId) {
-
-        UserModel loggedUser = userService.findById(loggedUserId);
-        UserModel requestedUser = userService.findById(requestedUserId);
+    public ChatDto createChat(UserModel loggedUser, UserModel requestedUser) {
 
         Chat chat = new Chat(loggedUser, requestedUser);
 
