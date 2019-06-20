@@ -5,6 +5,7 @@ import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.DTOs.UserDto;
 import com.chat.app.models.UserDetails;
+import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.UserService;
@@ -35,6 +36,16 @@ public class UserController {
     @PostMapping(value = "/auth/users/adminRegistration")
     public UserDto registerAdmin(@Valid UserSpec user){
         return new UserDto(userService.register(user,"ROLE_USER"));
+    }
+
+    @PostMapping("/users/login")
+    public UserDto login(){
+        UserDetails userDetails = (UserDetails) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return new UserDto(userDetails);
     }
 
 

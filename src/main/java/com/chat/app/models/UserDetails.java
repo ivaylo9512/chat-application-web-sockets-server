@@ -15,7 +15,6 @@ public class UserDetails extends User {
     private int age;
     private String country;
     private String profilePicture;
-    private int restaurantId;
 
     public UserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, int id){
         super(username,password,authorities);
@@ -77,13 +76,5 @@ public class UserDetails extends User {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
-    }
-
-    public int getRestaurantId() {
-        return restaurantId;
-    }
-
-    public void setRestaurantId(int restaurantId) {
-        this.restaurantId = restaurantId;
     }
 }

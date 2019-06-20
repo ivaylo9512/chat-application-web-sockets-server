@@ -44,7 +44,7 @@ public class ChatController {
         return chatService.getChatSessions(chatId, page, pageSize);
     }
 
-    @PostMapping("auth/create")
+    @PostMapping("/chat/auth/create")
     public ChatDto createChat(@RequestParam("userId") int requestedUserId){
         UserDetails loggedUserDetails = (UserDetails) SecurityContextHolder
                 .getContext()
