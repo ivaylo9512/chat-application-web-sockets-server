@@ -14,7 +14,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/chat/auth")
 public class ChatController {
     private final ChatService chatService;
     private final UserService userService;
@@ -24,7 +24,7 @@ public class ChatController {
         this.userService = userService;
     }
 
-    @GetMapping("/auth/chat/getChats")
+    @GetMapping("/getChats")
     public List<ChatDto> getChats(@RequestParam(name = "pageSize") int pageSize){
         UserDetails userDetails = (UserDetails)SecurityContextHolder
                 .getContext()
@@ -36,7 +36,7 @@ public class ChatController {
 
     }
 
-    @GetMapping(value = "/chat/auth/nextSessions")
+    @GetMapping(value = "/nextSessions")
     public List<Session> getChatSessions(
             @RequestParam(name = "chatId") int chatId,
             @RequestParam(name = "page") int page,
@@ -44,7 +44,7 @@ public class ChatController {
         return chatService.getChatSessions(chatId, page, pageSize);
     }
 
-    @PostMapping("/chat/auth/create")
+    @PostMapping("/create")
     public ChatDto createChat(@RequestParam("userId") int requestedUserId){
         UserDetails loggedUserDetails = (UserDetails) SecurityContextHolder
                 .getContext()

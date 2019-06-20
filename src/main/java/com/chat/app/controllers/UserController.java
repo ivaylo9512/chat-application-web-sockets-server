@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/api/user/")
 public class UserController {
 
     private final UserService userService;
@@ -33,19 +34,17 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping(value = "/auth/users/adminRegistration")
+    @PostMapping(value = "/auth/adminRegistration")
     public UserDto registerAdmin(@Valid UserSpec user){
         return new UserDto(userService.register(user,"ROLE_USER"));
     }
 
     @PostMapping("/users/login")
-    public UserDto login(){
-        UserDetails userDetails = (UserDetails) SecurityContextHolder
+    public UserDetails login(){
+        return (UserDetails) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
-
-        return new UserDto(userDetails);
     }
 
 
@@ -53,7 +52,7 @@ public class UserController {
     public UserDto findById(@PathVariable(name = "id") int id){
         return new UserDto(userService.findById(id));
     }
-    @GetMapping(value = "/auth/users/searchForUsers/{username}")
+    @GetMapping(value = "/auth/searchForUsers/{username}")
     public List<UserDto> findByUsername(@PathVariable(name = "username") String username){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
@@ -69,7 +68,7 @@ public class UserController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping(value = "/changeUserInfo")
+    @PostMapping(value = "/auth/changeUserInfo")
     public UserDto changeUserInfo(@RequestBody UserSpec userModel){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();

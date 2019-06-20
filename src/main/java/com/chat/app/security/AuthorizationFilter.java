@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class AuthorizationFilter extends AbstractAuthenticationProcessingFilter {
     public AuthorizationFilter() {
-        super("/api/auth/**");
+        super("/api/**/auth/**");
         super.setAuthenticationSuccessHandler((request, response, authentication) -> {});
     }
 

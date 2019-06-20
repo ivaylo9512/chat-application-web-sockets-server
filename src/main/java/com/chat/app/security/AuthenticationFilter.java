@@ -2,8 +2,6 @@ package com.chat.app.security;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.chat.app.models.DTOs.UserDto;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -41,7 +39,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain chain, Authentication auth) throws IOException, ServletException {
-
 
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         String token = Jwt.generate(userDetails);
