@@ -52,20 +52,21 @@ public class UserController {
     public UserDto findById(@PathVariable(name = "id") int id){
         return new UserDto(userService.findById(id));
     }
+
     @GetMapping(value = "/auth/searchForUsers/{username}")
     public List<UserDto> findByUsername(@PathVariable(name = "username") String username){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
+
         List<UserDto> userDTOs = new ArrayList<>();
         userService.findByUsernameWithRegex(username).forEach(userModel -> {
             UserDto userDto = new UserDto(userModel);
             userDto.setHasChatWithLoggedUser(chatService.findIfUsersHaveChat(userModel.getId(), loggedUser.getId()));
+
             userDTOs.add(userDto);
         });
-        return userService.findByUsernameWithRegex(username)
-                .stream()
-                .map(UserDto::new)
-                .collect(Collectors.toList());
+
+        return userDTOs;
     }
 
     @PostMapping(value = "/auth/changeUserInfo")

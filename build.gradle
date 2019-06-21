@@ -26,13 +26,13 @@ repositories {
 
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
-    compile("org.springframework.boot:spring-boot-starter-com.chat.app.security")
+    compile("org.springframework.boot:spring-boot-starter-security")
     testCompile('org.springframework.boot:spring-boot-starter-test')
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
     compile "org.springframework.boot:spring-boot-configuration-processor"
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5'
-    compile group: 'org.springframework.com.chat.app.security', name: 'spring-com.chat.app.security-jwt', version: '1.0.2.RELEASE'
+    compile group: 'org.springframework.security', name: 'spring-security-jwt', version: '1.0.2.RELEASE'
     compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.6.0'
     compile group: 'com.mchange', name: 'c3p0', version: '0.9.5.2'
     compile group: 'log4j', name: 'log4j', version: '1.2.17'
@@ -43,6 +43,8 @@ dependencies {
     compile('javax.xml.bind:jaxb-api:2.3.0')
     compile('javax.activation:activation:1.1')
     compile('org.glassfish.jaxb:jaxb-runtime:2.3.0')
+    compile group: 'org.springframework', name: 'spring-messaging'
+    compile group: 'org.springframework', name: 'spring-websocket'
 
     compile group: 'org.hsqldb', name: 'hsqldb', version: '2.4.1'
     compile group: 'com.h2database', name: 'h2', version: '1.4.192'
