@@ -42,7 +42,10 @@ public class WebSocketsConfig
                 .setAllowedOrigins("*")
                 .addInterceptors(getWebSocketInterceptor());
     }
-
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(getWebSocketInterceptor());
+    }
     private WebSocketInterceptor getWebSocketInterceptor(){
         return new WebSocketInterceptor();
     }
