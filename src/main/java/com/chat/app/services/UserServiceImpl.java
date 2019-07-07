@@ -1,4 +1,5 @@
 package com.chat.app.services;
+import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.UserDetails;
@@ -51,6 +52,10 @@ public class UserServiceImpl implements UserService,UserDetailsService {
 
         if (userModel != null) {
             throw new UsernameExistsException("Username is already taken.");
+        }
+
+        if(!userSpec.getPassword().equals(userSpec.getRepeatPassword())){
+            throw new PasswordsMissMatchException("Password don't match");
         }
 
         userModel = new UserModel(userSpec, role);

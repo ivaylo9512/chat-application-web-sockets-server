@@ -11,7 +11,10 @@ public class UserSpec {
     @Size(min=7, max=22, message="Name should be be between 7 and 18 char.")
     private String username;
 
+    @Size(min=7, max=22, message="Password should be be between 7 and 18 char.")
     private String password;
+
+    private String repeatPassword;
 
     private String firstName;
 
@@ -20,8 +23,6 @@ public class UserSpec {
     private int age;
 
     private String country;
-
-    private String role;
 
     public UserSpec() {
 
@@ -81,11 +82,11 @@ public class UserSpec {
         this.country = country;
     }
 
-    public String getRole() {
-        return role;
+    public String getRepeatPassword() {
+        return repeatPassword;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRepeatPassword(String repeatPassword) {
+        this.repeatPassword = repeatPassword;
     }
 }

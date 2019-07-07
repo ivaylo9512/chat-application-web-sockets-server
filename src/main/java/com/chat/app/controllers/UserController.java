@@ -36,6 +36,12 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = "/auth/adminRegistration")
     public UserDto registerAdmin(@Valid UserSpec user){
+        return new UserDto(userService.register(user,"ROLE_ADMIN"));
+    }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+
+    @PostMapping(value = "/auth/adminRegistration")
+    public UserDto register(@Valid UserSpec user){
         return new UserDto(userService.register(user,"ROLE_USER"));
     }
 
