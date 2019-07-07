@@ -31,7 +31,7 @@ public class WebSocketsConfig
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic/", "/queue/");
+        config.enableSimpleBroker("/message/", "/createChat/");
         config.setApplicationDestinationPrefixes("/app");
     }
 

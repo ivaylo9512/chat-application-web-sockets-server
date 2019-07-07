@@ -40,7 +40,7 @@ public class Jwt {
                 .compact();
     }
 
-    static UserDetails validate(String token) {
+    public static UserDetails validate(String token) {
         UserDetails user = null;
         try {
             Claims body = Jwts.parser()
