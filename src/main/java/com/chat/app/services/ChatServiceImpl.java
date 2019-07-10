@@ -36,6 +36,12 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    public Chat findById(int id) {
+        return chatRepository.findById(id)
+                .orElseThrow(()-> new ChatNotFoundException(String.format("Chat with id %d is not found.", id)));
+    }
+
+    @Override
     public List<ChatDto> getUserChats(int id, int pageSize) {
         List<Chat> chats = chatRepository.findUserChats(id);
         chats.forEach(chat -> chat
@@ -56,9 +62,8 @@ public class ChatServiceImpl implements ChatService {
     }
     @Override
     public boolean findIfUsersHaveChat(int firstUser, int secondUser){
-      boolean haveChat = chatRepository.findIfUsersHaveChat(firstUser, secondUser) != null;
 
-      return haveChat;
+        return chatRepository.findIfUsersHaveChat(firstUser, secondUser) != null;
     }
     @Override
     public List<Session> getChatSessions(int chatId, int page, int pageSize){
@@ -70,8 +75,7 @@ public class ChatServiceImpl implements ChatService {
         int sender = messageDto.getSenderId();
         int receiver = messageDto.getReceiverId();
 
-        Chat chat = chatRepository.findById(messageDto.getChatId())
-                .orElseThrow(()-> new ChatNotFoundException("Chat with id: " + messageDto.getChatId() + "is not found."));
+        Chat chat = findById(messageDto.getChatId());
 
         int chatFirstUser = chat.getFirstUserModel().getId();
         int chatSecondUser = chat.getSecondUserModel().getId();
