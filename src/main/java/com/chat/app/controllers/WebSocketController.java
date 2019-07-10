@@ -1,9 +1,9 @@
 package com.chat.app.controllers;
 
+import com.chat.app.models.DTOs.MessageDto;
 import com.chat.app.models.UserDetails;
-import com.chat.app.models.specs.MessageSpec;
 import com.chat.app.security.Jwt;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.chat.app.services.base.ChatService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -13,11 +13,17 @@ import java.security.Principal;
 
 @Controller
 public class WebSocketController {
-    @Autowired
     private SimpMessagingTemplate messagingTemplate;
+    private ChatService chatService;
+
+    public WebSocketController(SimpMessagingTemplate messagingTemplate, ChatService chatService) {
+        this.messagingTemplate = messagingTemplate;
+        this.chatService = chatService;
+    }
+
 
     @MessageMapping("/message")
-    public void message(Principal principal, MessageSpec message, SimpMessageHeaderAccessor headers) throws  Exception {
+    public void message(Principal principal, MessageDto message, SimpMessageHeaderAccessor headers) throws  Exception {
         UserDetails loggedUser;
         try{
             String auth = headers.getNativeHeader("Authorization").get(0);
@@ -26,11 +32,13 @@ public class WebSocketController {
         }catch (Exception e){
             throw new BadCredentialsException("Jwt token is missing or is incorrect.");
         }
-
+        message.setSenderId(loggedUser.getId());
+        chatService.addNewMessage(message);
+        
         messagingTemplate.convertAndSendToUser(message.getUsername(), "/message", message);
     }
     @MessageMapping("/createChat")
-    public void createChat(Principal principal, MessageSpec message, SimpMessageHeaderAccessor headers) throws  Exception {
+    public void createChat(Principal principal, MessageDto message, SimpMessageHeaderAccessor headers) throws  Exception {
         UserDetails loggedUser;
         try{
             String auth = headers.getNativeHeader("Authorization").get(0);

@@ -10,6 +10,7 @@ public class MessageDto {
     private int senderId;
     private int receiverId;
 
+    private String username;
     private String message;
     private LocalTime time;
     private LocalDate session;
@@ -77,5 +78,13 @@ public class MessageDto {
 
     public void setSession(LocalDate session) {
         this.session = session;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

@@ -72,10 +72,27 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public MessageDto addNewMessage(MessageDto messageDto) {
+        Chat chat = findById(messageDto.getChatId());
+        verifyMessage(messageDto, chat);
+
+        Session session = sessionRepository.findById(new SessionPK(chat,LocalDate.now()))
+                .orElse(new Session(chat, LocalDate.now()));
+        Message message = new Message(messageDto.getReceiverId(),LocalTime.now(),messageDto.getMessage(),session);
+        message = messageRepository.save(message);
+
+        String username = chat.getFirstUserModel().getId() == messageDto.getReceiverId()
+                ? chat.getFirstUserModel().getUsername() : chat.getSecondUserModel().getUsername();
+
+        messageDto.setTime(message.getTime());
+        messageDto.setSession(session.getDate());
+        messageDto.setUsername(username);
+
+        return messageDto;
+    }
+
+    private void verifyMessage(MessageDto messageDto, Chat chat) {
         int sender = messageDto.getSenderId();
         int receiver = messageDto.getReceiverId();
-
-        Chat chat = findById(messageDto.getChatId());
 
         int chatFirstUser = chat.getFirstUserModel().getId();
         int chatSecondUser = chat.getSecondUserModel().getId();
@@ -83,16 +100,6 @@ public class ChatServiceImpl implements ChatService {
         if ((sender != chatFirstUser && sender != chatSecondUser) || (receiver != chatFirstUser && receiver != chatSecondUser)) {
             throw new ChatNotFoundException("Users don't match the given chat.");
         }
-
-        Session session = sessionRepository.findById(new SessionPK(chat,LocalDate.now()))
-                .orElse(new Session(chat, LocalDate.now()));
-        Message message = new Message(messageDto.getReceiverId(),LocalTime.now(),messageDto.getMessage(),session);
-        message = messageRepository.save(message);
-
-        messageDto.setTime(message.getTime());
-        messageDto.setSession(session.getDate());
-
-        return messageDto;
     }
 
     @Override
