@@ -16,7 +16,7 @@ public interface ChatService {
 
     MessageDto addNewMessage(MessageDto messageDto);
 
-    ChatDto createChat(UserModel loggedUserId, UserModel requestedUserId);
+    ChatDto createChat(UserModel loggedUser, UserModel requestedUser);
 
     boolean findIfUsersHaveChat(int firstUser, int secondUser);
 

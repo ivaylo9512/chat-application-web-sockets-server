@@ -41,7 +41,7 @@ public class Jwt {
     }
 
     public static UserDetails validate(String token) {
-        UserDetails user = null;
+        UserDetails user;
         try {
             Claims body = Jwts.parser()
                     .setSigningKey(new String(encodedJwtSecret))

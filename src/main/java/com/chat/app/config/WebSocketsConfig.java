@@ -31,7 +31,7 @@ public class WebSocketsConfig
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/message", "/createChat/", "/user");
+        config.enableSimpleBroker("/message", "/createChat", "/user");
         config.setApplicationDestinationPrefixes("/api");
         config.setUserDestinationPrefix("/user");
     }

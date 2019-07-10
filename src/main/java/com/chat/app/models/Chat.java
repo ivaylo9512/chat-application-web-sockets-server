@@ -11,11 +11,11 @@ public class Chat {
     private int id;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "first_user", insertable = false, updatable = false)
+    @JoinColumn(name = "first_user", updatable = false)
     private UserModel firstUserModel;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "second_user", insertable = false, updatable = false)
+    @JoinColumn(name = "second_user", updatable = false)
     private UserModel secondUserModel;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "chat", cascade = CascadeType.ALL)

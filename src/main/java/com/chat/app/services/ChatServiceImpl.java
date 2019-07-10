@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional
     public MessageDto addNewMessage(MessageDto messageDto) {
         Chat chat = findById(messageDto.getChatId());
         verifyMessage(messageDto, chat);
@@ -105,8 +107,14 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ChatDto createChat(UserModel loggedUser, UserModel requestedUser) {
 
-        Chat chat = new Chat(loggedUser, requestedUser);
+        if(findIfUsersHaveChat(loggedUser.getId(), requestedUser.getId())){
+            throw new RuntimeException("Chat already exist");
+        }
 
-        return new ChatDto(chatRepository.save(chat));
+        Chat chat = new Chat(loggedUser, requestedUser);
+        ChatDto chatDto = new ChatDto(chatRepository.save(chat));
+        chatDto.setUser(new UserDto(requestedUser));
+        
+        return chatDto;
     }
 }
