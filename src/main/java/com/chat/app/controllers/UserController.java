@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/api/user/")
+@RequestMapping(value = "/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -40,12 +40,12 @@ public class UserController {
     }
     @PreAuthorize("hasRole('ROLE_ADMIN')")
 
-    @PostMapping(value = "/auth/adminRegistration")
+    @PostMapping(value = "/auth/registration")
     public UserDto register(@Valid UserSpec user){
         return new UserDto(userService.register(user,"ROLE_USER"));
     }
 
-    @PostMapping("/users/login")
+    @PostMapping("/login")
     public UserDetails login(){
         return (UserDetails) SecurityContextHolder
                 .getContext()
