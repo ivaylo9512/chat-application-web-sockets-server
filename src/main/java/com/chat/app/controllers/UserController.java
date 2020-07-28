@@ -5,7 +5,6 @@ import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.DTOs.UserDto;
 import com.chat.app.models.UserDetails;
-import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.UserService;
@@ -13,13 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/users")
@@ -75,13 +72,14 @@ public class UserController {
         return userDTOs;
     }
 
-    @GetMapping(value = "/getUserInfo")
+    @GetMapping(value = "/auth/getUserInfo")
     public UserDto getUserInfo(){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        return  new UserDto(userService.findById(loggedUser.getId()));
+        return new UserDto(userService.findById(loggedUser.getId()));
     }
+
     @PostMapping(value = "/auth/changeUserInfo")
     public UserDto changeUserInfo(@RequestBody UserSpec userModel){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
@@ -89,6 +87,7 @@ public class UserController {
 
         return new UserDto(userService.changeUserInfo(loggedUser.getId(), userModel));
     }
+
     @ExceptionHandler
     ResponseEntity handleUsernameExistsException(UsernameExistsException e) {
         return ResponseEntity
