@@ -75,6 +75,13 @@ public class UserController {
         return userDTOs;
     }
 
+    @GetMapping(value = "/getUserInfo")
+    public UserDto getUserInfo(){
+        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getDetails();
+
+        return  new UserDto(userService.findById(loggedUser.getId()));
+    }
     @PostMapping(value = "/auth/changeUserInfo")
     public UserDto changeUserInfo(@RequestBody UserSpec userModel){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()

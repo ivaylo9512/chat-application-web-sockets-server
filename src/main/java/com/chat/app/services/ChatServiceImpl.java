@@ -114,7 +114,7 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = new Chat(loggedUser, requestedUser);
         ChatDto chatDto = new ChatDto(chatRepository.save(chat));
         chatDto.setUser(new UserDto(requestedUser));
-        
+
         return chatDto;
     }
 }
