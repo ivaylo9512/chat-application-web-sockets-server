@@ -72,8 +72,8 @@ public class UserController {
         return userDTOs;
     }
 
-    @GetMapping(value = "/auth/getUserInfo")
-    public UserDto getUserInfo(){
+    @GetMapping(value = "/auth/getLoggedUser")
+    public UserDto getLoggedUser(){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 

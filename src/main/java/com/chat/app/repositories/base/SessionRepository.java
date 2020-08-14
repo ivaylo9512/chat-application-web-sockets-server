@@ -12,5 +12,5 @@ import java.util.List;
 
 public interface SessionRepository extends JpaRepository<Session, SessionPK> {
     @Query(value="from Session where chat = :chat")
-    List<Session> getSessions(@Param("chat") Chat chat, Pageable pageable);
+    List<Session> findSessions(@Param("chat") Chat chat, Pageable pageable);
 }

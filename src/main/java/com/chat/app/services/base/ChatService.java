@@ -12,7 +12,7 @@ public interface ChatService {
 
     Chat findById(int id);
 
-    List<ChatDto> getUserChats(int id, int pageSize);
+    List<ChatDto> findUserChats(int id, int pageSize);
 
     MessageDto addNewMessage(MessageDto messageDto);
 
@@ -20,6 +20,5 @@ public interface ChatService {
 
     boolean findIfUsersHaveChat(int firstUser, int secondUser);
 
-    List<Session> getChatSessions(int chatId, int page, int pageSize);
-
+    List<Session> findSessions(int chatId, int page, int pageSize);
 }

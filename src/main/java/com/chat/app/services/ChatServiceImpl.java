@@ -43,11 +43,11 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<ChatDto> getUserChats(int id, int pageSize) {
-        List<Chat> chats = chatRepository.findUserChats(id);
+    public List<ChatDto> findUserChats(int id, int pageSize) {
+        List<Chat> chats = chatRepository.findUserChats(id, PageRequest.of(0, pageSize));
         chats.forEach(chat -> chat
                 .setSessions(sessionRepository
-                        .getSessions(chat,
+                        .findSessions(chat,
                                 PageRequest.of(0, pageSize, Sort.Direction.DESC, "session_date"))));
         List<ChatDto> chatDtos = new ArrayList<>();
         chats.forEach(chat -> {
@@ -61,14 +61,17 @@ public class ChatServiceImpl implements ChatService {
         });
         return chatDtos;
     }
+
     @Override
     public boolean findIfUsersHaveChat(int firstUser, int secondUser){
 
         return chatRepository.findIfUsersHaveChat(firstUser, secondUser) != null;
     }
+
     @Override
-    public List<Session> getChatSessions(int chatId, int page, int pageSize){
-        return sessionRepository.getSessions(chatRepository.getOne(chatId), PageRequest.of(page, pageSize, Sort.Direction.DESC, "session_date"));
+    public List<Session> findSessions(int chatId, int page, int pageSize){
+        return sessionRepository.findSessions(chatRepository.getOne(chatId),
+                PageRequest.of(page, pageSize, Sort.Direction.DESC, "session_date"));
     }
 
     @Override
