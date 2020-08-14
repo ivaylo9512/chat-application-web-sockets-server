@@ -1,7 +1,6 @@
 package com.chat.app.services.base;
 
 import com.chat.app.models.Chat;
-import com.chat.app.models.DTOs.ChatDto;
 import com.chat.app.models.DTOs.MessageDto;
 import com.chat.app.models.Session;
 import com.chat.app.models.UserModel;
@@ -12,11 +11,11 @@ public interface ChatService {
 
     Chat findById(int id);
 
-    List<ChatDto> findUserChats(int id, int pageSize);
+    List<Chat> findUserChats(int id, int pageSize);
 
     MessageDto addNewMessage(MessageDto messageDto);
 
-    ChatDto createChat(UserModel loggedUser, UserModel requestedUser);
+    Chat createChat(UserModel loggedUser, UserModel requestedUser);
 
     boolean findIfUsersHaveChat(int firstUser, int secondUser);
 

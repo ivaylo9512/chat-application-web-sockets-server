@@ -2,7 +2,6 @@ package com.chat.app.models.DTOs;
 
 import com.chat.app.models.Chat;
 import com.chat.app.models.Session;
-
 import java.util.List;
 
 public class ChatDto {
@@ -16,6 +15,12 @@ public class ChatDto {
     public ChatDto(Chat chat) {
         this.id = chat.getId();
         this.sessions = chat.getSessions();
+    }
+
+    public ChatDto(Chat chat, UserDto user) {
+        this.id = chat.getId();
+        this.sessions = chat.getSessions();
+        this.user = user;
     }
 
     public UserDto getUser() {

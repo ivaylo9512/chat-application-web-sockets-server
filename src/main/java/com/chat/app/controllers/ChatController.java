@@ -19,6 +19,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import javax.transaction.Transactional;
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -36,15 +37,16 @@ public class ChatController {
     }
 
     @GetMapping("/getChats")
-    public List<ChatDto> getChats(@RequestParam(name = "pageSize") int pageSize){
+    public List<ChatDto> findUserChats(@RequestParam(name = "pageSize") int pageSize){
         UserDetails userDetails = (UserDetails)SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getDetails();
         int userId = userDetails.getId();
 
-        return chatService.getUserChats(userId, pageSize);
-
+        return chatService.findUserChats(userId, pageSize).stream()
+                .map(ChatDto::new)
+                .collect(Collectors.toList());
     }
 
     @GetMapping(value = "/nextSessions")
@@ -52,7 +54,7 @@ public class ChatController {
             @RequestParam(name = "chatId") int chatId,
             @RequestParam(name = "page") int page,
             @RequestParam(name = "pageSize") int pageSize){
-        return chatService.getChatSessions(chatId, page, pageSize);
+        return chatService.findSessions(chatId, page, pageSize);
     }
 
     @PostMapping("/create")
@@ -66,7 +68,7 @@ public class ChatController {
         UserModel loggedUser = userService.findById(loggedUserId);
         UserModel requestedUser = userService.findById(requestedUserId);
 
-        return chatService.createChat(loggedUser, requestedUser);
+        return new ChatDto(chatService.createChat(loggedUser, requestedUser));
     }
 
     @MessageMapping("/message")

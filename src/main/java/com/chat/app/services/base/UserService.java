@@ -6,7 +6,6 @@ import com.chat.app.models.specs.UserSpec;
 import java.util.List;
 
 public interface UserService {
-
     List<UserModel> findAll();
 
     UserModel findById(int id);

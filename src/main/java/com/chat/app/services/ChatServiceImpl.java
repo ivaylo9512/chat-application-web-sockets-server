@@ -43,23 +43,19 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<ChatDto> findUserChats(int id, int pageSize) {
+    public List<Chat> findUserChats(int id, int pageSize) {
         List<Chat> chats = chatRepository.findUserChats(id, PageRequest.of(0, pageSize));
-        chats.forEach(chat -> chat
-                .setSessions(sessionRepository
-                        .findSessions(chat,
-                                PageRequest.of(0, pageSize, Sort.Direction.DESC, "session_date"))));
-        List<ChatDto> chatDtos = new ArrayList<>();
         chats.forEach(chat -> {
-            ChatDto chatDto = new ChatDto(chat);
-            if(chat.getFirstUserModel().getId() == id){
-                chatDto.setUser(new UserDto(chat.getSecondUserModel()));
-            }else{
-                chatDto.setUser(new UserDto(chat.getFirstUserModel()));
+            chat.setSessions(sessionRepository.findSessions(chat,PageRequest.of(0, pageSize,
+                    Sort.Direction.DESC, "session_date")));
+
+            UserModel loggedUser = chat.getFirstUserModel();
+            if(loggedUser.getId() != id){
+                chat.setFirstUserModel(chat.getSecondUserModel());
+                chat.setSecondUserModel(loggedUser);
             }
-            chatDtos.add(chatDto);
         });
-        return chatDtos;
+        return chats;
     }
 
     @Override
@@ -108,16 +104,11 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatDto createChat(UserModel loggedUser, UserModel requestedUser) {
-
+    public Chat createChat(UserModel loggedUser, UserModel requestedUser) {
         if(findIfUsersHaveChat(loggedUser.getId(), requestedUser.getId())){
             throw new RuntimeException("Chat already exist");
         }
 
-        Chat chat = new Chat(loggedUser, requestedUser);
-        ChatDto chatDto = new ChatDto(chatRepository.save(chat));
-        chatDto.setUser(new UserDto(requestedUser));
-
-        return chatDto;
+        return chatRepository.save(new Chat(loggedUser, requestedUser));
     }
 }
