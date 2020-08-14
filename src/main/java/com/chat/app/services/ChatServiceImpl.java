@@ -1,26 +1,24 @@
 package com.chat.app.services;
 
-import com.chat.app.exceptions.ChatNotFoundException;
 import com.chat.app.models.Chat;
-import com.chat.app.models.DTOs.ChatDto;
 import com.chat.app.models.DTOs.MessageDto;
-import com.chat.app.models.DTOs.UserDto;
 import com.chat.app.models.Message;
 import com.chat.app.models.Session;
 import com.chat.app.models.UserModel;
 import com.chat.app.models.compositePK.SessionPK;
+import com.chat.app.models.specs.MessageSpec;
 import com.chat.app.repositories.base.ChatRepository;
 import com.chat.app.repositories.base.MessageRepository;
 import com.chat.app.repositories.base.SessionRepository;
+import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.services.base.ChatService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,17 +27,19 @@ public class ChatServiceImpl implements ChatService {
     private ChatRepository chatRepository;
     private SessionRepository sessionRepository;
     private MessageRepository messageRepository;
+    private UserRepository userRepository;
 
-    ChatServiceImpl(ChatRepository chatRepository, SessionRepository sessionRepository, MessageRepository messageRepository){
+    ChatServiceImpl(ChatRepository chatRepository, SessionRepository sessionRepository, MessageRepository messageRepository, UserRepository userRepository){
         this.chatRepository = chatRepository;
         this.sessionRepository = sessionRepository;
         this.messageRepository = messageRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     public Chat findById(int id) {
         return chatRepository.findById(id)
-                .orElseThrow(()-> new ChatNotFoundException(String.format("Chat with id %d is not found.", id)));
+                .orElseThrow(()-> new EntityNotFoundException(String.format("Chat with id %d is not found.", id)));
     }
 
     @Override
@@ -71,24 +71,27 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    @Transactional
-    public MessageDto addNewMessage(MessageDto messageDto) {
-        Chat chat = findById(messageDto.getChatId());
-        verifyMessage(messageDto, chat);
+    public Message addNewMessage(MessageSpec messageSpec) {
+        int sender = messageSpec.getSenderId();
+        int receiver = messageSpec.getReceiverId();
+
+        Chat chat = chatRepository.findById(messageSpec.getChatId())
+                .orElseThrow(()-> new EntityNotFoundException("Chat with id: " + messageSpec.getChatId() + " is not found."));
+
+        int chatFirstUser = chat.getFirstUserModel().getId();
+        int chatSecondUser = chat.getSecondUserModel().getId();
+
+        if ((sender != chatFirstUser && sender != chatSecondUser) || (receiver != chatFirstUser && receiver != chatSecondUser)) {
+            throw new EntityNotFoundException("Users don't match the given chat.");
+        }
 
         Session session = sessionRepository.findById(new SessionPK(chat,LocalDate.now()))
                 .orElse(new Session(chat, LocalDate.now()));
-        Message message = new Message(messageDto.getReceiverId(),LocalTime.now(),messageDto.getMessage(),session);
-        message = messageRepository.save(message);
 
-        String username = chat.getFirstUserModel().getId() == messageDto.getReceiverId()
-                ? chat.getFirstUserModel().getUsername() : chat.getSecondUserModel().getUsername();
+        UserModel user = userRepository.getOne(receiver);
+        Message message = new Message(user,LocalTime.now(),messageSpec.getMessage(),session);
 
-        messageDto.setTime(message.getTime());
-        messageDto.setSession(session.getDate());
-        messageDto.setUsername(username);
-
-        return messageDto;
+        return messageRepository.save(message);
     }
 
     private void verifyMessage(MessageDto messageDto, Chat chat) {
@@ -99,7 +102,7 @@ public class ChatServiceImpl implements ChatService {
         int chatSecondUser = chat.getSecondUserModel().getId();
 
         if ((sender != chatFirstUser && sender != chatSecondUser) || (receiver != chatFirstUser && receiver != chatSecondUser)) {
-            throw new ChatNotFoundException("Users don't match the given chat.");
+            throw new EntityNotFoundException("Users don't match the given chat.");
         }
     }
 

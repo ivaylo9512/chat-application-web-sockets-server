@@ -2,9 +2,11 @@ package com.chat.app.controllers;
 
 import com.chat.app.models.DTOs.ChatDto;
 import com.chat.app.models.DTOs.MessageDto;
+import com.chat.app.models.Message;
 import com.chat.app.models.Session;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
+import com.chat.app.models.specs.MessageSpec;
 import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -72,7 +74,7 @@ public class ChatController {
     }
 
     @MessageMapping("/message")
-    public void message(Principal principal, MessageDto message, SimpMessageHeaderAccessor headers) throws  Exception {
+    public void message(Principal principal, MessageSpec messageSpec, SimpMessageHeaderAccessor headers) throws  Exception {
         UserDetails loggedUser;
         try{
             String auth = headers.getNativeHeader("Authorization").get(0);
@@ -81,10 +83,10 @@ public class ChatController {
         }catch (Exception e){
             throw new BadCredentialsException("Jwt token is missing or is incorrect.");
         }
-        message.setSenderId(loggedUser.getId());
-        chatService.addNewMessage(message);
+        messageSpec.setSenderId(loggedUser.getId());
+        MessageDto message = new MessageDto(chatService.addNewMessage(messageSpec));
 
-        messagingTemplate.convertAndSendToUser(message.getUsername(), "/message", message);
+        messagingTemplate.convertAndSendToUser(String.valueOf(message.getReceiverId()), "/message", message);
     }
 
     @MessageMapping("/createChat")

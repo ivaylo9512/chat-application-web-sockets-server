@@ -5,17 +5,17 @@ import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.UserSpec;
-import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import com.chat.app.exceptions.UserNotFoundException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     @Override
     public UserModel findById(int id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User doesn't exist."));
+                .orElseThrow(() -> new EntityNotFoundException("User doesn't exist."));
     }
     @Override
     public List<UserModel> findByUsernameWithRegex(String username){
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UserNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         UserModel userModel = userRepository.findByUsername(username);
         if(userModel == null){
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     @Override
     public UserModel changeUserInfo(int loggedUser, UserSpec userSpec){
         UserModel user = userRepository.findById(loggedUser)
-                .orElseThrow(() -> new UserNotFoundException("Username not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Username not found."));
         user.setFirstName(userSpec.getFirstName());
         user.setLastName(userSpec.getLastName());
         user.setAge(userSpec.getAge());
