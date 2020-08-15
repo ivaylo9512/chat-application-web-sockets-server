@@ -1,7 +1,6 @@
 package com.chat.app.models.DTOs;
 
 import com.chat.app.models.Message;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -10,7 +9,6 @@ public class MessageDto {
     private int senderId;
     private int receiverId;
 
-    private String username;
     private String message;
     private LocalTime time;
     private LocalDate session;
@@ -27,7 +25,7 @@ public class MessageDto {
     public MessageDto(Message message) {
         this.message = message.getMessage();
         this.chatId = message.getSession().getChat().getId();
-        this.receiverId = message.getReceiverId();
+        this.receiverId = message.getReceiver().getId();
         this.time = message.getTime();
         this.session = message.getSession().getDate();
     }
@@ -78,13 +76,5 @@ public class MessageDto {
 
     public void setSession(LocalDate session) {
         this.session = session;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 }

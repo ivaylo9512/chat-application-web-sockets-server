@@ -1,10 +1,12 @@
 package com.chat.app.models.DTOs;
 
 
+import com.chat.app.models.Chat;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
-
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserDto {
     private int id;
@@ -15,6 +17,7 @@ public class UserDto {
     private String country;
     private String role;
     private String profilePicture;
+    private List<ChatDto> chats;
     private boolean hasChatWithLoggedUser;
 
     public UserDto(UserDetails userDetails){
@@ -23,10 +26,32 @@ public class UserDto {
         this.age = userDetails.getAge();
         this.firstName = userDetails.getFirstName();
         this.lastName = userDetails.getLastName();
-        this.age = userDetails.getAge();
         this.country = userDetails.getCountry();
         this.profilePicture = userDetails.getProfilePicture();
         this.role = new ArrayList<>(userDetails.getAuthorities()).get(0).getAuthority();
+    }
+    public UserDto(UserDetails userDetails, List<Chat> chats){
+        this.id = userDetails.getId();
+        this.username    = userDetails.getUsername();
+        this.age = userDetails.getAge();
+        this.firstName = userDetails.getFirstName();
+        this.lastName = userDetails.getLastName();
+        this.country = userDetails.getCountry();
+        this.profilePicture = userDetails.getProfilePicture();
+        this.role = new ArrayList<>(userDetails.getAuthorities()).get(0).getAuthority();
+        this.chats = chats.stream().map(ChatDto::new).collect(Collectors.toList());
+    }
+
+    public UserDto(UserModel userModel, List<Chat> chats){
+        this.id = userModel.getId();
+        this.username = userModel.getUsername();
+        this.age = userModel.getAge();
+        this.firstName = userModel.getFirstName();
+        this.lastName = userModel.getLastName();
+        this.country = userModel.getCountry();
+        this.profilePicture = userModel.getProfilePicture();
+        this.role = userModel.getRole();
+        this.chats = chats.stream().map(ChatDto::new).collect(Collectors.toList());
     }
 
     public UserDto(UserModel userModel){
@@ -36,8 +61,8 @@ public class UserDto {
         this.firstName = userModel.getFirstName();
         this.lastName = userModel.getLastName();
         this.country = userModel.getCountry();
-        this.role = userModel.getRole();
         this.profilePicture = userModel.getProfilePicture();
+        this.role = userModel.getRole();
     }
 
     public String getUsername() {
@@ -110,5 +135,13 @@ public class UserDto {
 
     public void setHasChatWithLoggedUser(boolean hasChatWithLoggedUser) {
         this.hasChatWithLoggedUser = hasChatWithLoggedUser;
+    }
+
+    public List<ChatDto> getChats() {
+        return chats;
+    }
+
+    public void setChats(List<ChatDto> chats) {
+        this.chats = chats;
     }
 }
