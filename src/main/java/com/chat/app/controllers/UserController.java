@@ -42,14 +42,13 @@ public class UserController {
         return new UserDto(userService.register(user,"ROLE_USER"));
     }
 
-    @PostMapping("/login")
-    public UserDetails login(){
-        return (UserDetails) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-    }
+    @PostMapping("/login/{pageSize}")
+    public UserDto login(@PathVariable("pageSize") int pageSize){
+        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getDetails();
 
+        return new UserDto(loggedUser, chatService.findUserChats(loggedUser.getId(), pageSize));
+    }
 
     @GetMapping(value = "/findById/{id}")
     public UserDto findById(@PathVariable(name = "id") int id){
@@ -72,12 +71,13 @@ public class UserController {
         return userDTOs;
     }
 
-    @GetMapping(value = "/auth/getLoggedUser")
-    public UserDto getLoggedUser(){
+    @GetMapping(value = "/auth/getLoggedUser/{pageSize}")
+    public UserDto getLoggedUser(@PathVariable("pageSize") int pageSize){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        return new UserDto(userService.findById(loggedUser.getId()));
+        return new UserDto(userService.findById(loggedUser.getId()),
+                chatService.findUserChats(loggedUser.getId(), pageSize));
     }
 
     @PostMapping(value = "/auth/changeUserInfo")

@@ -60,7 +60,6 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public boolean findIfUsersHaveChat(int firstUser, int secondUser){
-
         return chatRepository.findIfUsersHaveChat(firstUser, secondUser) != null;
     }
 
@@ -72,31 +71,23 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Message addNewMessage(MessageSpec messageSpec) {
-        int sender = messageSpec.getSenderId();
-        int receiver = messageSpec.getReceiverId();
-
         Chat chat = chatRepository.findById(messageSpec.getChatId())
                 .orElseThrow(()-> new EntityNotFoundException("Chat with id: " + messageSpec.getChatId() + " is not found."));
 
-        int chatFirstUser = chat.getFirstUserModel().getId();
-        int chatSecondUser = chat.getSecondUserModel().getId();
-
-        if ((sender != chatFirstUser && sender != chatSecondUser) || (receiver != chatFirstUser && receiver != chatSecondUser)) {
-            throw new EntityNotFoundException("Users don't match the given chat.");
-        }
+        verifyMessage(messageSpec, chat);
 
         Session session = sessionRepository.findById(new SessionPK(chat,LocalDate.now()))
                 .orElse(new Session(chat, LocalDate.now()));
 
-        UserModel user = userRepository.getOne(receiver);
+        UserModel user = userRepository.getOne(messageSpec.getReceiverId());
         Message message = new Message(user,LocalTime.now(),messageSpec.getMessage(),session);
 
         return messageRepository.save(message);
     }
 
-    private void verifyMessage(MessageDto messageDto, Chat chat) {
-        int sender = messageDto.getSenderId();
-        int receiver = messageDto.getReceiverId();
+    private void verifyMessage(MessageSpec message, Chat chat) {
+        int sender = message.getSenderId();
+        int receiver = message.getReceiverId();
 
         int chatFirstUser = chat.getFirstUserModel().getId();
         int chatSecondUser = chat.getSecondUserModel().getId();
