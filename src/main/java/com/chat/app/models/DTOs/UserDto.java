@@ -4,7 +4,7 @@ import com.chat.app.models.Chat;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,7 +39,8 @@ public class UserDto {
         this.country = userDetails.getCountry();
         this.profilePicture = userDetails.getProfilePicture();
         this.role = new ArrayList<>(userDetails.getAuthorities()).get(0).getAuthority();
-        this.chats = chats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto((Chat)o)));
+        this.chats = chats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto((Chat) o), (existing, replacement) -> existing, LinkedHashMap::new));
+
     }
 
     public UserDto(UserModel userModel, Map<Integer, Chat> chats){
@@ -51,7 +52,7 @@ public class UserDto {
         this.country = userModel.getCountry();
         this.profilePicture = userModel.getProfilePicture();
         this.role = userModel.getRole();
-        this.chats = chats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto((Chat)o)));
+        this.chats = chats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto((Chat) o), (existing, replacement) -> existing, LinkedHashMap::new));
     }
 
     public UserDto(UserModel userModel){
