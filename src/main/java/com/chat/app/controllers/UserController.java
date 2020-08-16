@@ -35,18 +35,17 @@ public class UserController {
     public UserDto registerAdmin(@Valid UserSpec user){
         return new UserDto(userService.register(user,"ROLE_ADMIN"));
     }
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = "/auth/registration")
     public UserDto register(@Valid UserSpec user){
         return new UserDto(userService.register(user,"ROLE_USER"));
     }
 
-    @PostMapping("/login/{pageSize}")
-    public UserDto login(@PathVariable("pageSize") int pageSize){
+    @PostMapping("/login")
+    public UserDto login(@RequestParam("pageSize") int pageSize){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
-                .getAuthentication().getDetails();
-
+                .getAuthentication().getPrincipal();
         return new UserDto(loggedUser, chatService.findUserChats(loggedUser.getId(), pageSize));
     }
 
