@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -43,9 +45,9 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<Chat> findUserChats(int id, int pageSize) {
-        List<Chat> chats = chatRepository.findUserChats(id, PageRequest.of(0, pageSize));
-        chats.forEach(chat -> {
+    public Map<Integer, Chat> findUserChats(int id, int pageSize) {
+        Map<Integer, Chat> chatsMap = new LinkedHashMap<>();
+        chatRepository.findUserChats(id, PageRequest.of(0, pageSize)).forEach(chat -> {
             chat.setSessions(sessionRepository.findSessions(chat, PageRequest.of(0, pageSize,
                     Sort.Direction.DESC, "session_date")));
 
@@ -54,8 +56,10 @@ public class ChatServiceImpl implements ChatService {
                 chat.setFirstUserModel(chat.getSecondUserModel());
                 chat.setSecondUserModel(loggedUser);
             }
+
+            chatsMap.put(chat.getId(), chat);
         });
-        return chats;
+        return chatsMap;
     }
 
     @Override

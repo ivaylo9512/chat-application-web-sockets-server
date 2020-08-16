@@ -1,11 +1,8 @@
 package com.chat.app.controllers;
 
+import com.chat.app.models.*;
 import com.chat.app.models.DTOs.ChatDto;
 import com.chat.app.models.DTOs.MessageDto;
-import com.chat.app.models.Message;
-import com.chat.app.models.Session;
-import com.chat.app.models.UserDetails;
-import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.MessageSpec;
 import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.UserService;
@@ -21,6 +18,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import javax.transaction.Transactional;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -39,16 +37,16 @@ public class ChatController {
     }
 
     @GetMapping("/getChats")
-    public List<ChatDto> findUserChats(@RequestParam(name = "pageSize") int pageSize){
+    public Map<Integer, ChatDto> findUserChats(@RequestParam(name = "pageSize") int pageSize){
         UserDetails userDetails = (UserDetails)SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getDetails();
         int userId = userDetails.getId();
 
-        return chatService.findUserChats(userId, pageSize).stream()
-                .map(ChatDto::new)
-                .collect(Collectors.toList());
+        return chatService.findUserChats(userId, pageSize).entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto((Chat) o)));
+
     }
 
     @GetMapping(value = "/nextSessions")

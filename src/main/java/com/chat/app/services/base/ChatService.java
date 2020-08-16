@@ -7,12 +7,13 @@ import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.MessageSpec;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ChatService {
 
     Chat findById(int id);
 
-    List<Chat> findUserChats(int id, int pageSize);
+    Map<Integer, Chat> findUserChats(int id, int pageSize);
 
     Message addNewMessage(MessageSpec messageDto);
 

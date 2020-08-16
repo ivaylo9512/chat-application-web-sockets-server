@@ -1,11 +1,11 @@
 package com.chat.app.models.DTOs;
 
-
 import com.chat.app.models.Chat;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class UserDto {
@@ -17,7 +17,7 @@ public class UserDto {
     private String country;
     private String role;
     private String profilePicture;
-    private List<ChatDto> chats;
+    private Map<Integer, ChatDto> chats;
     private boolean hasChatWithLoggedUser;
 
     public UserDto(UserDetails userDetails){
@@ -30,7 +30,7 @@ public class UserDto {
         this.profilePicture = userDetails.getProfilePicture();
         this.role = new ArrayList<>(userDetails.getAuthorities()).get(0).getAuthority();
     }
-    public UserDto(UserDetails userDetails, List<Chat> chats){
+    public UserDto(UserDetails userDetails, Map<Integer, Chat> chats){
         this.id = userDetails.getId();
         this.username    = userDetails.getUsername();
         this.age = userDetails.getAge();
@@ -39,10 +39,10 @@ public class UserDto {
         this.country = userDetails.getCountry();
         this.profilePicture = userDetails.getProfilePicture();
         this.role = new ArrayList<>(userDetails.getAuthorities()).get(0).getAuthority();
-        this.chats = chats.stream().map(ChatDto::new).collect(Collectors.toList());
+        this.chats = chats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto((Chat)o)));
     }
 
-    public UserDto(UserModel userModel, List<Chat> chats){
+    public UserDto(UserModel userModel, Map<Integer, Chat> chats){
         this.id = userModel.getId();
         this.username = userModel.getUsername();
         this.age = userModel.getAge();
@@ -51,7 +51,7 @@ public class UserDto {
         this.country = userModel.getCountry();
         this.profilePicture = userModel.getProfilePicture();
         this.role = userModel.getRole();
-        this.chats = chats.stream().map(ChatDto::new).collect(Collectors.toList());
+        this.chats = chats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto((Chat)o)));
     }
 
     public UserDto(UserModel userModel){
@@ -137,11 +137,11 @@ public class UserDto {
         this.hasChatWithLoggedUser = hasChatWithLoggedUser;
     }
 
-    public List<ChatDto> getChats() {
+    public Map<Integer, ChatDto> getChats() {
         return chats;
     }
 
-    public void setChats(List<ChatDto> chats) {
+    public void setChats(Map<Integer, ChatDto> chats) {
         this.chats = chats;
     }
 }
