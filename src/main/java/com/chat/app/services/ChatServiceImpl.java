@@ -46,7 +46,7 @@ public class ChatServiceImpl implements ChatService {
     public List<Chat> findUserChats(int id, int pageSize) {
         List<Chat> chats = chatRepository.findUserChats(id, PageRequest.of(0, pageSize));
         chats.forEach(chat -> {
-            chat.setSessions(sessionRepository.findSessions(chat,PageRequest.of(0, pageSize,
+            chat.setSessions(sessionRepository.findSessions(chat, PageRequest.of(0, pageSize,
                     Sort.Direction.DESC, "session_date")));
 
             UserModel loggedUser = chat.getFirstUserModel();
