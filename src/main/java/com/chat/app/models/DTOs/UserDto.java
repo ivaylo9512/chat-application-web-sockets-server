@@ -39,7 +39,9 @@ public class UserDto {
         this.country = userDetails.getCountry();
         this.profilePicture = userDetails.getProfilePicture();
         this.role = new ArrayList<>(userDetails.getAuthorities()).get(0).getAuthority();
-        this.chats = chats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto((Chat) o), (existing, replacement) -> existing, LinkedHashMap::new));
+        this.chats = chats.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto(o.getValue()),
+                        (existing, replacement) -> existing, LinkedHashMap::new));
 
     }
 
@@ -52,7 +54,9 @@ public class UserDto {
         this.country = userModel.getCountry();
         this.profilePicture = userModel.getProfilePicture();
         this.role = userModel.getRole();
-        this.chats = chats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto((Chat) o), (existing, replacement) -> existing, LinkedHashMap::new));
+        this.chats = chats.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto(o.getValue()),
+                        (existing, replacement) -> existing, LinkedHashMap::new));
     }
 
     public UserDto(UserModel userModel){

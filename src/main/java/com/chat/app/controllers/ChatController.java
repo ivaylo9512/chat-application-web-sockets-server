@@ -46,7 +46,8 @@ public class ChatController {
         int userId = userDetails.getId();
 
         return chatService.findUserChats(userId, pageSize).entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto((Chat) o), (existing, replacement) -> existing, LinkedHashMap::new));
+                .collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto(o.getValue()),
+                        (existing, replacement) -> existing, LinkedHashMap::new));
 
     }
 
