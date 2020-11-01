@@ -1,4 +1,4 @@
-package com.tick42.quicksilver.exceptions;
+package com.chat.app.exceptions;
 
 public class FileNotFoundUncheckedException extends RuntimeException {
 

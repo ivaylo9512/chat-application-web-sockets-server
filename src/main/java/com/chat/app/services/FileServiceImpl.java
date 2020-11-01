@@ -1,10 +1,10 @@
 package com.chat.app.services;
 
+import com.chat.app.exceptions.FileNotFoundUncheckedException;
 import com.chat.app.services.base.FileService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,17 +26,17 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Resource loadFileAsResource(String fileName) throws FileNotFoundException {
+    public Resource loadFileAsResource(String fileName) throws FileNotFoundUncheckedException {
         try {
             Path filePath = this.fileLocation.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists()) {
                 return resource;
             } else {
-                throw new FileNotFoundException("File not found");
+                throw new FileNotFoundUncheckedException("File not found");
             }
         } catch (MalformedURLException e) {
-            throw new FileNotFoundException("File not found " + e);
+            throw new FileNotFoundUncheckedException("File not found " + e);
         }
     }
 }
