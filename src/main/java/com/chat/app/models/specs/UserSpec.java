@@ -1,9 +1,6 @@
 package com.chat.app.models.specs;
 
-
-
 import com.chat.app.models.UserModel;
-
 import javax.validation.constraints.Size;
 
 public class UserSpec {

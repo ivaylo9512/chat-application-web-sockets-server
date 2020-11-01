@@ -9,12 +9,10 @@ import com.chat.app.services.base.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.chat.app.security.Jwt;
-
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
-
 import javax.transaction.Transactional;
 import java.security.Principal;
 import java.util.LinkedHashMap;

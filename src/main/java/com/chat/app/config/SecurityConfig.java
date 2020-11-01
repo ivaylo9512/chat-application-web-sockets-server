@@ -1,4 +1,5 @@
 package com.chat.app.config;
+
 import com.chat.app.security.*;
 import com.chat.app.services.UserServiceImpl;
 import org.apache.http.HttpHeaders;

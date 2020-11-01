@@ -1,6 +1,5 @@
 package com.chat.app.config;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -19,11 +18,9 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.time.format.DateTimeFormatter;
-
 import static java.time.format.DateTimeFormatter.ofPattern;
 
 @Configuration

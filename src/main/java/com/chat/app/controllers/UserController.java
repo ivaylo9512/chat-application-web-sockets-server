@@ -1,6 +1,5 @@
 package com.chat.app.controllers;
 
-
 import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.DTOs.UserDto;

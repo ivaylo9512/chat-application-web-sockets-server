@@ -1,4 +1,5 @@
 package com.chat.app.security;
+
 import com.chat.app.models.UserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;

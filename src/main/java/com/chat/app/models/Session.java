@@ -2,7 +2,6 @@ package com.chat.app.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.chat.app.models.compositePK.SessionPK;
-
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;

@@ -1,9 +1,6 @@
 package com.chat.app.models;
 
-
-
 import com.chat.app.models.specs.UserSpec;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

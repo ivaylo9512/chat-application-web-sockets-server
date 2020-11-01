@@ -1,4 +1,5 @@
 package com.chat.app.services;
+
 import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.exceptions.UsernameExistsException;
@@ -14,7 +15,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,8 +1,6 @@
 package com.chat.app.models.compositePK;
 
-
 import com.chat.app.models.Chat;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
