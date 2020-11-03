@@ -2,6 +2,7 @@ package com.chat.app.services;
 
 import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.models.specs.NewPasswordSpec;
+import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.UserDetails;
@@ -10,6 +11,7 @@ import com.chat.app.models.specs.UserSpec;
 import com.chat.app.services.base.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -48,20 +50,30 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     }
 
     @Override
-    public UserModel register(UserSpec userSpec, String role) {
-        UserModel userModel = userRepository.findByUsername(userSpec.getUsername());
+    public UserModel register(RegisterSpec newUser, String role) {
+        UserModel user = userRepository.findByUsername(newUser.getUsername());
 
-        if (userModel != null) {
+        if (user != null) {
             throw new UsernameExistsException("Username is already taken.");
         }
 
-        if(!userSpec.getPassword().equals(userSpec.getRepeatPassword())){
-            throw new PasswordsMissMatchException("Password don't match");
+        user = new UserModel(newUser, role);
+        user.setPassword(BCrypt.hashpw(user.getPassword(),BCrypt.gensalt(4)));
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public void delete(long id, UserDetails loggedUser) {
+        UserModel user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+
+        if(id != loggedUser.getId() &&
+                !AuthorityUtils.authorityListToSet(loggedUser.getAuthorities()).contains("ROLE_ADMIN")){
+            throw new UserProfileUnavailableException("You are not allowed to modify the user.");
         }
 
-        userModel = new UserModel(userSpec, role);
-        userModel.setPassword(BCrypt.hashpw(userModel.getPassword(),BCrypt.gensalt(4)));
-        return userRepository.save(userModel);
+        userRepository.delete(user);
     }
 
     @Override
