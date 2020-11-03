@@ -1,6 +1,7 @@
 package com.chat.app.services;
 
 import com.chat.app.exceptions.PasswordsMissMatchException;
+import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.UserDetails;
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     }
 
     @Override
-    public List<UserModel> findAll() { ;
+    public List<UserModel> findAll() {
         return userRepository.findAll();
     }
 
@@ -86,5 +87,21 @@ public class UserServiceImpl implements UserService,UserDetailsService {
         user.setCountry(userSpec.getCountry());
 
         return userRepository.save(user);
+    }
+
+    @Override
+    public UserModel changePassword(NewPasswordSpec passwordSpec){
+        UserModel user = userRepository.findByUsername(passwordSpec.getUsername());
+
+        if(user == null){
+            throw new EntityNotFoundException("User with" + passwordSpec.getUsername() + "is not found.");
+        }
+
+        if (!user.getPassword().equals(passwordSpec.getCurrentPassword())){
+            throw new BadCredentialsException("Invalid current password.");
+        }
+        user.setPassword(passwordSpec.getNewPassword());
+        return userRepository.save(user);
+
     }
 }
