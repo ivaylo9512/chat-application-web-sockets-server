@@ -1,9 +1,12 @@
 package com.chat.app.models.specs;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class RegisterSpec {
     private String username;
     private String password;
     private String repeatPassword;
+    private MultipartFile profileImage;
 
     public RegisterSpec() {
 
@@ -31,5 +34,13 @@ public class RegisterSpec {
 
     public void setRepeatPassword(String repeatPassword) {
         this.repeatPassword = repeatPassword;
+    }
+
+    public MultipartFile getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(MultipartFile profileImage) {
+        this.profileImage = profileImage;
     }
 }

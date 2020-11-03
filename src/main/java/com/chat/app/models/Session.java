@@ -15,11 +15,11 @@ public class Session {
     private Chat chat;
 
     @Id
-    @Column(name = "date")
     private LocalDate date;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "session", cascade = CascadeType.ALL)
     private List<Message> messages;
+
     public Session() {
     }
 

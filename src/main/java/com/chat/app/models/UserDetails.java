@@ -12,7 +12,7 @@ public class UserDetails extends User {
     private String lastName;
     private int age;
     private String country;
-    private String profilePicture;
+    private String profileImage;
 
     public UserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, int id){
         super(username,password,authorities);
@@ -26,7 +26,7 @@ public class UserDetails extends User {
         this.lastName = userModel.getLastName();
         this.age = userModel.getAge();
         this.country = userModel.getCountry();
-        this.profilePicture = userModel.getProfilePicture();
+        this.profileImage = userModel.getSetProfileImage();
     }
     public int getId() {
         return id;
@@ -68,11 +68,11 @@ public class UserDetails extends User {
         this.country = country;
     }
 
-    public String getProfilePicture() {
-        return profilePicture;
+    public String getProfileImage() {
+        return profileImage;
     }
 
-    public void setProfilePicture(String profilePicture) {
-        this.profilePicture = profilePicture;
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

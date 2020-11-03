@@ -16,16 +16,13 @@ public class Message{
     @JoinColumn(name = "receiver")
     private UserModel receiver;
 
-    @Column(name = "time")
-    private LocalTime time;
-
-    @Column(name = "message")
-    private String message;
-
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumns({@JoinColumn(name = "chat"),@JoinColumn(name = "session_date")})
     private Session session;
+
+    private LocalTime time;
+    private String message;
 
     public Message(UserModel receiver, LocalTime time, String message, Session session){
         this.receiver = receiver;
