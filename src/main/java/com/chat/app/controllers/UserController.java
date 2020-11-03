@@ -4,15 +4,22 @@ import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.DTOs.UserDto;
 import com.chat.app.models.UserDetails;
+import com.chat.app.models.UserModel;
+import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.services.base.ChatService;
+import com.chat.app.services.base.FileService;
 import com.chat.app.services.base.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,10 +29,12 @@ public class UserController {
 
     private final UserService userService;
     private final ChatService chatService;
+    private final FileService fileService;
 
-    public UserController(UserService userService, ChatService chatService) {
+    public UserController(UserService userService, ChatService chatService, FileService fileService) {
         this.userService = userService;
         this.chatService = chatService;
+        this.fileService = fileService;
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -34,12 +43,21 @@ public class UserController {
         return new UserDto(userService.register(user,"ROLE_ADMIN"));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping(value = "/auth/registration")
-    public UserDto register(@Valid UserSpec user){
-        return new UserDto(userService.register(user,"ROLE_USER"));
-    }
+    @PostMapping(value = "/register")
+    public UserDetails register(@ModelAttribute RegisterSpec registerSpec) throws IOException, BindException {
+        UserModel newUser = userService.register(registerSpec, "ROLE_USER");
 
+        if(registerSpec.getProfileImage() != null){
+            File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "logo");
+            newUser.setProfileImage(profileImage);
+        }
+
+        userService.create(newUser);
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(newUser.getRole()));
+
+        return new UserDetails(newUser, authorities);
+    }
     @PostMapping("/login")
     public UserDto login(@RequestParam("pageSize") int pageSize){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
