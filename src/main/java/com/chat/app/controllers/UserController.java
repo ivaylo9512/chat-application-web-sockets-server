@@ -52,7 +52,7 @@ public class UserController {
             newUser.setProfileImage(profileImage);
         }
 
-        userService.create(newUser);
+        userService.register(newUser);
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(newUser.getRole()));
 
@@ -62,7 +62,7 @@ public class UserController {
     public UserDto login(@RequestParam("pageSize") int pageSize){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
-        return new UserDto(loggedUser, chatService.findUserChats(loggedUser.getId(), pageSize));
+        return new UserDto(loggedUser.getUserModel(), chatService.findUserChats(loggedUser.getId(), pageSize));
     }
 
     @GetMapping(value = "/findById/{id}")
