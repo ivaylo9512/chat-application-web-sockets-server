@@ -1,9 +1,7 @@
 package com.chat.app.models.DTOs;
 
 import com.chat.app.models.Chat;
-import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,34 +14,9 @@ public class UserDto {
     private int age;
     private String country;
     private String role;
-    private String profilePicture;
+    private String profileImage;
     private Map<Integer, ChatDto> chats;
     private boolean hasChatWithLoggedUser;
-
-    public UserDto(UserDetails userDetails){
-        this.id = userDetails.getId();
-        this.username    = userDetails.getUsername();
-        this.age = userDetails.getAge();
-        this.firstName = userDetails.getFirstName();
-        this.lastName = userDetails.getLastName();
-        this.country = userDetails.getCountry();
-        this.profilePicture = userDetails.getProfilePicture();
-        this.role = new ArrayList<>(userDetails.getAuthorities()).get(0).getAuthority();
-    }
-    public UserDto(UserDetails userDetails, Map<Integer, Chat> chats){
-        this.id = userDetails.getId();
-        this.username    = userDetails.getUsername();
-        this.age = userDetails.getAge();
-        this.firstName = userDetails.getFirstName();
-        this.lastName = userDetails.getLastName();
-        this.country = userDetails.getCountry();
-        this.profilePicture = userDetails.getProfilePicture();
-        this.role = new ArrayList<>(userDetails.getAuthorities()).get(0).getAuthority();
-        this.chats = chats.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto(o.getValue()),
-                        (existing, replacement) -> existing, LinkedHashMap::new));
-
-    }
 
     public UserDto(UserModel userModel, Map<Integer, Chat> chats){
         this.id = userModel.getId();
@@ -52,7 +25,7 @@ public class UserDto {
         this.firstName = userModel.getFirstName();
         this.lastName = userModel.getLastName();
         this.country = userModel.getCountry();
-        this.profilePicture = userModel.getProfilePicture();
+        this.profileImage = userModel.getProfileImage();
         this.role = userModel.getRole();
         this.chats = chats.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto(o.getValue()),
@@ -66,7 +39,7 @@ public class UserDto {
         this.firstName = userModel.getFirstName();
         this.lastName = userModel.getLastName();
         this.country = userModel.getCountry();
-        this.profilePicture = userModel.getProfilePicture();
+        this.profileImage = userModel.getProfileImage();
         this.role = userModel.getRole();
     }
 
@@ -126,14 +99,6 @@ public class UserDto {
         this.country = country;
     }
 
-    public String getProfilePicture() {
-        return profilePicture;
-    }
-
-    public void setProfilePicture(String profilePicture) {
-        this.profilePicture = profilePicture;
-    }
-
     public boolean isHasChatWithLoggedUser() {
         return hasChatWithLoggedUser;
     }
@@ -148,5 +113,13 @@ public class UserDto {
 
     public void setChats(Map<Integer, ChatDto> chats) {
         this.chats = chats;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }
