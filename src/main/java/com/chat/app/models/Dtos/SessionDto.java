@@ -1,4 +1,4 @@
-package com.chat.app.models.DTOs;
+package com.chat.app.models.Dtos;
 
 import com.chat.app.models.Message;
 import com.chat.app.models.Session;

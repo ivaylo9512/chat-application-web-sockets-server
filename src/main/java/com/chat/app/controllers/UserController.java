@@ -2,7 +2,7 @@ package com.chat.app.controllers;
 
 import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UsernameExistsException;
-import com.chat.app.models.DTOs.UserDto;
+import com.chat.app.models.Dtos.UserDto;
 import com.chat.app.models.File;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import javax.validation.Valid;
+
 import java.util.ArrayList;
 import java.util.List;
 

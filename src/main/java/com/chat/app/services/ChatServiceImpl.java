@@ -1,7 +1,6 @@
 package com.chat.app.services;
 
 import com.chat.app.models.Chat;
-import com.chat.app.models.DTOs.MessageDto;
 import com.chat.app.models.Message;
 import com.chat.app.models.Session;
 import com.chat.app.models.UserModel;

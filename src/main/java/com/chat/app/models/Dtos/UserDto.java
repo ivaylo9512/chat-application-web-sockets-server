@@ -1,4 +1,4 @@
-package com.chat.app.models.DTOs;
+package com.chat.app.models.Dtos;
 
 import com.chat.app.models.Chat;
 import com.chat.app.models.UserModel;
@@ -25,7 +25,7 @@ public class UserDto {
         this.firstName = userModel.getFirstName();
         this.lastName = userModel.getLastName();
         this.country = userModel.getCountry();
-        this.profileImage = userModel.getProfileImage();
+        this.profileImage = userModel.getProfileImage().getName();
         this.role = userModel.getRole();
         this.chats = chats.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto(o.getValue()),
@@ -39,7 +39,7 @@ public class UserDto {
         this.firstName = userModel.getFirstName();
         this.lastName = userModel.getLastName();
         this.country = userModel.getCountry();
-        this.profileImage = userModel.getProfileImage();
+        this.profileImage = userModel.getProfileImage().getName();
         this.role = userModel.getRole();
     }
 

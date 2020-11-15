@@ -1,8 +1,8 @@
 package com.chat.app.controllers;
 
 import com.chat.app.models.*;
-import com.chat.app.models.DTOs.ChatDto;
-import com.chat.app.models.DTOs.MessageDto;
+import com.chat.app.models.Dtos.ChatDto;
+import com.chat.app.models.Dtos.MessageDto;
 import com.chat.app.models.specs.MessageSpec;
 import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.UserService;
