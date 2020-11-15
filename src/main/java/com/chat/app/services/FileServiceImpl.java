@@ -1,15 +1,16 @@
 package com.chat.app.services;
 
+import com.chat.app.exceptions.FileFormatException;
 import com.chat.app.exceptions.FileNotFoundUncheckedException;
 import com.chat.app.exceptions.FileStorageException;
+import com.chat.app.models.File;
+import com.chat.app.repositories.base.FileRepository;
 import com.chat.app.services.base.FileService;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -20,8 +21,10 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class FileServiceImpl implements FileService {
     private final Path fileLocation;
+    private final FileRepository fileRepository;
 
-    public FileServiceImpl() {
+    public FileServiceImpl(FileRepository fileRepository) {
+        this.fileRepository = fileRepository;
         this.fileLocation = Paths.get("./uploads")
                 .toAbsolutePath().normalize();
 

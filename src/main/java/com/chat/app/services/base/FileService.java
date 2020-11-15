@@ -1,9 +1,8 @@
 package com.chat.app.services.base;
 
+import com.chat.app.models.File;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 import java.io.FileNotFoundException;
 
 public interface FileService {
