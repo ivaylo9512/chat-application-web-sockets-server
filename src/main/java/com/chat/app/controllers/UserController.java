@@ -35,9 +35,16 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping(value = "/auth/adminRegistration")
-    public UserDto registerAdmin(@Valid UserSpec user){
-        return new UserDto(userService.register(user,"ROLE_ADMIN"));
+    @PostMapping(value = "auth/users/adminRegistration")
+    public UserDto registerAdmin(@ModelAttribute RegisterSpec registerSpec){
+        UserModel newUser = new UserModel(registerSpec, "ROLE_ADMIN");
+
+        if(registerSpec.getProfileImage() != null){
+            File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "logo");
+            newUser.setProfileImage(profileImage);
+        }
+
+        return new UserDto(userService.create(newUser));
     }
 
     @PostMapping(value = "/register")
