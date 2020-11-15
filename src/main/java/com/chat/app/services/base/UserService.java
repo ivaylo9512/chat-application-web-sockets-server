@@ -15,10 +15,9 @@ public interface UserService {
 
     List<UserModel> findByUsernameWithRegex(String username);
 
-    UserModel register(RegisterSpec newUser, String role);
+    UserModel create(UserModel user);
 
     void delete(long id, UserDetails loggedUser);
-
 
     UserModel changeUserInfo(int loggedUser, UserSpec userSpec);
 

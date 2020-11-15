@@ -3,6 +3,7 @@ package com.chat.app.controllers;
 import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.DTOs.UserDto;
+import com.chat.app.models.File;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.RegisterSpec;
@@ -13,13 +14,9 @@ import com.chat.app.services.base.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,20 +41,16 @@ public class UserController {
     }
 
     @PostMapping(value = "/register")
-    public UserDetails register(@ModelAttribute RegisterSpec registerSpec) throws IOException, BindException {
-        UserModel newUser = userService.register(registerSpec, "ROLE_USER");
+    public UserDto register(@ModelAttribute RegisterSpec registerSpec) {
+        UserModel newUser = new UserModel(registerSpec, "ROLE_USER");
 
         if(registerSpec.getProfileImage() != null){
             File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "logo");
             newUser.setProfileImage(profileImage);
         }
-
-        userService.register(newUser);
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(newUser.getRole()));
-
-        return new UserDetails(newUser, authorities);
+        return new UserDto(userService.create(newUser));
     }
+
     @PostMapping("/login")
     public UserDto login(@RequestParam("pageSize") int pageSize){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
@@ -75,15 +68,15 @@ public class UserController {
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        List<UserDto> userDTOs = new ArrayList<>();
+        List<UserDto> userDtos = new ArrayList<>();
         userService.findByUsernameWithRegex(username).forEach(userModel -> {
             UserDto userDto = new UserDto(userModel);
             userDto.setHasChatWithLoggedUser(chatService.findIfUsersHaveChat(userModel.getId(), loggedUser.getId()));
 
-            userDTOs.add(userDto);
+            userDtos.add(userDto);
         });
 
-        return userDTOs;
+        return userDtos;
     }
 
     @GetMapping(value = "/auth/getLoggedUser/{pageSize}")
