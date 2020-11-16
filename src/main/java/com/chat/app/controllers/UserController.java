@@ -8,16 +8,20 @@ import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
+import com.chat.app.security.Jwt;
 import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.FileService;
 import com.chat.app.services.base.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -36,7 +40,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = "auth/users/adminRegistration")
-    public UserDto registerAdmin(@ModelAttribute RegisterSpec registerSpec){
+    public UserDto registerAdmin(@ModelAttribute RegisterSpec registerSpec, HttpServletResponse response){
         UserModel newUser = new UserModel(registerSpec, "ROLE_ADMIN");
 
         if(registerSpec.getProfileImage() != null){
@@ -44,17 +48,26 @@ public class UserController {
             newUser.setProfileImage(profileImage);
         }
 
+        String token = Jwt.generate(new UserDetails(newUser, new ArrayList<>(
+                Collections.singletonList(new SimpleGrantedAuthority(newUser.getRole())))));
+        response.addHeader("Authorization", "Token " + token);
+
         return new UserDto(userService.create(newUser));
     }
 
     @PostMapping(value = "/register")
-    public UserDto register(@ModelAttribute RegisterSpec registerSpec) {
+    public UserDto register(@ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) {
         UserModel newUser = new UserModel(registerSpec, "ROLE_USER");
 
         if(registerSpec.getProfileImage() != null){
             File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "logo");
             newUser.setProfileImage(profileImage);
         }
+
+        String token = Jwt.generate(new UserDetails(newUser, new ArrayList<>(
+                Collections.singletonList(new SimpleGrantedAuthority(newUser.getRole())))));
+        response.addHeader("Authorization", "Token " + token);
+
         return new UserDto(userService.create(newUser));
     }
 
