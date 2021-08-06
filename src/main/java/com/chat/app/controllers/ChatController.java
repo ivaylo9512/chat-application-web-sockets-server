@@ -36,12 +36,12 @@ public class ChatController {
     }
 
     @GetMapping("/getChats")
-    public Map<Integer, ChatDto> findUserChats(@RequestParam(name = "pageSize") int pageSize){
+    public Map<Long, ChatDto> findUserChats(@RequestParam(name = "pageSize") int pageSize){
         UserDetails userDetails = (UserDetails)SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getDetails();
-        int userId = userDetails.getId();
+        long userId = userDetails.getId();
 
         return chatService.findUserChats(userId, pageSize).entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto(o.getValue()),
@@ -63,7 +63,7 @@ public class ChatController {
                 .getContext()
                 .getAuthentication()
                 .getDetails();
-        int loggedUserId = loggedUserDetails.getId();
+        long loggedUserId = loggedUserDetails.getId();
 
         UserModel loggedUser = userService.findById(loggedUserId);
         UserModel requestedUser = userService.findById(requestedUserId);

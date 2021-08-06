@@ -9,7 +9,11 @@ import java.util.List;
 public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_id")
+    private File profileImage;
 
     private String username;
     private String password;
@@ -17,7 +21,6 @@ public class UserModel {
     private String lastName;
     private int age;
     private String country;
-    private File profileImage;
     private String role;
 
     @OneToMany(cascade = CascadeType.ALL , fetch = FetchType.LAZY, orphanRemoval = true)
@@ -62,11 +65,11 @@ public class UserModel {
         this.password = password;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class UserDetails extends User {
     private UserModel userModel;
-    private int id;
+    private long id;
 
     public UserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, int id){
         super(username,password,authorities);
@@ -18,11 +18,11 @@ public class UserDetails extends User {
         super(userModel.getUsername(), userModel.getPassword(), authorities);
         this.userModel = userModel;
     }
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

@@ -1,9 +1,9 @@
 package com.chat.app.models.specs;
 
 public class MessageSpec {
-    private int chatId;
-    private int senderId;
-    private int receiverId;
+    private long chatId;
+    private long senderId;
+    private long receiverId;
     private String message;
 
     public MessageSpec(){
@@ -17,27 +17,27 @@ public class MessageSpec {
         this.message = message;
     }
 
-    public int getChatId() {
+    public long getChatId() {
         return chatId;
     }
 
-    public void setChatId(int chatId) {
+    public void setChatId(long chatId) {
         this.chatId = chatId;
     }
 
-    public int getSenderId() {
+    public long getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(int senderId) {
+    public void setSenderId(long senderId) {
         this.senderId = senderId;
     }
 
-    public int getReceiverId() {
+    public long getReceiverId() {
         return receiverId;
     }
 
-    public void setReceiverId(int receiverId) {
+    public void setReceiverId(long receiverId) {
         this.receiverId = receiverId;
     }
 

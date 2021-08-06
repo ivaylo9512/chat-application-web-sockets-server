@@ -8,7 +8,7 @@ import java.util.List;
 public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "first_user", updatable = false)
@@ -45,7 +45,7 @@ public class Chat {
         this.secondUserModel = secondUserModel;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

@@ -11,15 +11,15 @@ import java.util.Map;
 
 public interface ChatService {
 
-    Chat findById(int id);
+    Chat findById(long id);
 
-    Map<Integer, Chat> findUserChats(int id, int pageSize);
+    Map<Long, Chat> findUserChats(long id, int pageSize);
 
     Message addNewMessage(MessageSpec messageDto);
 
     Chat createChat(UserModel loggedUser, UserModel requestedUser);
 
-    boolean findIfUsersHaveChat(int firstUser, int secondUser);
+    boolean findIfUsersHaveChat(long firstUser, long secondUser);
 
-    List<Session> findSessions(int chatId, int page, int pageSize);
+    List<Session> findSessions(long chatId, int page, int pageSize);
 }

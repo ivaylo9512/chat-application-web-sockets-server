@@ -5,9 +5,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class MessageDto {
-    private int chatId;
-    private int senderId;
-    private int receiverId;
+    private long chatId;
+    private long senderId;
+    private long receiverId;
 
     private String message;
     private LocalTime time;
@@ -16,7 +16,7 @@ public class MessageDto {
     public MessageDto() {
     }
 
-    public MessageDto(String message, int chatId, int senderId, int receiverId) {
+    public MessageDto(String message, long chatId, long senderId, long receiverId) {
         this.message = message;
         this.chatId = chatId;
         this.senderId = senderId;
@@ -38,27 +38,27 @@ public class MessageDto {
         this.message = message;
     }
 
-    public int getChatId() {
+    public long getChatId() {
         return chatId;
     }
 
-    public void setChatId(int chatId) {
+    public void setChatId(long chatId) {
         this.chatId = chatId;
     }
 
-    public int getSenderId() {
+    public long getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(int senderId) {
+    public void setSenderId(long senderId) {
         this.senderId = senderId;
     }
 
-    public int getReceiverId() {
+    public long getReceiverId() {
         return receiverId;
     }
 
-    public void setReceiverId(int receiverId) {
+    public void setReceiverId(long receiverId) {
         this.receiverId = receiverId;
     }
 

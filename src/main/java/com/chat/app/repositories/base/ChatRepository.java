@@ -7,10 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
 
-public interface ChatRepository extends JpaRepository<Chat, Integer> {
+public interface ChatRepository extends JpaRepository<Chat, Long> {
     @Query(value="from Chat where first_user = :user or second_user = :user order by id")
-    List<Chat> findUserChats(@Param("user") int id, Pageable pageable);
+    List<Chat> findUserChats(@Param("user") long id, Pageable pageable);
 
     @Query(value="from Chat where first_user = :firstUser and second_user = :secondUser or first_user = :secondUser and second_user = :firstUser")
-    Chat findIfUsersHaveChat(@Param("firstUser") int firstUser, @Param("secondUser") int secondUser );
+    Chat findIfUsersHaveChat(@Param("firstUser") long firstUser, @Param("secondUser") long secondUser );
 }

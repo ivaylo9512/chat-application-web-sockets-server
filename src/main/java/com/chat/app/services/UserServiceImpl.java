@@ -1,6 +1,7 @@
 package com.chat.app.services;
 
 import com.chat.app.exceptions.PasswordsMissMatchException;
+import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.repositories.base.UserRepository;
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     }
 
     @Override
-    public UserModel findById(int id) {
+    public UserModel findById(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User doesn't exist."));
     }
@@ -68,7 +69,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
 
         if(id != loggedUser.getId() &&
                 !AuthorityUtils.authorityListToSet(loggedUser.getAuthorities()).contains("ROLE_ADMIN")){
-            throw new UserProfileUnavailableException("You are not allowed to modify the user.");
+            throw new UnauthorizedException("You are not allowed to modify the user.");
         }
 
         userRepository.delete(user);
@@ -88,7 +89,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     }
 
     @Override
-    public UserModel changeUserInfo(int loggedUser, UserSpec userSpec){
+    public UserModel changeUserInfo(long loggedUser, UserSpec userSpec){
         UserModel user = userRepository.findById(loggedUser)
                 .orElseThrow(() -> new EntityNotFoundException("Username not found."));
         user.setFirstName(userSpec.getFirstName());

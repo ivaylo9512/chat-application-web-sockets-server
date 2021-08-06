@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ChatDto {
-    private int id;
+    private long id;
     private UserDto firstUser;
     private UserDto secondUser;
     private List<SessionDto> sessions;
@@ -36,11 +36,11 @@ public class ChatDto {
         this.secondUser = secondUser;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

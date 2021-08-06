@@ -37,14 +37,14 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Chat findById(int id) {
+    public Chat findById(long id) {
         return chatRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(String.format("Chat with id %d is not found.", id)));
     }
 
     @Override
-    public Map<Integer, Chat> findUserChats(int id, int pageSize) {
-        Map<Integer, Chat> chatsMap = new LinkedHashMap<>();
+    public Map<Long, Chat> findUserChats(long id, int pageSize) {
+        Map<Long, Chat> chatsMap = new LinkedHashMap<>();
         chatRepository.findUserChats(id, PageRequest.of(0, pageSize)).forEach(chat -> {
             chat.setSessions(sessionRepository.findSessions(chat, PageRequest.of(0, pageSize,
                     Sort.Direction.DESC, "session_date")));
@@ -61,12 +61,12 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public boolean findIfUsersHaveChat(int firstUser, int secondUser){
+    public boolean findIfUsersHaveChat(long firstUser, long secondUser){
         return chatRepository.findIfUsersHaveChat(firstUser, secondUser) != null;
     }
 
     @Override
-    public List<Session> findSessions(int chatId, int page, int pageSize){
+    public List<Session> findSessions(long chatId, int page, int pageSize){
         return sessionRepository.findSessions(chatRepository.getOne(chatId),
                 PageRequest.of(page, pageSize, Sort.Direction.DESC, "session_date"));
     }
@@ -88,11 +88,11 @@ public class ChatServiceImpl implements ChatService {
     }
 
     private void verifyMessage(MessageSpec message, Chat chat) {
-        int sender = message.getSenderId();
-        int receiver = message.getReceiverId();
+        long sender = message.getSenderId();
+        long receiver = message.getReceiverId();
 
-        int chatFirstUser = chat.getFirstUserModel().getId();
-        int chatSecondUser = chat.getSecondUserModel().getId();
+        long chatFirstUser = chat.getFirstUserModel().getId();
+        long chatSecondUser = chat.getSecondUserModel().getId();
 
         if ((sender != chatFirstUser && sender != chatSecondUser) || (receiver != chatFirstUser && receiver != chatSecondUser)) {
             throw new EntityNotFoundException("Users don't match the given chat.");

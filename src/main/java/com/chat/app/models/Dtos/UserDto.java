@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class UserDto {
-    private int id;
+    private long id;
     private String username;
     private String firstName;
     private String lastName;
@@ -15,10 +15,10 @@ public class UserDto {
     private String country;
     private String role;
     private String profileImage;
-    private Map<Integer, ChatDto> chats;
+    private Map<Long, ChatDto> chats;
     private boolean hasChatWithLoggedUser;
 
-    public UserDto(UserModel userModel, Map<Integer, Chat> chats){
+    public UserDto(UserModel userModel, Map<Long, Chat> chats){
         this.id = userModel.getId();
         this.username = userModel.getUsername();
         this.age = userModel.getAge();
@@ -51,11 +51,11 @@ public class UserDto {
         this.username = username;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -107,11 +107,11 @@ public class UserDto {
         this.hasChatWithLoggedUser = hasChatWithLoggedUser;
     }
 
-    public Map<Integer, ChatDto> getChats() {
+    public Map<Long, ChatDto> getChats() {
         return chats;
     }
 
-    public void setChats(Map<Integer, ChatDto> chats) {
+    public void setChats(Map<Long, ChatDto> chats) {
         this.chats = chats;
     }
 
