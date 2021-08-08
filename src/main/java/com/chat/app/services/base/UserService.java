@@ -4,6 +4,7 @@ import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.models.specs.UserSpec;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public interface UserService {
 
     UserModel findById(long id);
 
-    List<UserModel> findByUsernameWithRegex(String username);
+    Page<UserModel> findByUsernameWithRegex(String username, int take, String lastName, int lastId);
 
     UserModel create(UserModel user);
 

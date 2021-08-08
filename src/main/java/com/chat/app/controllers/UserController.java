@@ -4,6 +4,7 @@ import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.Chat;
+import com.chat.app.models.Dtos.PageDto;
 import com.chat.app.models.Dtos.UserDto;
 import com.chat.app.models.File;
 import com.chat.app.models.UserDetails;
@@ -14,6 +15,7 @@ import com.chat.app.security.Jwt;
 import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.FileService;
 import com.chat.app.services.base.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -86,21 +88,30 @@ public class UserController {
         return new UserDto(userService.findById(id));
     }
 
-    @GetMapping(value = "/auth/searchForUsers/{name}/{take}/{lastName}/{lastId}")
-    public List<UserDto> searchForUsers(
+    @GetMapping(value = {"/auth/searchForUsers/{name}/{take}", "/auth/searchForUsers/{name}/{take}/"})
+    public PageDto<UserDto> searchForUsers(
             @PathVariable(name = "name") String name,
             @PathVariable(name = "take") int take,
             @PathVariable(name = "lastName", required = false) String lastName,
-            @PathVariable(name = "lastId", required = false) int lastId
+            @PathVariable(name = "lastId", required = false) Integer lastId
     ){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        return userService.findByUsernameWithRegex(name, take, lastName, lastId).stream().map(userModel -> {
+
+        Page<UserModel> page = userService.findByUsernameWithRegex(name, take, lastName, lastId == null ? 0 : lastId);
+
+        List<UserDto> users = page.getContent().stream().map(userModel -> {
             Chat chat = chatService.findUsersChat(userModel.getId(), loggedUser.getId());
+
+            if(chat == null) {
+                return new UserDto(userModel);
+            }
 
             return new UserDto(userModel, chat);
         }).collect(Collectors.toList());
+
+        return new PageDto<>(page.getTotalPages(), users);
     }
 
     @GetMapping(value = "/auth/getLoggedUser/{pageSize}")

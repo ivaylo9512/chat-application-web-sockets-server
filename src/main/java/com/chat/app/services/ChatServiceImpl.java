@@ -17,9 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,14 +97,5 @@ public class ChatServiceImpl implements ChatService {
         if ((sender != chatFirstUser && sender != chatSecondUser) || (receiver != chatFirstUser && receiver != chatSecondUser)) {
             throw new EntityNotFoundException("Users don't match the given chat.");
         }
-    }
-
-    @Override
-    public Chat createChat(UserModel loggedUser, UserModel requestedUser) {
-        if(findIfUsersHaveChat(loggedUser.getId(), requestedUser.getId())){
-            throw new RuntimeException("Chat already exist");
-        }
-
-        return chatRepository.save(new Chat(loggedUser, requestedUser));
     }
 }

@@ -1,9 +1,7 @@
 package com.chat.app.services;
 
-import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.specs.NewPasswordSpec;
-import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.UserDetails;
@@ -11,6 +9,8 @@ import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.services.base.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -46,8 +46,15 @@ public class UserServiceImpl implements UserService,UserDetailsService {
                 .orElseThrow(() -> new EntityNotFoundException("User doesn't exist."));
     }
     @Override
-    public List<UserModel> findByUsernameWithRegex(String username){
-        return userRepository.findByUsernameWithRegex(username);
+    public Page<UserModel> findByUsernameWithRegex(String name, int take, String lastName, int lastId){
+        if(lastName != null){
+            return userRepository.findNextByUsernameWithRegex(lastName, lastId,
+                    PageRequest.of(0, take));
+
+        }
+
+        return userRepository.findByUsernameWithRegex(name,
+                PageRequest.of(0, take));
     }
 
     @Override

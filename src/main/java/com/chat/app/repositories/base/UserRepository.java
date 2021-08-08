@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
             @Param("lastId") int lastId,
             Pageable pageable);
 
-    @Query(value = "select u from UserModel u where lower(username) like lower(concat(:username,'%'))")
-    Page<UserModel> findByUsernameWithRegex(@Param("username") String username, Pageable pageable);
+    @Query(value = "select u from UserModel u where lower(concat(firstName, ' ', lastName)) like lower(concat(:name, '%'))")
+    Page<UserModel> findByUsernameWithRegex(@Param("name") String name, Pageable pageable);
 
 }

@@ -12,7 +12,7 @@ public class UserModel {
     private long id;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "image_id")
+    @JoinColumn(name = "profile_image")
     private File profileImage;
 
     private String username;
