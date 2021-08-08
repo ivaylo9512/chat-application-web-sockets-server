@@ -63,7 +63,7 @@ public class UserController {
         UserModel newUser = new UserModel(registerSpec, "ROLE_USER");
 
         if(registerSpec.getProfileImage() != null){
-            File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "logo");
+            File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "profile");
             newUser.setProfileImage(profileImage);
         }
 
@@ -75,10 +75,10 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public UserDto login(@RequestParam("pageSize") int pageSize){
+    public UserDto login(){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
-        return new UserDto(loggedUser.getUserModel(), chatService.findUserChats(loggedUser.getId(), pageSize));
+        return new UserDto(loggedUser.getUserModel());
     }
 
     @GetMapping(value = "/findById/{id}")
@@ -86,12 +86,17 @@ public class UserController {
         return new UserDto(userService.findById(id));
     }
 
-    @GetMapping(value = "/auth/searchForUsers/{username}")
-    public List<UserDto> searchForUsers(@PathVariable(name = "username") String username){
+    @GetMapping(value = "/auth/searchForUsers/{name}/{take}/{lastName}/{lastId}")
+    public List<UserDto> searchForUsers(
+            @PathVariable(name = "name") String name,
+            @PathVariable(name = "take") int take,
+            @PathVariable(name = "lastName", required = false) String lastName,
+            @PathVariable(name = "lastId", required = false) int lastId
+    ){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        return userService.findByUsernameWithRegex(username).stream().map(userModel -> {
+        return userService.findByUsernameWithRegex(name, take, lastName, lastId).stream().map(userModel -> {
             Chat chat = chatService.findUsersChat(userModel.getId(), loggedUser.getId());
 
             return new UserDto(userModel, chat);
