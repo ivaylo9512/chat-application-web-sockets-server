@@ -17,8 +17,6 @@ public interface ChatService {
 
     Message addNewMessage(MessageSpec messageDto);
 
-    Chat createChat(UserModel loggedUser, UserModel requestedUser);
-
     Chat findUsersChat(long firstUser, long secondUser);
 
     List<Session> findSessions(long chatId, int page, int pageSize);
