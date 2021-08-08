@@ -2,8 +2,7 @@ package com.chat.app.models.Dtos;
 
 import com.chat.app.models.Chat;
 import com.chat.app.models.UserModel;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class UserDto {
@@ -15,21 +14,19 @@ public class UserDto {
     private String country;
     private String role;
     private String profileImage;
-    private Map<Long, ChatDto> chats;
+    private List<ChatDto> chats;
+    private ChatDto chatWithUser;
+
     private boolean hasChatWithLoggedUser;
 
-    public UserDto(UserModel userModel, Map<Long, Chat> chats){
-        this.id = userModel.getId();
-        this.username = userModel.getUsername();
-        this.age = userModel.getAge();
-        this.firstName = userModel.getFirstName();
-        this.lastName = userModel.getLastName();
-        this.country = userModel.getCountry();
-        this.profileImage = userModel.getProfileImage().getName();
-        this.role = userModel.getRole();
-        this.chats = chats.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto(o.getValue()),
-                        (existing, replacement) -> existing, LinkedHashMap::new));
+    public UserDto(UserModel userModel, List<Chat> chats){
+        this(userModel);
+        this.chats = chats.stream().map(ChatDto::new).collect(Collectors.toList());
+    }
+
+    public UserDto(UserModel userModel, Chat chatWithUser){
+        this(userModel);
+        this.chatWithUser = new ChatDto(chatWithUser);
     }
 
     public UserDto(UserModel userModel){
@@ -107,11 +104,11 @@ public class UserDto {
         this.hasChatWithLoggedUser = hasChatWithLoggedUser;
     }
 
-    public Map<Long, ChatDto> getChats() {
+    public List<ChatDto> getChats() {
         return chats;
     }
 
-    public void setChats(Map<Long, ChatDto> chats) {
+    public void setChats(List<ChatDto> chats) {
         this.chats = chats;
     }
 
@@ -121,5 +118,13 @@ public class UserDto {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public ChatDto getChatWithUser() {
+        return chatWithUser;
+    }
+
+    public void setChatWithUser(ChatDto chatWithUser) {
+        this.chatWithUser = chatWithUser;
     }
 }

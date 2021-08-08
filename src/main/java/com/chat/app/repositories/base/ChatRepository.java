@@ -12,5 +12,5 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     List<Chat> findUserChats(@Param("user") long id, Pageable pageable);
 
     @Query(value="from Chat where first_user = :firstUser and second_user = :secondUser or first_user = :secondUser and second_user = :firstUser")
-    Chat findIfUsersHaveChat(@Param("firstUser") long firstUser, @Param("secondUser") long secondUser );
+    Chat findUsersChat(@Param("firstUser") long firstUser, @Param("secondUser") long secondUser );
 }

@@ -20,6 +20,7 @@ import java.time.LocalTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -43,26 +44,27 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Map<Long, Chat> findUserChats(long id, int pageSize) {
-        Map<Long, Chat> chatsMap = new LinkedHashMap<>();
-        chatRepository.findUserChats(id, PageRequest.of(0, pageSize)).forEach(chat -> {
+    public List<Chat> findUserChats(long id, int pageSize) {
+        return chatRepository.findUserChats(id, PageRequest.of(0, pageSize)).stream().map(chat -> {
             chat.setSessions(sessionRepository.findSessions(chat, PageRequest.of(0, pageSize,
                     Sort.Direction.DESC, "session_date")));
 
             UserModel loggedUser = chat.getFirstUserModel();
-            if(loggedUser.getId() != id){
+            if (loggedUser.getId() != id) {
                 chat.setFirstUserModel(chat.getSecondUserModel());
                 chat.setSecondUserModel(loggedUser);
             }
-
-            chatsMap.put(chat.getId(), chat);
-        });
-        return chatsMap;
+            return chat;
+        }).collect(Collectors.toList());
     }
 
     @Override
-    public boolean findIfUsersHaveChat(long firstUser, long secondUser){
-        return chatRepository.findIfUsersHaveChat(firstUser, secondUser) != null;
+    public Chat findUsersChat(long firstUser, long secondUser){
+        Chat chat = chatRepository.findUsersChat(firstUser, secondUser);
+        if(chat != null){
+            chat.setSessions(findSessions(chat.getId(), 0, 5));
+        }
+        return chat;
     }
 
     @Override

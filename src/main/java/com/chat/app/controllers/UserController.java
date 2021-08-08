@@ -3,6 +3,7 @@ package com.chat.app.controllers;
 import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.exceptions.UsernameExistsException;
+import com.chat.app.models.Chat;
 import com.chat.app.models.Dtos.UserDto;
 import com.chat.app.models.File;
 import com.chat.app.models.UserDetails;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/users")
@@ -85,19 +87,15 @@ public class UserController {
     }
 
     @GetMapping(value = "/auth/searchForUsers/{username}")
-    public List<UserDto> findByUsername(@PathVariable(name = "username") String username){
+    public List<UserDto> searchForUsers(@PathVariable(name = "username") String username){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        List<UserDto> userDtos = new ArrayList<>();
-        userService.findByUsernameWithRegex(username).forEach(userModel -> {
-            UserDto userDto = new UserDto(userModel);
-            userDto.setHasChatWithLoggedUser(chatService.findIfUsersHaveChat(userModel.getId(), loggedUser.getId()));
+        return userService.findByUsernameWithRegex(username).stream().map(userModel -> {
+            Chat chat = chatService.findUsersChat(userModel.getId(), loggedUser.getId());
 
-            userDtos.add(userDto);
-        });
-
-        return userDtos;
+            return new UserDto(userModel, chat);
+        }).collect(Collectors.toList());
     }
 
     @GetMapping(value = "/auth/getLoggedUser/{pageSize}")

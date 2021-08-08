@@ -13,13 +13,13 @@ public interface ChatService {
 
     Chat findById(long id);
 
-    Map<Long, Chat> findUserChats(long id, int pageSize);
+    List<Chat> findUserChats(long id, int pageSize);
 
     Message addNewMessage(MessageSpec messageDto);
 
     Chat createChat(UserModel loggedUser, UserModel requestedUser);
 
-    boolean findIfUsersHaveChat(long firstUser, long secondUser);
+    Chat findUsersChat(long firstUser, long secondUser);
 
     List<Session> findSessions(long chatId, int page, int pageSize);
 }

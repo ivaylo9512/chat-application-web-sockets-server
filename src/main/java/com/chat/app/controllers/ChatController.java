@@ -36,17 +36,16 @@ public class ChatController {
     }
 
     @GetMapping("/getChats")
-    public Map<Long, ChatDto> findUserChats(@RequestParam(name = "pageSize") int pageSize){
+    public List<ChatDto> findUserChats(@RequestParam(name = "pageSize") int pageSize){
         UserDetails userDetails = (UserDetails)SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getDetails();
         long userId = userDetails.getId();
 
-        return chatService.findUserChats(userId, pageSize).entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, o -> new ChatDto(o.getValue()),
-                        (existing, replacement) -> existing, LinkedHashMap::new));
-
+        return chatService.findUserChats(userId, pageSize).stream()
+                .map(ChatDto::new)
+                .collect(Collectors.toList());
     }
 
     @GetMapping(value = "/nextSessions")
