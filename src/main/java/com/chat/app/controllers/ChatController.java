@@ -3,9 +3,11 @@ package com.chat.app.controllers;
 import com.chat.app.models.*;
 import com.chat.app.models.Dtos.ChatDto;
 import com.chat.app.models.Dtos.MessageDto;
+import com.chat.app.models.Dtos.PageDto;
 import com.chat.app.models.specs.MessageSpec;
 import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.chat.app.security.Jwt;
@@ -15,14 +17,14 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import javax.transaction.Transactional;
 import java.security.Principal;
-import java.util.LinkedHashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+import com.chat.app.models.UserDetails;
 
 
 @RestController
-@RequestMapping("/api/chat/auth")
+@RequestMapping("/api/chats/auth")
 public class ChatController {
     private final ChatService chatService;
     private final UserService userService;
@@ -35,17 +37,23 @@ public class ChatController {
         this.messagingTemplate = messagingTemplate;
     }
 
-    @GetMapping("/getChats")
-    public List<ChatDto> findUserChats(@RequestParam(name = "pageSize") int pageSize){
-        UserDetails userDetails = (UserDetails)SecurityContextHolder
+    @GetMapping(value = {"/findChats/{pageSize}", "/findChats/{pageSize}/{lastUpdateAt}/{lastId}"})
+    public PageDto<ChatDto> findChats(
+            @PathVariable(name = "pageSize") int pageSize,
+            @PathVariable(name = "lastUpdateAt", required = false) LocalDateTime lastUpdatedAt,
+            @PathVariable(name = "lastId", required = false) Long lastId
+    ){
+        UserDetails loggedUser = (UserDetails)SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getDetails();
-        long userId = userDetails.getId();
+        long userId = loggedUser.getId();
 
-        return chatService.findUserChats(userId, pageSize).stream()
-                .map(ChatDto::new)
-                .collect(Collectors.toList());
+        Page<Chat> page = chatService.findUserChats(userId, pageSize, lastUpdatedAt, lastId == null ? 0 : lastId);
+
+        List<ChatDto> chatDtos = page.getContent().stream().map(ChatDto::new).collect(Collectors.toList());
+
+        return new PageDto<>(page.getTotalPages(), chatDtos);
     }
 
     @GetMapping(value = "/nextSessions")
@@ -54,20 +62,6 @@ public class ChatController {
             @RequestParam(name = "page") int page,
             @RequestParam(name = "pageSize") int pageSize){
         return chatService.findSessions(chatId, page, pageSize);
-    }
-
-    @PostMapping("/create")
-    public ChatDto createChat(@RequestParam("userId") int requestedUserId) {
-        UserDetails loggedUserDetails = (UserDetails) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getDetails();
-        long loggedUserId = loggedUserDetails.getId();
-
-        UserModel loggedUser = userService.findById(loggedUserId);
-        UserModel requestedUser = userService.findById(requestedUserId);
-
-        return new ChatDto(chatService.createChat(loggedUser, requestedUser));
     }
 
     @MessageMapping("/message")
@@ -85,24 +79,4 @@ public class ChatController {
 
         messagingTemplate.convertAndSendToUser(String.valueOf(message.getReceiverId()), "/message", message);
     }
-
-    @MessageMapping("/createChat")
-    @Transactional
-    public void createChat(Principal principal, int userId, SimpMessageHeaderAccessor headers) throws  Exception {
-        UserDetails loggedUserDetails;
-        try{
-            String auth = headers.getNativeHeader("Authorization").get(0);
-            String token = auth.substring(6);
-            loggedUserDetails = Jwt.validate(token);
-        }catch (Exception e){
-            throw new BadCredentialsException("Jwt token is missing or is incorrect.");
-        }
-
-        UserModel user = userService.findById(userId);
-        UserModel loggedUser = userService.findById(loggedUserDetails.getId());
-
-        chatService.createChat(loggedUser, user);
-        messagingTemplate.convertAndSendToUser(user.getUsername(), "/message", "creatingChat");
-    }
-
 }
