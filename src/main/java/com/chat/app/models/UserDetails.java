@@ -10,12 +10,13 @@ public class UserDetails extends User {
     private UserModel userModel;
     private long id;
 
-    public UserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, int id){
+    public UserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, long id){
         super(username,password,authorities);
         this.id = id;
     }
     public UserDetails(UserModel userModel, List<SimpleGrantedAuthority> authorities){
         super(userModel.getUsername(), userModel.getPassword(), authorities);
+        this.id = userModel.getId();
         this.userModel = userModel;
     }
     public long getId() {
