@@ -22,7 +22,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,7 +83,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/findById/{id}")
-    public UserDto findById(@PathVariable(name = "id") int id){
+    public UserDto findById(@PathVariable(name = "id") long id){
         return new UserDto(userService.findById(id));
     }
 
@@ -93,12 +92,10 @@ public class UserController {
             @PathVariable(name = "name") String name,
             @PathVariable(name = "take") int take,
             @PathVariable(name = "lastName", required = false) String lastName,
-            @PathVariable(name = "lastId", required = false) Integer lastId
+            @PathVariable(name = "lastId", required = false) Long lastId
     ){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
-
-
         Page<UserModel> page = userService.findByUsernameWithRegex(name, take, lastName, lastId == null ? 0 : lastId);
 
         List<UserDto> users = page.getContent().stream().map(userModel -> {
@@ -112,15 +109,6 @@ public class UserController {
         }).collect(Collectors.toList());
 
         return new PageDto<>(page.getTotalPages(), users);
-    }
-
-    @GetMapping(value = "/auth/getLoggedUser/{pageSize}")
-    public UserDto getLoggedUser(@PathVariable("pageSize") int pageSize){
-        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
-                .getAuthentication().getDetails();
-
-        return new UserDto(userService.findById(loggedUser.getId()),
-                chatService.findUserChats(loggedUser.getId(), pageSize));
     }
 
     @PostMapping(value = "/auth/changeUserInfo")

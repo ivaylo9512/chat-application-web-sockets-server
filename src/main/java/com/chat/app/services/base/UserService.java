@@ -13,7 +13,7 @@ public interface UserService {
 
     UserModel findById(long id);
 
-    Page<UserModel> findByUsernameWithRegex(String username, int take, String lastName, int lastId);
+    Page<UserModel> findByUsernameWithRegex(String username, int take, String lastName, long lastId);
 
     UserModel create(UserModel user);
 

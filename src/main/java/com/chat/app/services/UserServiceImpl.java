@@ -46,11 +46,10 @@ public class UserServiceImpl implements UserService,UserDetailsService {
                 .orElseThrow(() -> new EntityNotFoundException("User doesn't exist."));
     }
     @Override
-    public Page<UserModel> findByUsernameWithRegex(String name, int take, String lastName, int lastId){
+    public Page<UserModel> findByUsernameWithRegex(String name, int take, String lastName, long lastId){
         if(lastName != null){
             return userRepository.findNextByUsernameWithRegex(lastName, lastId,
                     PageRequest.of(0, take));
-
         }
 
         return userRepository.findByUsernameWithRegex(name,
@@ -84,11 +83,11 @@ public class UserServiceImpl implements UserService,UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
         UserModel userModel = userRepository.findByUsername(username);
         if(userModel == null){
             throw new BadCredentialsException("Bad credentials");
         }
+
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(userModel.getRole()));
 
