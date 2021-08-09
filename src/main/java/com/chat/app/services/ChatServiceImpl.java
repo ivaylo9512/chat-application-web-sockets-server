@@ -11,11 +11,13 @@ import com.chat.app.repositories.base.MessageRepository;
 import com.chat.app.repositories.base.SessionRepository;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.services.base.ChatService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,18 +44,27 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<Chat> findUserChats(long id, int pageSize) {
-        return chatRepository.findUserChats(id, PageRequest.of(0, pageSize)).stream().map(chat -> {
+    public Page<Chat> findUserChats(long userId, int pageSize, LocalDateTime lastUpdatedAt, long lastId) {
+        Page<Chat> chatsPage;
+
+        if(lastUpdatedAt == null){
+            chatsPage = chatRepository.findUserChats(userId, PageRequest.of(0, pageSize));
+        }else{
+            chatsPage = chatRepository.findNextUserChats(userId, lastId, lastUpdatedAt, PageRequest.of(0, pageSize));
+        }
+
+        chatsPage.getContent().forEach(chat -> {
             chat.setSessions(sessionRepository.findSessions(chat, PageRequest.of(0, pageSize,
                     Sort.Direction.DESC, "session_date")));
 
             UserModel loggedUser = chat.getFirstUserModel();
-            if (loggedUser.getId() != id) {
+            if (loggedUser.getId() != userId) {
                 chat.setFirstUserModel(chat.getSecondUserModel());
                 chat.setSecondUserModel(loggedUser);
             }
-            return chat;
-        }).collect(Collectors.toList());
+        });
+
+        return chatsPage;
     }
 
     @Override
@@ -78,11 +89,11 @@ public class ChatServiceImpl implements ChatService {
 
         verifyMessage(messageSpec, chat);
 
-        Session session = sessionRepository.findById(new SessionPK(chat,LocalDate.now()))
+        Session session = sessionRepository.findById(new SessionPK(chat, LocalDate.now()))
                 .orElse(new Session(chat, LocalDate.now()));
 
         UserModel user = userRepository.getOne(messageSpec.getReceiverId());
-        Message message = new Message(user,LocalTime.now(),messageSpec.getMessage(),session);
+        Message message = new Message(user, LocalTime.now(), messageSpec.getMessage(), session);
 
         return messageRepository.save(message);
     }
