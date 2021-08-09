@@ -1,6 +1,8 @@
 package com.chat.app.models.Dtos;
 
 import com.chat.app.models.Chat;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,6 +10,8 @@ public class ChatDto {
     private long id;
     private UserDto firstUser;
     private UserDto secondUser;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private List<SessionDto> sessions;
 
     public ChatDto() {
@@ -18,6 +22,8 @@ public class ChatDto {
         this.firstUser = new UserDto(chat.getFirstUserModel());
         this.secondUser = new UserDto(chat.getSecondUserModel());
         this.sessions = chat.getSessions().stream().map(SessionDto::new).collect(Collectors.toList());
+        this.createdAt = chat.getCreatedAt();
+        this.updatedAt = chat.getUpdatedAt();
     }
 
     public UserDto getFirstUser() {
@@ -50,5 +56,21 @@ public class ChatDto {
 
     public void setSessions(List<SessionDto> sessions) {
         this.sessions = sessions;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
