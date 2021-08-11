@@ -1,9 +1,6 @@
 package com.chat.app.services;
 
-import com.chat.app.models.Chat;
-import com.chat.app.models.Message;
-import com.chat.app.models.Session;
-import com.chat.app.models.UserModel;
+import com.chat.app.models.*;
 import com.chat.app.models.compositePK.SessionPK;
 import com.chat.app.models.specs.MessageSpec;
 import com.chat.app.repositories.base.ChatRepository;
@@ -17,10 +14,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -51,6 +46,30 @@ public class ChatServiceImpl implements ChatService {
             chatsPage = chatRepository.findUserChats(userId, PageRequest.of(0, pageSize));
         }else{
             chatsPage = chatRepository.findNextUserChats(userId, lastId, lastUpdatedAt, PageRequest.of(0, pageSize));
+        }
+
+        chatsPage.getContent().forEach(chat -> {
+            chat.setSessions(sessionRepository.findSessions(chat, PageRequest.of(0, pageSize,
+                    Sort.Direction.DESC, "session_date")));
+
+            UserModel loggedUser = chat.getFirstUserModel();
+            if (loggedUser.getId() != userId) {
+                chat.setFirstUserModel(chat.getSecondUserModel());
+                chat.setSecondUserModel(loggedUser);
+            }
+        });
+
+        return chatsPage;
+    }
+
+    @Override
+    public Page<Chat> findUserChatsByName(long userId, int pageSize, String name, String lastName, long lastId) {
+        Page<Chat> chatsPage;
+
+        if(lastName == null){
+            chatsPage = chatRepository.findUserChatsByName(userId, name, PageRequest.of(0, pageSize));
+        }else{
+            chatsPage = chatRepository.findNextUserChatsByName(userId, name, lastName, lastId, PageRequest.of(0, pageSize));
         }
 
         chatsPage.getContent().forEach(chat -> {

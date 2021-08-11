@@ -17,7 +17,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import javax.transaction.Transactional;
 import java.security.Principal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.chat.app.models.UserDetails;
@@ -40,7 +39,7 @@ public class ChatController {
     @GetMapping(value = {"/findChats/{pageSize}", "/findChats/{pageSize}/{lastUpdateAt}/{lastId}"})
     public PageDto<ChatDto> findChats(
             @PathVariable(name = "pageSize") int pageSize,
-            @PathVariable(name = "lastUpdateAt", required = false) LocalDateTime lastUpdatedAt,
+            @PathVariable(name = "lastUpdateAt", required = false) String lastUpdatedAt,
             @PathVariable(name = "lastId", required = false) Long lastId
     ){
         UserDetails loggedUser = (UserDetails)SecurityContextHolder
@@ -54,6 +53,26 @@ public class ChatController {
         List<ChatDto> chatDtos = page.getContent().stream().map(ChatDto::new).collect(Collectors.toList());
 
         return new PageDto<>(page.getTotalPages(), chatDtos);
+    }
+
+    @GetMapping(value = {"/findChatsByName/{pageSize}/{name}", "/findChatsByName/{pageSize}/{name}/{lastName}/{lastId}"})
+    public PageDto<ChatDto> findChatsByName(
+            @PathVariable(name = "pageSize") int pageSize,
+            @PathVariable(name = "name") String name,
+            @PathVariable(name = "lastName", required = false) String lastName,
+            @PathVariable(name = "lastId", required = false) Long lastId
+    ){
+        UserDetails loggedUser = (UserDetails)SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getDetails();
+        long userId = loggedUser.getId();
+
+        Page<Chat> page = chatService.findUserChatsByName(userId, pageSize, name, lastName, lastId == null ? 0 : lastId);
+
+        List<ChatDto> chatDtos = page.getContent().stream().map(ChatDto::new).collect(Collectors.toList());
+
+        return new PageDto<>(page.getTotalElements(), chatDtos);
     }
 
     @GetMapping(value = "/nextSessions")

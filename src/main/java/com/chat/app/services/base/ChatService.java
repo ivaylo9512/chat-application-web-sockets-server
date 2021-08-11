@@ -15,6 +15,8 @@ public interface ChatService {
 
     Page<Chat> findUserChats(long id, int pageSize, String lastUpdatedAt, long lastId);
 
+    Page<Chat> findUserChatsByName(long id, int pageSize, String name, String lastName, long lastId);
+
     Message addNewMessage(MessageSpec messageDto);
 
     Chat findUsersChat(long firstUser, long secondUser);

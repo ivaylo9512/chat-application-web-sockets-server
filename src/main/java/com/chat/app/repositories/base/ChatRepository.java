@@ -23,8 +23,8 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
             "LIKE lower(concat(:name, '%')) AND (lower(concat(secondUser.firstName, ' ', secondUser.lastName)) " +
             "LIKE lower(:lastName) AND c.id > :lastId OR lower(concat(secondUser.firstName, ' ', secondUser.lastName)) " +
             "LIKE lower(concat(:name, '%')) AND lower(concat(secondUser.firstName, ' ', secondUser.lastName)) > lower(:lastName))) " +
-            "OR second_user = :user AND (lower(concat(secondUser.firstName, ' ', secondUser.lastName)) LIKE lower(concat(:name, '%')) AND (lower(concat(secondUser.firstName, ' ', secondUser.lastName)) " +
-            "LIKE lower(:lastName) AND c.id > :lastId OR lower(concat(secondUser.firstName, ' ', secondUser.lastName)) LIKE lower(concat(:name, '%')) AND lower(concat(secondUser.firstName, ' ', secondUser.lastName)) > lower(:lastName))) " +
+            "OR second_user = :user AND (lower(concat(firstUser.firstName, ' ', firstUser.lastName)) LIKE lower(concat(:name, '%')) AND (lower(concat(firstUser.firstName, ' ', firstUser.lastName)) " +
+            "LIKE lower(:lastName) AND c.id > :lastId OR lower(concat(firstUser.firstName, ' ', firstUser.lastName)) LIKE lower(concat(:name, '%')) AND lower(concat(firstUser.firstName, ' ', firstUser.lastName)) > lower(:lastName))) " +
             "ORDER BY LEAST(firstUser.firstName, secondUser.firstName) || LEAST(firstUser.lastName, secondUser.lastName) ASC, c.id")
     Page<Chat> findNextUserChatsByName(
             @Param("user") long id,
