@@ -3,20 +3,12 @@ package com.chat.app.models.Dtos;
 import java.util.List;
 
 public class PageDto<T> {
-    private int pages;
+    private long count;
     private List<T> data;
 
-    public PageDto(int pages, List<T> data){
-        this.pages = pages;
+    public PageDto(long pages, List<T> data){
+        this.count = pages;
         this.data = data;
-    }
-
-    public int getPages() {
-        return pages;
-    }
-
-    public void setPages(int pages) {
-        this.pages = pages;
     }
 
     public List<T> getData() {
@@ -25,5 +17,13 @@ public class PageDto<T> {
 
     public void setData(List<T> data) {
         this.data = data;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
     }
 }

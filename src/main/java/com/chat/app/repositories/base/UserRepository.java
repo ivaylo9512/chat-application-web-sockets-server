@@ -13,13 +13,19 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
 
     UserModel findByUsername(String username);
 
-    @Query(value = "select u from UserModel u where lower(concat(firstName, ' ', lastName)) like lower(concat(:lastName, '%')) AND id > :lastId OR lower(concat(firstName, ' ', lastName)) > lower(concat(:lastName, '%')) order by firstName asc, lastName, id")
+    @Query(value = "SELECT u from UserModel u " +
+            "WHERE lower(concat(firstName, ' ', lastName)) like lower(concat(:name, '%')) AND " +
+            "(lower(concat(firstName, ' ', lastName)) like lower(concat(:lastName, '%')) AND id > :lastId OR lower(concat(firstName, ' ', lastName)) > lower(concat(:lastName, '%'))) " +
+            "ORDER BY firstName ASC, lastName ASC, id ASC")
     Page<UserModel> findNextByUsernameWithRegex(
+            @Param("name") String name,
             @Param("lastName") String lastName,
             @Param("lastId") long lastId,
             Pageable pageable);
 
-    @Query(value = "select u from UserModel u where lower(concat(firstName, ' ', lastName)) like lower(concat(:name, '%'))")
+    @Query(value = "SELECT u from UserModel u " +
+            "WHERE lower(concat(firstName, ' ', lastName)) LIKE lower(concat(:name, '%')) " +
+            "ORDER BY firstName ASC, lastName ASC, id ASC")
     Page<UserModel> findByUsernameWithRegex(@Param("name") String name, Pageable pageable);
 
 }

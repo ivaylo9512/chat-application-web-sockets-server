@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     @Override
     public Page<UserModel> findByUsernameWithRegex(String name, int take, String lastName, long lastId){
         if(lastName != null){
-            return userRepository.findNextByUsernameWithRegex(lastName, lastId,
+            return userRepository.findNextByUsernameWithRegex(name, lastName, lastId,
                     PageRequest.of(0, take));
         }
 

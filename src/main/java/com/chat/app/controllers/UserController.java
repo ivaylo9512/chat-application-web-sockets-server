@@ -87,7 +87,7 @@ public class UserController {
         return new UserDto(userService.findById(id));
     }
 
-    @GetMapping(value = {"/auth/searchForUsers/{name}/{take}", "/auth/searchForUsers/{name}/{take}/"})
+    @GetMapping(value = {"/auth/searchForUsers/{name}/{take}", "/auth/searchForUsers/{name}/{take}/{lastName}/{lastId}"})
     public PageDto<UserDto> searchForUsers(
             @PathVariable(name = "name") String name,
             @PathVariable(name = "take") int take,
@@ -108,7 +108,7 @@ public class UserController {
             return new UserDto(userModel, chat);
         }).collect(Collectors.toList());
 
-        return new PageDto<>(page.getTotalPages(), users);
+        return new PageDto<>(page.getTotalElements(), users);
     }
 
     @PostMapping(value = "/auth/changeUserInfo")
