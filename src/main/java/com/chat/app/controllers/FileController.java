@@ -23,7 +23,7 @@ public class FileController {
         this.fileService = fileService;
     }
 
-    @GetMapping("/get/{fileName:.+}")
+    @GetMapping("/download/{fileName:.+}")
     public ResponseEntity<Resource> get(@PathVariable String fileName, HttpServletRequest request) throws FileNotFoundException {
 
         Resource resource = fileService.getFileAsResource(fileName);
