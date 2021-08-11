@@ -44,7 +44,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Page<Chat> findUserChats(long userId, int pageSize, LocalDateTime lastUpdatedAt, long lastId) {
+    public Page<Chat> findUserChats(long userId, int pageSize, String lastUpdatedAt, long lastId) {
         Page<Chat> chatsPage;
 
         if(lastUpdatedAt == null){

@@ -18,11 +18,11 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
             @Param("name") String name,
             Pageable pageable);
 
-    @Query(value="FROM Chat as c where (first_user = :user or second_user = :user) AND (updated_at = :lastUpdatedAt AND id > :lastId OR updated_at > :lastUpdatedAt) order by updatedAt desc, id asc")
+    @Query(value="FROM Chat as c where (first_user = :user or second_user = :user) AND (updated_at = :lastUpdatedAt AND id > :lastId OR updated_at < :lastUpdatedAt) order by updatedAt desc, id asc")
     Page<Chat> findNextUserChats(
             @Param("user") long id,
             @Param("lastId") long lastId,
-            @Param("lastUpdatedAt") LocalDateTime lastUpdatedAt,
+            @Param("lastUpdatedAt") String lastUpdatedAt,
             Pageable pageable);
 
     @Query(value="FROM Chat as c where first_user = :user OR second_user = :user order by updatedAt desc, id asc")

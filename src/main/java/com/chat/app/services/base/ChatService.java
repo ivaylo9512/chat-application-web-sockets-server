@@ -13,7 +13,7 @@ public interface ChatService {
 
     Chat findById(long id);
 
-    Page<Chat> findUserChats(long id, int pageSize, LocalDateTime lastUpdatedAt, long lastId);
+    Page<Chat> findUserChats(long id, int pageSize, String lastUpdatedAt, long lastId);
 
     Message addNewMessage(MessageSpec messageDto);
 

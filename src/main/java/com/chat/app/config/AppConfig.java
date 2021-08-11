@@ -70,7 +70,6 @@ public class AppConfig {
         return new PersistenceExceptionTranslationPostProcessor();
     }
 
-
     public static final DateTimeFormatter FORMATTER = ofPattern("yyyy-MM-dd@HH:mm:ss.SSS");
 
 }
