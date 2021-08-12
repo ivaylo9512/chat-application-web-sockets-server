@@ -20,10 +20,10 @@ public class Request {
     @Column(name = "updated_at", columnDefinition = "DATETIME(6)")
     private LocalDateTime updatedAt;
 
-    @ManyToMany()
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private UserModel from;
 
-    @ManyToMany()
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private UserModel to;
 
     public Request(UserModel from, UserModel to){

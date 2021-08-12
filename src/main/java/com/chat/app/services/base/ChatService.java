@@ -3,10 +3,9 @@ package com.chat.app.services.base;
 import com.chat.app.models.Chat;
 import com.chat.app.models.Message;
 import com.chat.app.models.Session;
+import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.MessageSpec;
 import org.springframework.data.domain.Page;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChatService {
@@ -22,4 +21,6 @@ public interface ChatService {
     Chat findUsersChat(long firstUser, long secondUser);
 
     List<Session> findSessions(long chatId, int page, int pageSize);
+
+    Chat create(UserModel firstUser, UserModel secondUser);
 }

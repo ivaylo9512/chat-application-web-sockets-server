@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -46,13 +47,13 @@ public class UserServiceImpl implements UserService,UserDetailsService {
                 .orElseThrow(() -> new EntityNotFoundException("User doesn't exist."));
     }
     @Override
-    public Page<UserModel> findByUsernameWithRegex(String name, int take, String lastName, long lastId){
+    public Page<UserModel> findByUsernameWithRegex(long userId, String name, int take, String lastName, long lastId){
         if(lastName != null){
-            return userRepository.findNextByUsernameWithRegex(name, lastName, lastId,
+            return userRepository.findNextByUsernameWithRegex(userId, name, lastName, lastId,
                     PageRequest.of(0, take));
         }
 
-        return userRepository.findByUsernameWithRegex(name,
+        return userRepository.findByUsernameWithRegex(userId, name,
                 PageRequest.of(0, take));
     }
 
@@ -88,8 +89,8 @@ public class UserServiceImpl implements UserService,UserDetailsService {
             throw new BadCredentialsException("Bad credentials");
         }
 
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(userModel.getRole()));
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>(
+                Collections.singletonList(new SimpleGrantedAuthority(userModel.getRole())));
 
         return new UserDetails(userModel,authorities);
     }
@@ -98,6 +99,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     public UserModel changeUserInfo(long loggedUser, UserSpec userSpec){
         UserModel user = userRepository.findById(loggedUser)
                 .orElseThrow(() -> new EntityNotFoundException("Username not found."));
+
         user.setFirstName(userSpec.getFirstName());
         user.setLastName(userSpec.getLastName());
         user.setAge(userSpec.getAge());
@@ -119,6 +121,5 @@ public class UserServiceImpl implements UserService,UserDetailsService {
         }
         user.setPassword(passwordSpec.getNewPassword());
         return userRepository.save(user);
-
     }
 }

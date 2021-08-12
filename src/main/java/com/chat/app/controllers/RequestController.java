@@ -43,7 +43,7 @@ public class RequestController {
         if(request != null){
             if(request.getTo().getId() == loggedUser.getId()){
                 requestService.delete(request.getId());
-                return new UserDto(receiver, chatService.create(loggedUser.getId(), id));
+                return new UserDto(receiver, chatService.create(user, receiver ));
             }
             return new UserDto(receiver);
         }

@@ -8,6 +8,13 @@ public class RegisterSpec {
     private String repeatPassword;
     private MultipartFile profileImage;
 
+    public RegisterSpec(String username, String password, String repeatPassword) {
+        this.username = username;
+        this.password = password;
+        this.repeatPassword = repeatPassword;
+        this.profileImage = profileImage;
+    }
+
     public RegisterSpec() {
 
     }

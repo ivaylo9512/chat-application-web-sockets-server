@@ -9,16 +9,16 @@ import org.springframework.data.repository.query.Param;
 
 public interface RequestRepository extends JpaRepository<Request, Long> {
 
-    @Query("From Requests where (from LIKE :firstUser AND to LIKE :secondUser) " +
-            "OR (from LIKE :secondUser AND to LIKE :firstUser)")
+    @Query("From Request as r where (r.from LIKE :firstUser AND to LIKE :secondUser) " +
+            "OR (r.from LIKE :secondUser AND to LIKE :firstUser)")
     Request findRequest(@Param("firstUser") long firstUser, @Param("secondUser") long secondUser);
 
-    @Query("From Request where to LIKE :user ORDER BY createdAt desc, id asc")
+    @Query("Select r From Request r where to LIKE :user ORDER BY createdAt desc, id asc")
     Page<Request> findAll(
             @Param("user") long user,
             Pageable pageable);
 
-    @Query("From Request where to LIKE :user AND (createdAt LIKE :lastCreatedAt AND id > lastId OR createdAt > :lastCreatedAt) " +
+    @Query("Select r From Request r where to LIKE :user AND (createdAt LIKE :lastCreatedAt AND id > :lastId OR createdAt > :lastCreatedAt) " +
             "ORDER BY createdAt desc, id asc")
     Page<Request> findNextAll(
             @Param("user") long user,

@@ -1,4 +1,4 @@
-package com.tick42.quicksilver.services;
+package unit;
 
 import com.chat.app.models.Chat;
 import com.chat.app.models.Message;

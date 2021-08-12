@@ -1,4 +1,4 @@
-package com.tick42.quicksilver.services;
+package unit;
 
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.exceptions.UsernameExistsException;

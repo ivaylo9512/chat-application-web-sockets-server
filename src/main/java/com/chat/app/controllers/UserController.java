@@ -96,7 +96,7 @@ public class UserController {
     ){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
-        Page<UserModel> page = userService.findByUsernameWithRegex(name, take, lastName, lastId == null ? 0 : lastId);
+        Page<UserModel> page = userService.findByUsernameWithRegex(loggedUser.getId(), name, take, lastName, lastId == null ? 0 : lastId);
 
         List<UserDto> users = page.getContent().stream().map(userModel -> {
             Chat chat = chatService.findUsersChat(userModel.getId(), loggedUser.getId());
