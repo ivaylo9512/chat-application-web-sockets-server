@@ -26,6 +26,11 @@ public class Request {
     @ManyToMany()
     private UserModel to;
 
+    public Request(UserModel from, UserModel to){
+        this.from = from;
+        this.to = to;
+    }
+
     public Request(){
 
     }

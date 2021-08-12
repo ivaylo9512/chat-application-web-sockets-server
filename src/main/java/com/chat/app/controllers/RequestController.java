@@ -31,24 +31,26 @@ public class RequestController {
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        UserModel user = userService.findById(id);
-        Chat chat = chatService.findUsersChat(loggedUser.getId(), user.getId());
+        UserModel user = userService.findById(loggedUser.getId());
+        UserModel receiver = userService.findById(id);
+
+        Chat chat = chatService.findUsersChat(loggedUser.getId(), receiver.getId());
         if (chat != null) {
-            return new UserDto(user, chat);
+            return new UserDto(receiver, chat);
         }
 
         Request request = requestService.findByUsers(loggedUser.getId(), id);
         if(request != null){
             if(request.getTo().getId() == loggedUser.getId()){
                 requestService.delete(request.getId());
-                return new UserDto(user, chatService.create(loggedUser.getId(), id));
+                return new UserDto(receiver, chatService.create(loggedUser.getId(), id));
             }
-            return new UserDto(user);
+            return new UserDto(receiver);
         }
 
-        requestService.create(loggedUser.getId(), id);
+        requestService.create(user, receiver);
 
-        return new UserDto(user);
+        return new UserDto(receiver);
     }
 
     @GetMapping(value = {"/auth/findAll{pageSize}", "/auth/findAll{pageSize}/{lastCreatedAt}/{lastId}"})
