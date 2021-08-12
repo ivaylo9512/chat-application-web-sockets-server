@@ -66,11 +66,13 @@ public class FileServiceImpl implements FileService {
         try {
             Path filePath = this.fileLocation.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
+
             if (resource.exists()) {
                 return resource;
             } else {
                 throw new FileNotFoundUncheckedException("File not found");
             }
+
         } catch (MalformedURLException e) {
             throw new FileNotFoundUncheckedException("File not found " + e);
         }

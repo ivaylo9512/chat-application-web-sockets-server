@@ -2,7 +2,6 @@ package com.chat.app.models;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -26,4 +25,48 @@ public class Request {
 
     @ManyToMany()
     private UserModel to;
+
+    public Request(){
+
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public UserModel getFrom() {
+        return from;
+    }
+
+    public void setFrom(UserModel from) {
+        this.from = from;
+    }
+
+    public UserModel getTo() {
+        return to;
+    }
+
+    public void setTo(UserModel to) {
+        this.to = to;
+    }
 }
