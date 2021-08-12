@@ -128,4 +128,9 @@ public class ChatServiceImpl implements ChatService {
             throw new EntityNotFoundException("Users don't match the given chat.");
         }
     }
+
+    @Override
+    public Chat create(UserModel firstUser, UserModel secondUser){
+        return chatRepository.save(new Chat(firstUser, secondUser));
+    }
 }
