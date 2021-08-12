@@ -19,6 +19,7 @@ public class UserDetails extends User {
         this.id = userModel.getId();
         this.userModel = userModel;
     }
+
     public long getId() {
         return id;
     }

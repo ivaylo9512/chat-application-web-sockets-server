@@ -1,17 +1,11 @@
 package com.chat.app.models.specs;
 
-import com.chat.app.models.UserModel;
 import javax.validation.constraints.Size;
 
 public class UserSpec {
 
     @Size(min=7, max=22, message="Name should be be between 7 and 18 char.")
     private String username;
-
-    @Size(min=7, max=22, message="Password should be be between 7 and 18 char.")
-    private String password;
-
-    private String repeatPassword;
 
     private String firstName;
 
@@ -24,11 +18,13 @@ public class UserSpec {
     public UserSpec() {
 
     }
-    public UserSpec(UserModel user) {
-        this.firstName = user.getFirstName();
-        this.lastName = user.getLastName();
-        this.age = user.getAge();
-        this.country = user.getCountry();
+
+    public UserSpec(String username, String firstName, String lastName, int age, String country) {
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+        this.country = country;
     }
 
     public String getUsername() {
@@ -37,14 +33,6 @@ public class UserSpec {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getFirstName() {
@@ -79,11 +67,4 @@ public class UserSpec {
         this.country = country;
     }
 
-    public String getRepeatPassword() {
-        return repeatPassword;
-    }
-
-    public void setRepeatPassword(String repeatPassword) {
-        this.repeatPassword = repeatPassword;
-    }
 }

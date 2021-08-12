@@ -6,6 +6,16 @@ public class NewPasswordSpec {
     private String newPassword;
     private String repeatNewPassword;
 
+    public NewPasswordSpec(String username, String currentPassword, String newPassword, String repeatNewPassword) {
+        this.username = username;
+        this.currentPassword = currentPassword;
+        this.newPassword = newPassword;
+        this.repeatNewPassword = repeatNewPassword;
+    }
+
+    public NewPasswordSpec() {
+    }
+
     public String getCurrentPassword() {
         return currentPassword;
     }

@@ -33,10 +33,9 @@ public class UserModel {
     }
 
     public UserModel(String username, String password, String role, String firstName,
-                     String lastName, int age, String country, String setProfileImage) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
+                     String lastName, int age, String country) {
+        this(username, password, role);
+
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
@@ -44,9 +43,13 @@ public class UserModel {
     }
 
     public UserModel(RegisterSpec newUser, String role) {
-        this.setUsername(newUser.getUsername());
-        this.setPassword(newUser.getPassword());
-        this.setRole(role);
+        this(newUser.getUsername(), newUser.getPassword(), role);
+    }
+
+    public UserModel(String username, String password, String role){
+        this.username = username;
+        this.password = password;
+        this.role = role;
     }
 
     public String getUsername() {
