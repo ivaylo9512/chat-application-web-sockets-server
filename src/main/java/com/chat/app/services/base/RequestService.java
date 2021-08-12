@@ -1,6 +1,7 @@
 package com.chat.app.services.base;
 
 import com.chat.app.models.Request;
+import com.chat.app.models.UserModel;
 import org.springframework.data.domain.Page;
 
 public interface RequestService {
@@ -11,5 +12,5 @@ public interface RequestService {
 
     void delete(long id);
 
-    Request create(long from, long to);
+    Request create(UserModel from, UserModel to);
 }
