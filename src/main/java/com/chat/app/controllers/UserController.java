@@ -43,10 +43,11 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping(value = "auth/users/adminRegistration")
+    @PostMapping(value = "/auth/registerAdmin")
     public UserDto registerAdmin(@ModelAttribute RegisterSpec registerSpec, HttpServletResponse response){
         UserModel newUser = new UserModel(registerSpec, "ROLE_ADMIN");
 
+        System.out.println(registerSpec.getUsername());
         if(registerSpec.getProfileImage() != null){
             File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "logo");
             newUser.setProfileImage(profileImage);
@@ -79,6 +80,7 @@ public class UserController {
     public UserDto login(){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
+
         return new UserDto(loggedUser.getUserModel());
     }
 

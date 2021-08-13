@@ -6,6 +6,7 @@ import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.NewPasswordSpec;
+import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.services.UserServiceImpl;
@@ -130,6 +131,16 @@ public class UserServiceImplTests {
         userService.changePassword(passwordSpec);
     }
 
+    @Test(expected = PasswordsMissMatchException.class)
+    public void RegisterUser_WithNotMatchingPasswords_shouldThrow() {
+        RegisterSpec newRegistration = new RegisterSpec("Test", "TestPassword", "TestPasswordMissMatch");
+
+        UserModel userModel = new UserModel(newRegistration, "ROLE_USER");
+
+        when(userRepository.findByUsername("Test")).thenReturn(null);
+
+        userService.create(userModel);
+    }
 
     @Test(expected = EntityNotFoundException.class)
     public void changeUserInfo_WithNonExistentUser_ShouldThrow(){
