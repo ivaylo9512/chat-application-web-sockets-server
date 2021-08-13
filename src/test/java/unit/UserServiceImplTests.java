@@ -1,5 +1,6 @@
 package unit;
 
+import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.UserDetails;
@@ -111,6 +112,24 @@ public class UserServiceImplTests {
         userService.changePassword(passwordSpec);
     }
 
+    @Test(expected = PasswordsMissMatchException.class)
+    public void ChangePasswordState_WithNotMatchingPasswords_ShouldThrow(){
+        String name = "name";
+
+        NewPasswordSpec passwordSpec = new NewPasswordSpec();
+        passwordSpec.setUsername(name);
+        passwordSpec.setCurrentPassword("Current");
+        passwordSpec.setNewPassword("newTestPassword1");
+        passwordSpec.setRepeatNewPassword("InvalidPassword");
+
+        UserModel userModel = new UserModel();
+        userModel.setPassword("current");
+
+        when(userRepository.findByUsername(name)).thenReturn(userModel);
+
+        userService.changePassword(passwordSpec);
+    }
+
 
     @Test(expected = EntityNotFoundException.class)
     public void changeUserInfo_WithNonExistentUser_ShouldThrow(){
@@ -145,8 +164,8 @@ public class UserServiceImplTests {
     @Test()
     public void loadByUsername(){
         UserModel userModel = new UserModel("username", "password", "ROLE_ADMIN");
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>(
-                Collections.singletonList(new SimpleGrantedAuthority(userModel.getRole())));
+        List<SimpleGrantedAuthority> authorities = Collections
+                .singletonList(new SimpleGrantedAuthority(userModel.getRole()));
 
         UserDetails userDetails = new UserDetails(userModel, authorities);
 
@@ -165,8 +184,8 @@ public class UserServiceImplTests {
 
     @Test(expected = UnauthorizedException.class)
     public void delete_WithDifferentLoggedId_ThatIsNotAdmin_shouldThrow(){
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>(
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+        List<SimpleGrantedAuthority> authorities = Collections
+                .singletonList(new SimpleGrantedAuthority("ROLE_USER"));
         UserDetails userDetails = new UserDetails("username", "password", authorities, 2);
         when(userRepository.findById(1L)).thenReturn(Optional.of(new UserModel()));
 

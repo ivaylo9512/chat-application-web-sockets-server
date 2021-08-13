@@ -1,5 +1,6 @@
 package com.chat.app.services;
 
+import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.repositories.base.UserRepository;
@@ -89,8 +90,8 @@ public class UserServiceImpl implements UserService,UserDetailsService {
             throw new BadCredentialsException("Bad credentials");
         }
 
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>(
-                Collections.singletonList(new SimpleGrantedAuthority(userModel.getRole())));
+        List<SimpleGrantedAuthority> authorities =
+                Collections.singletonList(new SimpleGrantedAuthority(userModel.getRole()));
 
         return new UserDetails(userModel,authorities);
     }
@@ -110,6 +111,11 @@ public class UserServiceImpl implements UserService,UserDetailsService {
 
     @Override
     public UserModel changePassword(NewPasswordSpec passwordSpec){
+
+        if(!passwordSpec.getNewPassword().equals(passwordSpec.getRepeatNewPassword())){
+            throw new PasswordsMissMatchException("Password don't match");
+        }
+
         UserModel user = userRepository.findByUsername(passwordSpec.getUsername());
 
         if(user == null){
@@ -121,5 +127,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
         }
         user.setPassword(passwordSpec.getNewPassword());
         return userRepository.save(user);
+
+
     }
 }
