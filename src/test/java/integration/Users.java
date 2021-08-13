@@ -90,10 +90,52 @@ public class Users {
                 .andExpect(status().isOk());
     }
 
+    @WithMockUser(value = "spring")
+    @Test
+    public void registerAdmin() throws Exception {
+        RequestBuilder request = post("/api/users/auth/registerAdmin")
+                .header("Authorization", adminToken)
+                .param("username", "username1")
+                .param("password", "password")
+                .param("repeatPassword", "password");
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void register_WhenUsernameIsTaken() throws Exception {
+        RequestBuilder request = post("/api/users/register")
+                .param("username", "username")
+                .param("password", "password")
+                .param("repeatPassword", "password");
+
+        mockMvc.perform(request)
+                .andExpect(content().string(containsString("Username is already taken.")));
+    }
+
     @Test
     public void login() throws Exception {
         mockMvc.perform(post("/api/users/login")
             .contentType("Application/json")
             .content("{\"username\": \"username\", \"password\": \"password\"}")).andExpect(status().isOk());
+    }
+
+    @Test
+    public void login_WithWrongPassword_ShouldThrow() throws Exception {
+        mockMvc.perform(post("/api/users/login")
+                .contentType("Application/json")
+                .content("{\"username\": \"username\", \"password\": \"incorrect\"}"))
+                .andExpect(status().is(401))
+                .andExpect(content().string(containsString("Bad credentials")));
+    }
+
+    @Test
+    public void login_WithWrongUsername_ShouldThrow() throws Exception {
+        mockMvc.perform(post("/api/users/login")
+                .contentType("Application/json")
+                .content("{\"username\": \"incorrect\", \"password\": \"password\"}"))
+                .andExpect(status().is(401))
+                .andExpect(content().string(containsString("Bad credentials")));
     }
 }
