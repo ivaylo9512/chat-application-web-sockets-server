@@ -2,7 +2,6 @@ package com.chat.app.controllers;
 
 import com.chat.app.models.Chat;
 import com.chat.app.models.Dtos.PageDto;
-import com.chat.app.models.Dtos.UserDto;
 import com.chat.app.models.Request;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
@@ -27,7 +26,7 @@ public class RequestController {
     }
 
     @PostMapping("/auth/addRequest/{id}")
-    public UserDto addRequest(@PathVariable("id") long id) {
+    public String addRequest(@PathVariable("id") long id) {
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
@@ -36,21 +35,22 @@ public class RequestController {
 
         Chat chat = chatService.findUsersChat(loggedUser.getId(), receiver.getId());
         if (chat != null) {
-            return new UserDto(receiver, chat);
+            return "complete";
         }
 
         Request request = requestService.findByUsers(loggedUser.getId(), id);
         if(request != null){
-            if(request.getTo().getId() == loggedUser.getId()){
+            if(request.getReceiver().getId() == loggedUser.getId()){
                 requestService.delete(request.getId());
-                return new UserDto(receiver, chatService.create(user, receiver ));
+                chatService.create(user, receiver );
+                return "complete";
             }
-            return new UserDto(receiver);
+            return "pending";
         }
 
         requestService.create(user, receiver);
 
-        return new UserDto(receiver);
+        return "pending";
     }
 
     @GetMapping(value = {"/auth/findAll{pageSize}", "/auth/findAll{pageSize}/{lastCreatedAt}/{lastId}"})

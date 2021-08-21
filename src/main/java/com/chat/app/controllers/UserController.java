@@ -3,17 +3,15 @@ package com.chat.app.controllers;
 import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.exceptions.UsernameExistsException;
-import com.chat.app.models.Chat;
+import com.chat.app.models.*;
 import com.chat.app.models.Dtos.PageDto;
 import com.chat.app.models.Dtos.UserDto;
-import com.chat.app.models.File;
-import com.chat.app.models.UserDetails;
-import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.security.Jwt;
 import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.FileService;
+import com.chat.app.services.base.RequestService;
 import com.chat.app.services.base.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -35,11 +33,13 @@ public class UserController {
     private final UserService userService;
     private final ChatService chatService;
     private final FileService fileService;
+    private final RequestService requestService;
 
-    public UserController(UserService userService, ChatService chatService, FileService fileService) {
+    public UserController(UserService userService, ChatService chatService, FileService fileService, RequestService requestService) {
         this.userService = userService;
         this.chatService = chatService;
         this.fileService = fileService;
+        this.requestService = requestService;
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -69,11 +69,7 @@ public class UserController {
             newUser.setProfileImage(profileImage);
         }
 
-        String token = Jwt.generate(new UserDetails(newUser, new ArrayList<>(
-                Collections.singletonList(new SimpleGrantedAuthority(newUser.getRole())))));
-        response.addHeader("Authorization", "Token " + token);
-
-        return new UserDto(userService.create(newUser));
+        throw new UsernameExistsException("{\"username\": \"Username is in use.\"}");
     }
 
     @PostMapping("/login")
@@ -102,9 +98,10 @@ public class UserController {
 
         List<UserDto> users = page.getContent().stream().map(userModel -> {
             Chat chat = chatService.findUsersChat(userModel.getId(), loggedUser.getId());
+            Request request = requestService.findByUsers(userModel.getId(), loggedUser.getId());
 
             if(chat == null) {
-                return new UserDto(userModel);
+                return new UserDto(userModel, request);
             }
 
             return new UserDto(userModel, chat);

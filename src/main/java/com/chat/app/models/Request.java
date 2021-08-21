@@ -5,12 +5,20 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity()
+@Entity
 @Table(name = "requests")
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "sender", updatable = false)
+    private UserModel sender;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "receiver", updatable = false)
+    private UserModel receiver;
 
     @CreationTimestamp
     @Column(name = "created_at", columnDefinition = "DATETIME(6)")
@@ -20,15 +28,9 @@ public class Request {
     @Column(name = "updated_at", columnDefinition = "DATETIME(6)")
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private UserModel from;
-
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private UserModel to;
-
-    public Request(UserModel from, UserModel to){
-        this.from = from;
-        this.to = to;
+    public Request(UserModel sender, UserModel receiver){
+        this.sender = sender;
+        this.receiver = receiver;
     }
 
     public Request(){
@@ -59,19 +61,19 @@ public class Request {
         this.updatedAt = updatedAt;
     }
 
-    public UserModel getFrom() {
-        return from;
+    public UserModel getSender() {
+        return sender;
     }
 
-    public void setFrom(UserModel from) {
-        this.from = from;
+    public void setSender(UserModel sender) {
+        this.sender = sender;
     }
 
-    public UserModel getTo() {
-        return to;
+    public UserModel getReceiver() {
+        return receiver;
     }
 
-    public void setTo(UserModel to) {
-        this.to = to;
+    public void setReceiver(UserModel receiver) {
+        this.receiver = receiver;
     }
 }

@@ -24,6 +24,11 @@ public class UserModel {
     private String role;
 
     @OneToMany(cascade = CascadeType.ALL , fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinTable(name = "requests",joinColumns ={@JoinColumn(name ="from")},
+            inverseJoinColumns = @JoinColumn(name ="to" ))
+    private List<Chat> requests;
+
+    @OneToMany(cascade = CascadeType.ALL , fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinTable(name = "chats",joinColumns ={@JoinColumn(name ="first_user")},
             inverseJoinColumns = @JoinColumn(name ="second_user" ))
     private List<Chat> chats;
