@@ -19,7 +19,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 import java.time.format.DateTimeFormatter;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
@@ -39,25 +38,7 @@ public class AppConfig {
                 .build();
     }
 
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        LocalContainerEntityManagerFactoryBean em
-                = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(dataSource());
-        em.setPackagesToScan("com/chat/app/models");
-        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        em.setJpaVendorAdapter(vendorAdapter);
-        return em;
-    }
-    @Bean
-    public DataSource dataSource(){
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/chat-app");
-        dataSource.setUsername( "root" );
-        dataSource.setPassword( "1234" );
-        return dataSource;
-    }
+
     @Bean
     public PlatformTransactionManager transactionManager(
             EntityManagerFactory emf){
