@@ -1,9 +1,10 @@
 package com.chat.app.models.Dtos;
 
 import com.chat.app.models.Chat;
+import com.chat.app.models.File;
+import com.chat.app.models.Request;
 import com.chat.app.models.UserModel;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserDto {
     private long id;
@@ -16,17 +17,24 @@ public class UserDto {
     private String profileImage;
     private List<ChatDto> chats;
     private ChatDto chatWithUser;
+    private String requestState;
+    private long requestId;
 
     private boolean hasChatWithLoggedUser;
-
-    public UserDto(UserModel userModel, List<Chat> chats){
-        this(userModel);
-        this.chats = chats.stream().map(ChatDto::new).collect(Collectors.toList());
-    }
 
     public UserDto(UserModel userModel, Chat chatWithUser){
         this(userModel);
         this.chatWithUser = new ChatDto(chatWithUser);
+        this.requestState = "complete";
+    }
+
+    public UserDto(){
+
+    }
+
+    public UserDto(UserModel userModel, Request request) {
+        this(userModel);
+        setRequestState(request);
     }
 
     public UserDto(UserModel userModel){
@@ -36,8 +44,8 @@ public class UserDto {
         this.firstName = userModel.getFirstName();
         this.lastName = userModel.getLastName();
         this.country = userModel.getCountry();
-        this.profileImage = userModel.getProfileImage().getName();
         this.role = userModel.getRole();
+        setProfileImage(userModel.getProfileImage());
     }
 
     public String getUsername() {
@@ -120,11 +128,46 @@ public class UserDto {
         this.profileImage = profileImage;
     }
 
+    public void setProfileImage(File profileImage) {
+        if(profileImage != null){
+            this.profileImage = profileImage.getName();
+        }
+    }
+
     public ChatDto getChatWithUser() {
         return chatWithUser;
     }
 
     public void setChatWithUser(ChatDto chatWithUser) {
         this.chatWithUser = chatWithUser;
+    }
+
+    public String getRequestState() {
+        return requestState;
+    }
+
+    public void setRequestState(String requestState) {
+        this.requestState = requestState;
+    }
+
+    public void setRequestState(Request request) {
+        if(request != null){
+            this.requestId = request.getId();
+            if(request.getSender().getId() == id){
+                this.requestState = "accept";
+                return;
+            }
+            this.requestState = "pending";
+            return;
+        }
+        this.requestState = "send";
+    }
+
+    public long getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(long requestId) {
+        this.requestId = requestId;
     }
 }

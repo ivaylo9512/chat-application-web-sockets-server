@@ -1,7 +1,10 @@
 package com.chat.app.controllers;
 
 import com.chat.app.models.Chat;
+import com.chat.app.models.Dtos.ChatDto;
 import com.chat.app.models.Dtos.PageDto;
+import com.chat.app.models.Dtos.RequestDto;
+import com.chat.app.models.Dtos.UserDto;
 import com.chat.app.models.Request;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
@@ -9,8 +12,13 @@ import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.RequestService;
 import com.chat.app.services.base.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import javax.persistence.EntityNotFoundException;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/requests")
@@ -26,7 +34,7 @@ public class RequestController {
     }
 
     @PostMapping("/auth/addRequest/{id}")
-    public String addRequest(@PathVariable("id") long id) {
+    public UserDto addRequest(@PathVariable("id") long id) {
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
@@ -35,33 +43,63 @@ public class RequestController {
 
         Chat chat = chatService.findUsersChat(loggedUser.getId(), receiver.getId());
         if (chat != null) {
-            return "complete";
+            return new UserDto(receiver, chatService.create(user, receiver ));
         }
 
         Request request = requestService.findByUsers(loggedUser.getId(), id);
         if(request != null){
             if(request.getReceiver().getId() == loggedUser.getId()){
-                requestService.delete(request.getId());
-                chatService.create(user, receiver );
-                return "complete";
+                requestService.delete(request);
+                return new UserDto(receiver, chatService.create(user, receiver ));
             }
-            return "pending";
+            return new UserDto(receiver, request);
         }
 
-        requestService.create(user, receiver);
-
-        return "pending";
+        return new UserDto(receiver, requestService.create(user, receiver));
     }
 
-    @GetMapping(value = {"/auth/findAll{pageSize}", "/auth/findAll{pageSize}/{lastCreatedAt}/{lastId}"})
-    private PageDto<Request> findAll(
+    @GetMapping(value = {"/auth/findAll/{pageSize}", "/auth/findAll{pageSize}/{lastCreatedAt}/{lastId}"})
+    private PageDto<RequestDto> findAll(
             @PathVariable("pageSize") int pageSize,
             @PathVariable(value = "lastCreatedAt", required = false) String lastCreatedAt,
-            @PathVariable(value = "lastId", required = false) long lastId){
+            @PathVariable(value = "lastId", required = false) Long lastId){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        Page<Request> page = requestService.findAll(loggedUser.getId(), pageSize, lastCreatedAt, lastId);
-        return new PageDto<>(page.getTotalElements(), page.getContent());
+        Page<Request> page = requestService.findAll(loggedUser.getId(), pageSize, lastCreatedAt, lastId != null ? lastId : 0);
+        return new PageDto<>(page.getTotalElements(),
+                page.getContent().stream()
+                        .map(RequestDto::new)
+                        .collect(Collectors.toList()));
+    }
+
+    @PostMapping("/auth/accept/{id}")
+    public ChatDto acceptRequest(@PathVariable("id") long id){
+        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getDetails();
+
+        Request request = requestService.verifyAccept(id, loggedUser);
+        Chat chat = chatService.create(request.getReceiver(), request.getSender());
+        requestService.delete(request);
+
+        return new ChatDto(chat);
+    }
+
+    @PostMapping("/auth/deny/{id}")
+    public boolean denyRequest(@PathVariable("id") long id){
+        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getDetails();
+
+        Request request = requestService.verifyDeny(id, loggedUser);
+        requestService.delete(request);
+
+        return true;
+    }
+
+    @ExceptionHandler
+    ResponseEntity handleEntityNotFoundException(EntityNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(e.getMessage());
     }
 }
