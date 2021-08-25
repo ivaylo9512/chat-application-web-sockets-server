@@ -43,7 +43,7 @@ public class RequestController {
 
         Chat chat = chatService.findUsersChat(loggedUser.getId(), receiver.getId());
         if (chat != null) {
-            return new UserDto(receiver, chatService.create(user, receiver ));
+            return new UserDto(receiver, chat);
         }
 
         Request request = requestService.findByUsers(loggedUser.getId(), id);
@@ -58,7 +58,7 @@ public class RequestController {
         return new UserDto(receiver, requestService.create(user, receiver));
     }
 
-    @GetMapping(value = {"/auth/findAll/{pageSize}", "/auth/findAll{pageSize}/{lastCreatedAt}/{lastId}"})
+    @GetMapping(value = {"/auth/findAll/{pageSize}", "/auth/findAll/{pageSize}/{lastCreatedAt}/{lastId}"})
     private PageDto<RequestDto> findAll(
             @PathVariable("pageSize") int pageSize,
             @PathVariable(value = "lastCreatedAt", required = false) String lastCreatedAt,

@@ -20,6 +20,12 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    public Request findById(long id){
+        return requestRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Request not found."));
+    }
+
+    @Override
     public Page<Request> findAll(Long userId, int pageSize, String lastCreatedAt, long lastId) {
         if(lastCreatedAt == null){
             return requestRepository.findAll(userId, PageRequest.of(0, pageSize));
@@ -52,8 +58,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public Request verifyAccept(long id, UserDetails loggedUser){
-        Request request = requestRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Request not found."));
+        Request request = this.findById(id);
 
         if(request.getReceiver().getId() != loggedUser.getId()){
             throw new UnauthorizedException("Unauthorized.");
@@ -64,10 +69,9 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public Request verifyDeny(long id, UserDetails loggedUser){
-        Request request = requestRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Request not found."));
+        Request request = this.findById(id);
 
-        if(request.getReceiver().getId() != loggedUser.getId() ||
+        if(request.getReceiver().getId() != loggedUser.getId() &&
                 request.getSender().getId() != loggedUser.getId() ){
             throw new UnauthorizedException("Unauthorized.");
         }

@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 
 public interface RequestService {
 
+    Request findById(long id);
+
     Page<Request> findAll(Long userId, int pageSize, String lastCreatedAt, long lastId);
 
     Request findByUsers(long firstUser, long secondUser);
