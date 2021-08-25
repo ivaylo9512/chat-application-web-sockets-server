@@ -18,9 +18,9 @@ public class Message{
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumns({@JoinColumn(name = "chat"),@JoinColumn(name = "session_date")})
+    @JoinColumns({@JoinColumn(name = "chat", referencedColumnName="chat"),
+            @JoinColumn(name = "session_date", referencedColumnName = "session_date")})
     private Session session;
-
     private LocalTime time;
     private String message;
 

@@ -20,8 +20,6 @@ public class UserDto {
     private String requestState;
     private long requestId;
 
-    private boolean hasChatWithLoggedUser;
-
     public UserDto(UserModel userModel, Chat chatWithUser){
         this(userModel);
         this.chatWithUser = new ChatDto(chatWithUser);
@@ -102,14 +100,6 @@ public class UserDto {
 
     public void setCountry(String country) {
         this.country = country;
-    }
-
-    public boolean isHasChatWithLoggedUser() {
-        return hasChatWithLoggedUser;
-    }
-
-    public void setHasChatWithLoggedUser(boolean hasChatWithLoggedUser) {
-        this.hasChatWithLoggedUser = hasChatWithLoggedUser;
     }
 
     public List<ChatDto> getChats() {

@@ -1,6 +1,7 @@
 package com.chat.app.models.Dtos;
 
 import com.chat.app.models.Chat;
+import com.chat.app.models.Session;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,9 +20,9 @@ public class ChatDto {
         this.id = chat.getId();
         this.firstUser = new UserDto(chat.getFirstUserModel());
         this.secondUser = new UserDto(chat.getSecondUserModel());
-        this.sessions = chat.getSessions().stream().map(SessionDto::new).collect(Collectors.toList());
         this.updatedAt = chat.getUpdatedAt().toString();
         this.createdAt = chat.getCreatedAt().toString();
+        setSessions(chat.getSessions());
     }
 
     public UserDto getFirstUser() {
@@ -52,8 +53,10 @@ public class ChatDto {
         return sessions;
     }
 
-    public void setSessions(List<SessionDto> sessions) {
-        this.sessions = sessions;
+    public void setSessions(List<Session> sessions) {
+        if(sessions != null){
+            this.sessions = sessions.stream().map(SessionDto::new).collect(Collectors.toList());
+        }
     }
 
     public String getUpdatedAt() {
