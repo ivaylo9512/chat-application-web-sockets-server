@@ -1,6 +1,8 @@
 package com.chat.app.services;
 
+import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.Request;
+import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import com.chat.app.repositories.base.RequestRepository;
 import com.chat.app.services.base.RequestService;
@@ -31,7 +33,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public void delete(long id) {
+    public void deleteById(long id) {
         Request request = requestRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException("Request not found."));
 
@@ -39,7 +41,37 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    public void delete(Request request) {
+        requestRepository.delete(request);
+    }
+
+    @Override
     public Request create(UserModel from, UserModel to) {
         return requestRepository.save(new Request(from, to));
+    }
+
+    @Override
+    public Request verifyAccept(long id, UserDetails loggedUser){
+        Request request = requestRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Request not found."));
+
+        if(request.getReceiver().getId() != loggedUser.getId()){
+            throw new UnauthorizedException("Unauthorized.");
+        }
+
+        return request;
+    }
+
+    @Override
+    public Request verifyDeny(long id, UserDetails loggedUser){
+        Request request = requestRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Request not found."));
+
+        if(request.getReceiver().getId() != loggedUser.getId() ||
+                request.getSender().getId() != loggedUser.getId() ){
+            throw new UnauthorizedException("Unauthorized.");
+        }
+
+        return request;
     }
 }

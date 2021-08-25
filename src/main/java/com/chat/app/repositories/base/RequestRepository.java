@@ -13,12 +13,12 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
             "OR (sender.id LIKE :secondUser AND receiver.id LIKE :firstUser)")
     Request findRequest(@Param("firstUser") long firstUser, @Param("secondUser") long secondUser);
 
-    @Query("Select r From Request r where to LIKE :user ORDER BY createdAt desc, id asc")
+    @Query("Select r From Request r where receiver.id LIKE :user ORDER BY createdAt desc, id asc")
     Page<Request> findAll(
             @Param("user") long user,
             Pageable pageable);
 
-    @Query("Select r From Request r where to LIKE :user AND (createdAt LIKE :lastCreatedAt AND id > :lastId OR createdAt > :lastCreatedAt) " +
+    @Query("Select r From Request r where receiver.id LIKE :user AND (createdAt LIKE :lastCreatedAt AND id > :lastId OR createdAt > :lastCreatedAt) " +
             "ORDER BY createdAt desc, id asc")
     Page<Request> findNextAll(
             @Param("user") long user,
