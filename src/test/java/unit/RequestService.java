@@ -33,12 +33,26 @@ public class RequestService {
 
         requestService.findById(1L);
     }
+    @Test(expected = UnauthorizedException.class)
+    public void findById_WithRequestThatDoesNotBelongToUser_shouldThrow() {
+        UserModel receiver = new UserModel();
+        UserModel sender = new UserModel();
+
+        receiver.setId(1);
+        sender.setId(3);
+
+        when(requestRepository.findById(1L)).thenReturn(Optional.of(new Request(receiver, sender)));
+
+        requestService.findById(1L, 2L);
+    }
+
 
     @Test(expected = UnauthorizedException.class)
     public void verifyAccept_WithIncorrectReceiver_shouldThrow() {
         UserModel receiver = new UserModel();
-        receiver.setId(1);
         UserModel sender = new UserModel();
+
+        sender.setId(3);
         receiver.setId(2);
 
         UserModel loggedUser = new UserModel("username", "password", "ROLE_ADMIN");
@@ -54,8 +68,9 @@ public class RequestService {
     @Test()
     public void verifyAccept() {
         UserModel receiver = new UserModel();
-        receiver.setId(2);
         UserModel sender = new UserModel();
+
+        receiver.setId(2);
         sender.setId(1);
 
         UserModel loggedUser = new UserModel("username", "password", "ROLE_ADMIN");
@@ -71,8 +86,9 @@ public class RequestService {
     @Test(expected = UnauthorizedException.class)
     public void verifyDeny_WithIncorrectId_shouldThrow() {
         UserModel receiver = new UserModel();
-        receiver.setId(1);
         UserModel sender = new UserModel();
+
+        receiver.setId(1);
         sender.setId(2);
 
         UserModel loggedUser = new UserModel("username", "password", "ROLE_ADMIN");
@@ -88,8 +104,9 @@ public class RequestService {
     @Test()
     public void verifyDeny_WithSender() {
         UserModel receiver = new UserModel();
-        receiver.setId(1);
         UserModel sender = new UserModel();
+
+        receiver.setId(1);
         receiver.setId(2);
 
         UserModel loggedUser = new UserModel("username", "password", "ROLE_ADMIN");
@@ -102,11 +119,13 @@ public class RequestService {
         requestService.verifyDeny(1L, new UserDetails(loggedUser, authorities));
     }
 
+    @Test()
     public void verifyDeny_WithReceiver() {
         UserModel receiver = new UserModel();
-        receiver.setId(1);
         UserModel sender = new UserModel();
-        receiver.setId(2);
+
+        receiver.setId(1);
+        sender.setId(2);
 
         UserModel loggedUser = new UserModel("username", "password", "ROLE_ADMIN");
         loggedUser.setId(1);
@@ -116,5 +135,32 @@ public class RequestService {
         when(requestRepository.findById(1L)).thenReturn(Optional.of(new Request(sender, receiver)));
 
         requestService.verifyDeny(1L, new UserDetails(loggedUser, authorities));
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void findRequest_WithNonexistentRequest(){
+        when(requestRepository.findRequest(1, 2)).thenReturn(null);
+
+        requestService.findRequest(1, 2);
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void deleteById_withNonExistingId_shouldThrow() {
+        when(requestRepository.findById(1L)).thenReturn(Optional.empty());
+
+        requestService.deleteById(1L, 2L);
+    }
+
+    @Test(expected = UnauthorizedException.class)
+    public void deleteById_WithRequestThatDoesNotBelongToUser_shouldThrow() {
+        UserModel receiver = new UserModel();
+        UserModel sender = new UserModel();
+
+        receiver.setId(1);
+        sender.setId(3);
+
+        when(requestRepository.findById(1L)).thenReturn(Optional.of(new Request(receiver, sender)));
+
+        requestService.deleteById(1L, 2L);
     }
 }
