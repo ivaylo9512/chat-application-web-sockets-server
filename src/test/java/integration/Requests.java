@@ -323,4 +323,94 @@ class Requests {
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Request not found."));
     }
+
+    @Test
+    void acceptRequest_WithoutToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/accept/2"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    void acceptRequest_WithIncorrectToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/accept/2")
+                .header("Authorization", "Token incorrect"))
+                 .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    void denyRequest_WithoutToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/deny/2"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    void denyRequest_WithIncorrectToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/deny/2")
+                        .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    void findById_WithoutToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/findById/2"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    void findById_WithIncorrectToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/findById/2")
+                        .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    void findByUser_WithoutToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/findByUser/2"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    void findByUser_WithIncorrectToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/findByUser/2")
+                        .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    void findAll_WithoutToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/findAll/2"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    void findAll_WithIncorrectToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/findAll/2")
+                        .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    void addRequest_WithoutToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/add/2"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    void addRequest_WithIncorrectToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/add/2")
+                        .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
 }
