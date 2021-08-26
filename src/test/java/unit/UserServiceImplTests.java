@@ -10,20 +10,21 @@ import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.services.UserServiceImpl;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserServiceImplTests {
 
     @Mock
@@ -32,11 +33,16 @@ public class UserServiceImplTests {
     @InjectMocks
     private UserServiceImpl userService;
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void findById_withNonExistingUser_shouldThrow() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        userService.findById(1L);
+        EntityNotFoundException thrown = assertThrows(
+                EntityNotFoundException.class,
+                () -> userService.findById(1L)
+        );
+
+        assertEquals(thrown.getMessage(), "User doesn't exist.");
     }
 
     @Test()
@@ -47,15 +53,20 @@ public class UserServiceImplTests {
         userService.findById(1L);
     }
 
-    @Test(expected = UsernameExistsException.class)
+    @Test
     public void registerUser_WithAlreadyTakenUsername_ShouldThrow() {
         UserModel user = new UserModel("Test", "Test", "ROLE_ADMIN");
         when(userRepository.findByUsername("Test")).thenReturn(user);
 
-        userService.create(user);
+        UsernameExistsException thrown = assertThrows(
+                UsernameExistsException.class,
+                () -> userService.create(user)
+        );
+
+        assertEquals(thrown.getMessage(), "Username is already taken.");
     }
 
-    @Test()
+    @Test
     public void registerUser() {
         UserModel user = new UserModel("Test", "Test", "ROLE_USER");
 
@@ -64,10 +75,10 @@ public class UserServiceImplTests {
 
         UserModel registeredUser = userService.create(user);
 
-        Assert.assertEquals(registeredUser, user);
+        assertEquals(registeredUser, user);
     }
 
-    @Test()
+    @Test
     public void registerUser_RoleAdmin() {
         //Arrange
         UserModel user = new UserModel("Test", "Test", "ROLE_ADMIN");
@@ -79,7 +90,7 @@ public class UserServiceImplTests {
         UserModel registeredUser = userService.create(user);
 
         //Assert
-        Assert.assertEquals(registeredUser.getRole(),"ROLE_ADMIN");
+        assertEquals(registeredUser.getRole(),"ROLE_ADMIN");
     }
 
     @Test
@@ -96,12 +107,11 @@ public class UserServiceImplTests {
 
         userService.changePassword(passwordSpec);
 
-        Assert.assertEquals(userModel.getPassword(),newPassword);
+        assertEquals(userModel.getPassword(),newPassword);
     }
 
-    @Test(expected = BadCredentialsException.class)
+    @Test
     public void changePasswordState_WithWrongPassword_ShouldThrow(){
-
         NewPasswordSpec passwordSpec = new NewPasswordSpec("user", "InvalidPassword",
                 "newTestPassword1","newTestPassword1" );
 
@@ -110,10 +120,15 @@ public class UserServiceImplTests {
 
         when(userRepository.findByUsername("user")).thenReturn(userModel);
 
-        userService.changePassword(passwordSpec);
+        BadCredentialsException thrown = assertThrows(
+                BadCredentialsException.class,
+                () -> userService.changePassword(passwordSpec)
+        );
+
+        assertEquals(thrown.getMessage(), "Invalid current password.");
     }
 
-    @Test(expected = PasswordsMissMatchException.class)
+    @Test
     public void ChangePasswordState_WithNotMatchingPasswords_ShouldThrow(){
         String name = "name";
 
@@ -123,15 +138,15 @@ public class UserServiceImplTests {
         passwordSpec.setNewPassword("newTestPassword1");
         passwordSpec.setRepeatNewPassword("InvalidPassword");
 
-        UserModel userModel = new UserModel();
-        userModel.setPassword("current");
+        PasswordsMissMatchException thrown = assertThrows(
+                PasswordsMissMatchException.class,
+                () -> userService.changePassword(passwordSpec)
+        );
 
-        when(userRepository.findByUsername(name)).thenReturn(userModel);
-
-        userService.changePassword(passwordSpec);
+        assertEquals(thrown.getMessage(), "Passwords don't match");
     }
 
-    @Test(expected = PasswordsMissMatchException.class)
+    @Test
     public void RegisterUser_WithNotMatchingPasswords_shouldThrow() {
         RegisterSpec newRegistration = new RegisterSpec("Test", "TestPassword", "TestPasswordMissMatch");
 
@@ -139,14 +154,24 @@ public class UserServiceImplTests {
 
         when(userRepository.findByUsername("Test")).thenReturn(null);
 
-        userService.create(userModel);
+        PasswordsMissMatchException thrown = assertThrows(
+                PasswordsMissMatchException.class,
+                () -> userService.create(userModel)
+        );
+
+        assertEquals(thrown.getMessage(), "Password doesn't match.");
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test()
     public void changeUserInfo_WithNonExistentUser_ShouldThrow(){
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        userService.changeUserInfo(1L, new UserSpec());
+        EntityNotFoundException thrown = assertThrows(
+                EntityNotFoundException.class,
+                () -> userService.changeUserInfo(1L, new UserSpec())
+        );
+
+        assertEquals(thrown.getMessage(), "Username not found.");
     }
 
     @Test()
@@ -159,20 +184,25 @@ public class UserServiceImplTests {
 
         userService.changeUserInfo(1L, user);
 
-        Assert.assertEquals(userModel.getFirstName(), user.getFirstName());
-        Assert.assertEquals(userModel.getLastName(), user.getLastName());
-        Assert.assertEquals(userModel.getCountry(), user.getCountry());
-        Assert.assertEquals(userModel.getAge(), user.getAge());
+        assertEquals(userModel.getFirstName(), user.getFirstName());
+        assertEquals(userModel.getLastName(), user.getLastName());
+        assertEquals(userModel.getCountry(), user.getCountry());
+        assertEquals(userModel.getAge(), user.getAge());
     }
 
-    @Test(expected = BadCredentialsException.class)
+    @Test
     public void loadByUsername_WithNonExistentUsername_shouldThrow(){
         when(userRepository.findByUsername("username")).thenReturn(null);
 
-        userService.loadUserByUsername("username");
+        BadCredentialsException thrown = assertThrows(
+                BadCredentialsException.class,
+                () -> userService.loadUserByUsername("username")
+        );
+
+        assertEquals(thrown.getMessage(), "Bad credentials");
     }
 
-    @Test()
+    @Test
     public void loadByUsername(){
         UserModel userModel = new UserModel("username", "password", "ROLE_ADMIN");
         List<SimpleGrantedAuthority> authorities = Collections
@@ -183,27 +213,37 @@ public class UserServiceImplTests {
         when(userRepository.findByUsername("username")).thenReturn(userModel);
 
         UserDetails user = userService.loadUserByUsername("username");
-        Assert.assertEquals(userDetails, user);
+        assertEquals(userDetails, user);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test()
     public void delete_WithNonExistentUsername_shouldThrow(){
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        userService.delete(1L, any(UserDetails.class));
+        EntityNotFoundException thrown = assertThrows(
+                EntityNotFoundException.class,
+                () -> userService.delete(1L, any(UserDetails.class))
+        );
+
+        assertEquals(thrown.getMessage(), "User doesn't exist.");
     }
 
-    @Test(expected = UnauthorizedException.class)
+    @Test()
     public void delete_WithDifferentLoggedId_ThatIsNotAdmin_shouldThrow(){
         List<SimpleGrantedAuthority> authorities = Collections
                 .singletonList(new SimpleGrantedAuthority("ROLE_USER"));
         UserDetails userDetails = new UserDetails("username", "password", authorities, 2);
         when(userRepository.findById(1L)).thenReturn(Optional.of(new UserModel()));
 
-        userService.delete(1L, userDetails);
+        UnauthorizedException thrown = assertThrows(
+                UnauthorizedException.class,
+                () -> userService.delete(1L, userDetails)
+        );
+
+        assertEquals(thrown.getMessage(), "You are not allowed to modify the user.");
     }
 
-    @Test()
+    @Test
     public void delete_WithDifferentLoggedId_ThatIsAdmin(){
         List<SimpleGrantedAuthority> authorities = new ArrayList<>(
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN")));
@@ -213,7 +253,7 @@ public class UserServiceImplTests {
         userService.delete(1L, userDetails);
     }
 
-    @Test()
+    @Test
     public void delete_WithSameLoggedId(){
         List<SimpleGrantedAuthority> authorities = new ArrayList<>(
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
