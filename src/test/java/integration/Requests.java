@@ -5,6 +5,7 @@ import com.chat.app.config.SecurityConfig;
 import com.chat.app.config.TestDataSourceConfig;
 import com.chat.app.config.TestWebConfig;
 import com.chat.app.controllers.RequestController;
+import com.chat.app.models.Dtos.ChatDto;
 import com.chat.app.models.Dtos.PageDto;
 import com.chat.app.models.Dtos.RequestDto;
 import com.chat.app.models.Dtos.UserDto;
@@ -53,7 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = RequestController.class)
 @Import(SecurityConfig.class)
 @Transactional
-public class Requests {
+class Requests {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
@@ -65,7 +66,7 @@ public class Requests {
     private ObjectMapper objectMapper;
 
     @BeforeEach
-    public void setupData() {
+    void setupData() {
         ResourceDatabasePopulator rdp = new ResourceDatabasePopulator();
         rdp.addScript(new ClassPathResource("integrationTestsSql/ChatsData.sql"));
         rdp.addScript(new ClassPathResource("integrationTestsSql/RequestsData.sql"));
@@ -73,7 +74,7 @@ public class Requests {
     }
 
     @BeforeAll
-    public void setup() {
+    void setup() {
         UserModel admin = new UserModel("adminUser", "password", "ROLE_ADMIN");
         admin.setId(1);
 
@@ -92,7 +93,7 @@ public class Requests {
     }
 
     @Test
-    public void assertConfig_assertUserController(){
+    void assertConfig_assertUserController(){
         ServletContext servletContext = webApplicationContext.getServletContext();
 
         Assert.assertNotNull(servletContext);
@@ -101,21 +102,7 @@ public class Requests {
     }
 
     @Test
-    public void addRequest_ShouldReturnChat_WhenChatAlreadyExists() throws Exception{
-        MvcResult result = mockMvc.perform(post("/api/requests/auth/addRequest/2")
-                .header("Authorization", adminToken))
-                .andExpect(status().isOk())
-                .andReturn();
-        UserDto userDto = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
-        Assert.assertEquals(userDto.getChatWithUser().getId(), 1);
-
-        mockMvc.perform(get("/api/requests/auth/findRequest/2")
-                .header("Authorization", adminToken))
-                .andExpect(content().string(containsString("")));
-    }
-
-    @Test
-    public void findAll() throws Exception{
+    void findAll() throws Exception{
         MvcResult result = mockMvc.perform(get("/api/requests/auth/findAll/2")
                 .header("Authorization", adminToken))
                 .andExpect(status().isOk())
@@ -132,7 +119,7 @@ public class Requests {
     }
 
     @Test
-    public void findNextAll() throws Exception{
+    void findNextAll() throws Exception{
         MvcResult result = mockMvc.perform(get("/api/requests/auth/findAll/4/2021-08-26T18:17:44/1")
                 .header("Authorization", adminToken))
                 .andExpect(status().isOk())
@@ -146,5 +133,122 @@ public class Requests {
         Assert.assertEquals(requests.size(), 3);
         Assert.assertEquals(requests.get(0).getId(), 7);
         Assert.assertEquals(requests.get(2).getId(), 3);
+    }
+
+    @Test
+    void findById() throws Exception{
+        MvcResult result = mockMvc.perform(get("/api/requests/auth/findById/2")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        RequestDto request = objectMapper.readValue(result.getResponse().getContentAsString(), RequestDto.class);
+        Assert.assertEquals(request.getSender().getId(), 4);
+        Assert.assertEquals(request.getReceiver().getId(), 1);
+    }
+
+    @Test
+    void findById_WithNonExistentId_NotFound() throws Exception{
+        mockMvc.perform(get("/api/requests/auth/findById/222")
+                .header("Authorization", adminToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(containsString("Request not found.")));
+    }
+
+    @Test
+    void findById_WithRequestThatDoesNotBelongToUser_Unauthorized() throws Exception{
+        mockMvc.perform(get("/api/requests/auth/findById/4")
+                .header("Authorization", adminToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Unauthorized."));
+    }
+
+    @Test
+    void findRequest() throws Exception{
+        MvcResult result = mockMvc.perform(get("/api/requests/auth/findByUser/4")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        RequestDto request = objectMapper.readValue(result.getResponse().getContentAsString(), RequestDto.class);
+        Assert.assertEquals(request.getId(), 2);
+        Assert.assertEquals(request.getSender().getId(), 4);
+        Assert.assertEquals(request.getReceiver().getId(), 1);
+    }
+
+    @Test
+    void findRequest_WithNonExistentRequest_NotFound() throws Exception{
+        mockMvc.perform(get("/api/requests/auth/findByUser/222")
+                .header("Authorization", adminToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Request not found."));
+    }
+
+    @Test
+    void addRequest_ShouldReturnChat_WhenChatAlreadyExists() throws Exception{
+        MvcResult result = mockMvc.perform(post("/api/requests/auth/add/2")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        UserDto userDto = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
+        Assert.assertEquals(userDto.getChatWithUser().getId(), 1);
+
+        mockMvc.perform(get("/api/requests/auth/findByUser/2")
+                .header("Authorization", adminToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Request not found."));
+    }
+
+    @Test
+    void addRequest_WhenRequestIsNotAlreadyPresent() throws Exception{
+        MvcResult result = mockMvc.perform(post("/api/requests/auth/add/8")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        UserDto userDto = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
+        Assert.assertEquals(userDto.getRequestState(), "pending");
+
+        MvcResult requestResult = mockMvc.perform(get("/api/requests/auth/findByUser/8")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        RequestDto request = objectMapper.readValue(requestResult.getResponse().getContentAsString(), RequestDto.class);
+        Assert.assertEquals(request.getSender().getId(), 1);
+        Assert.assertEquals(request.getReceiver().getId(), 8);
+    }
+
+    @Test
+    void addRequest_WhenRequestIsPresent_AndLoggedUserIsSender() throws Exception{
+        MvcResult result = mockMvc.perform(post("/api/requests/auth/add/9")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        UserDto user = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
+        Assert.assertEquals(user.getRequestState(), "pending");
+        Assert.assertEquals(user.getRequestId(), 8);
+        Assert.assertNull(user.getChatWithUser());
+    }
+
+    @Test
+    void addRequest_WhenRequestIsPresent_AndLoggedUserIsReceiver_ShouldCreateChat_ShouldDeleteRequest() throws Exception{
+        MvcResult result = mockMvc.perform(post("/api/requests/auth/add/3")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        UserDto user = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
+        ChatDto chat = user.getChatWithUser();
+        Assert.assertEquals(user.getRequestState(), "completed");
+        Assert.assertEquals(chat.getFirstUser().getId(), 1);
+        Assert.assertEquals(chat.getSecondUser().getId(), 3);
+
+        mockMvc.perform(get("/api/requests/auth/findByUser/3")
+                .header("Authorization", adminToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(containsString("Request not found.")));
     }
 }
