@@ -6,20 +6,22 @@ import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import com.chat.app.repositories.base.RequestRepository;
 import com.chat.app.services.RequestServiceImpl;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import javax.persistence.EntityNotFoundException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RequestService {
     @Mock
     private RequestRepository requestRepository;
@@ -27,13 +29,18 @@ public class RequestService {
     @InjectMocks
     private RequestServiceImpl requestService;
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void findById_withNonExistingUser_shouldThrow() {
         when(requestRepository.findById(1L)).thenReturn(Optional.empty());
 
-        requestService.findById(1L);
+        EntityNotFoundException thrown = assertThrows(
+                EntityNotFoundException.class,
+                () -> requestService.findById(1L)
+        );
+
+        assertEquals(thrown.getMessage(), "Request not found.");
     }
-    @Test(expected = UnauthorizedException.class)
+    @Test
     public void findById_WithRequestThatDoesNotBelongToUser_shouldThrow() {
         UserModel receiver = new UserModel();
         UserModel sender = new UserModel();
@@ -43,11 +50,16 @@ public class RequestService {
 
         when(requestRepository.findById(1L)).thenReturn(Optional.of(new Request(receiver, sender)));
 
-        requestService.findById(1L, 2L);
+        UnauthorizedException thrown = assertThrows(
+                UnauthorizedException.class,
+                () -> requestService.findById(1L, 2L)
+        );
+
+        assertEquals(thrown.getMessage(), "Unauthorized.");
     }
 
 
-    @Test(expected = UnauthorizedException.class)
+    @Test
     public void verifyAccept_WithIncorrectReceiver_shouldThrow() {
         UserModel receiver = new UserModel();
         UserModel sender = new UserModel();
@@ -62,7 +74,12 @@ public class RequestService {
 
         when(requestRepository.findById(1L)).thenReturn(Optional.of(new Request(sender, receiver)));
 
-        requestService.verifyAccept(1L, new UserDetails(loggedUser, authorities));
+        UnauthorizedException thrown = assertThrows(
+                UnauthorizedException.class,
+                () -> requestService.verifyAccept(1L, new UserDetails(loggedUser, authorities))
+        );
+
+        assertEquals(thrown.getMessage(), "Unauthorized.");
     }
 
     @Test()
@@ -83,7 +100,7 @@ public class RequestService {
         requestService.verifyAccept(1L, new UserDetails(loggedUser, authorities));
     }
 
-    @Test(expected = UnauthorizedException.class)
+    @Test
     public void verifyDeny_WithIncorrectId_shouldThrow() {
         UserModel receiver = new UserModel();
         UserModel sender = new UserModel();
@@ -98,7 +115,12 @@ public class RequestService {
 
         when(requestRepository.findById(1L)).thenReturn(Optional.of(new Request(sender, receiver)));
 
-        requestService.verifyDeny(1L, new UserDetails(loggedUser, authorities));
+        UnauthorizedException thrown = assertThrows(
+                UnauthorizedException.class,
+                () -> requestService.verifyDeny(1L, new UserDetails(loggedUser, authorities))
+        );
+
+        assertEquals(thrown.getMessage(), "Unauthorized.");
     }
 
     @Test()
@@ -137,21 +159,31 @@ public class RequestService {
         requestService.verifyDeny(1L, new UserDetails(loggedUser, authorities));
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void findRequest_WithNonexistentRequest(){
         when(requestRepository.findRequest(1, 2)).thenReturn(null);
 
-        requestService.findRequest(1, 2);
+        EntityNotFoundException thrown = assertThrows(
+                EntityNotFoundException.class,
+                () -> requestService.findRequest(1, 2)
+        );
+
+        assertEquals(thrown.getMessage(), "Request not found.");
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void deleteById_withNonExistingId_shouldThrow() {
         when(requestRepository.findById(1L)).thenReturn(Optional.empty());
 
-        requestService.deleteById(1L, 2L);
+        EntityNotFoundException thrown = assertThrows(
+                EntityNotFoundException.class,
+                () -> requestService.deleteById(1L, 2L)
+        );
+
+        assertEquals(thrown.getMessage(), "Request not found.");
     }
 
-    @Test(expected = UnauthorizedException.class)
+    @Test
     public void deleteById_WithRequestThatDoesNotBelongToUser_shouldThrow() {
         UserModel receiver = new UserModel();
         UserModel sender = new UserModel();
@@ -161,6 +193,11 @@ public class RequestService {
 
         when(requestRepository.findById(1L)).thenReturn(Optional.of(new Request(receiver, sender)));
 
-        requestService.deleteById(1L, 2L);
+        UnauthorizedException thrown = assertThrows(
+                UnauthorizedException.class,
+                () -> requestService.deleteById(1L, 2L)
+        );
+
+        assertEquals(thrown.getMessage(), "Unauthorized.");
     }
 }

@@ -42,7 +42,7 @@ public class UserServiceImplTests {
                 () -> userService.findById(1L)
         );
 
-        assertEquals(thrown.getMessage(), "User doesn't exist.");
+        assertEquals(thrown.getMessage(), "User not found.");
     }
 
     @Test()
@@ -225,7 +225,7 @@ public class UserServiceImplTests {
                 () -> userService.delete(1L, any(UserDetails.class))
         );
 
-        assertEquals(thrown.getMessage(), "User doesn't exist.");
+        assertEquals(thrown.getMessage(), "User not found.");
     }
 
     @Test()
