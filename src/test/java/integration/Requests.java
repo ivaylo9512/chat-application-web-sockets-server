@@ -14,7 +14,6 @@ import com.chat.app.models.UserModel;
 import com.chat.app.security.Jwt;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +25,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -54,6 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = RequestController.class)
 @Import(SecurityConfig.class)
 @Transactional
+@ActiveProfiles("test")
 class Requests {
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -96,9 +98,9 @@ class Requests {
     void assertConfig_assertUserController(){
         ServletContext servletContext = webApplicationContext.getServletContext();
 
-        Assert.assertNotNull(servletContext);
-        Assert.assertTrue(servletContext instanceof MockServletContext);
-        Assert.assertNotNull(webApplicationContext.getBean("requestController"));
+        assertNotNull(servletContext);
+        assertTrue(servletContext instanceof MockServletContext);
+        assertNotNull(webApplicationContext.getBean("requestController"));
     }
 
     @Test
@@ -112,10 +114,10 @@ class Requests {
                 .getContentAsString(), new TypeReference<PageDto<RequestDto>>(){});
         List<RequestDto> requests = page.getData();
 
-        Assert.assertEquals(page.getCount(), 5);
-        Assert.assertEquals(requests.size(), 2);
-        Assert.assertEquals(requests.get(0).getId(), 2);
-        Assert.assertEquals(requests.get(1).getId(), 1);
+        assertEquals(page.getCount(), 5);
+        assertEquals(requests.size(), 2);
+        assertEquals(requests.get(0).getId(), 2);
+        assertEquals(requests.get(1).getId(), 1);
     }
 
     @Test
@@ -129,10 +131,10 @@ class Requests {
                 .getContentAsString(), new TypeReference<PageDto<RequestDto>>(){});
         List<RequestDto> requests = page.getData();
 
-        Assert.assertEquals(page.getCount(), 3);
-        Assert.assertEquals(requests.size(), 3);
-        Assert.assertEquals(requests.get(0).getId(), 7);
-        Assert.assertEquals(requests.get(2).getId(), 3);
+        assertEquals(page.getCount(), 3);
+        assertEquals(requests.size(), 3);
+        assertEquals(requests.get(0).getId(), 7);
+        assertEquals(requests.get(2).getId(), 3);
     }
 
     @Test
@@ -143,8 +145,8 @@ class Requests {
                 .andReturn();
 
         RequestDto request = objectMapper.readValue(result.getResponse().getContentAsString(), RequestDto.class);
-        Assert.assertEquals(request.getSender().getId(), 4);
-        Assert.assertEquals(request.getReceiver().getId(), 1);
+        assertEquals(request.getSender().getId(), 4);
+        assertEquals(request.getReceiver().getId(), 1);
     }
 
     @Test
@@ -171,9 +173,9 @@ class Requests {
                 .andReturn();
 
         RequestDto request = objectMapper.readValue(result.getResponse().getContentAsString(), RequestDto.class);
-        Assert.assertEquals(request.getId(), 2);
-        Assert.assertEquals(request.getSender().getId(), 4);
-        Assert.assertEquals(request.getReceiver().getId(), 1);
+        assertEquals(request.getId(), 2);
+        assertEquals(request.getSender().getId(), 4);
+        assertEquals(request.getReceiver().getId(), 1);
     }
 
     @Test
@@ -192,7 +194,7 @@ class Requests {
                 .andReturn();
 
         UserDto userDto = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
-        Assert.assertEquals(userDto.getChatWithUser().getId(), 1);
+        assertEquals(userDto.getChatWithUser().getId(), 1);
 
         mockMvc.perform(get("/api/requests/auth/findByUser/2")
                 .header("Authorization", adminToken))
@@ -208,7 +210,7 @@ class Requests {
                 .andReturn();
 
         UserDto userDto = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
-        Assert.assertEquals(userDto.getRequestState(), "pending");
+        assertEquals(userDto.getRequestState(), "pending");
 
         MvcResult requestResult = mockMvc.perform(get("/api/requests/auth/findByUser/8")
                 .header("Authorization", adminToken))
@@ -216,8 +218,8 @@ class Requests {
                 .andReturn();
 
         RequestDto request = objectMapper.readValue(requestResult.getResponse().getContentAsString(), RequestDto.class);
-        Assert.assertEquals(request.getSender().getId(), 1);
-        Assert.assertEquals(request.getReceiver().getId(), 8);
+        assertEquals(request.getSender().getId(), 1);
+        assertEquals(request.getReceiver().getId(), 8);
     }
 
     @Test
@@ -228,9 +230,9 @@ class Requests {
                 .andReturn();
 
         UserDto user = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
-        Assert.assertEquals(user.getRequestState(), "pending");
-        Assert.assertEquals(user.getRequestId(), 8);
-        Assert.assertNull(user.getChatWithUser());
+        assertEquals(user.getRequestState(), "pending");
+        assertEquals(user.getRequestId(), 8);
+        assertNull(user.getChatWithUser());
     }
 
     @Test
@@ -242,13 +244,83 @@ class Requests {
 
         UserDto user = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
         ChatDto chat = user.getChatWithUser();
-        Assert.assertEquals(user.getRequestState(), "completed");
-        Assert.assertEquals(chat.getFirstUser().getId(), 1);
-        Assert.assertEquals(chat.getSecondUser().getId(), 3);
+        assertEquals(user.getRequestState(), "completed");
+        assertEquals(chat.getFirstUser().getId(), 1);
+        assertEquals(chat.getSecondUser().getId(), 3);
 
         mockMvc.perform(get("/api/requests/auth/findByUser/3")
                 .header("Authorization", adminToken))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Request not found.")));
+    }
+
+    @Test
+    void denyRequest_AndDelete() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/deny/2")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/requests/auth/findById/2")
+                .header("Authorization", adminToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Request not found."));
+    }
+
+    @Test
+    void denyRequest_WithRequestThatDoesNotBelongToLoggedUser_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/deny/4")
+                .header("Authorization", adminToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Unauthorized."));
+    }
+
+    @Test
+    void denyRequest_WithNonExistentRequest_NotFound() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/deny/222")
+                .header("Authorization", adminToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Request not found."));
+    }
+
+    @Test
+    void acceptRequest_ShouldCreateChat_ShouldDeleteRequest() throws Exception{
+        MvcResult result = mockMvc.perform(post("/api/requests/auth/accept/3")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ChatDto chat = objectMapper.readValue(result.getResponse().getContentAsString(), ChatDto.class);
+
+        assertEquals(chat.getFirstUser().getId(), 1);
+        assertEquals(chat.getSecondUser().getId(), 5);
+
+        mockMvc.perform(get("/api/requests/auth/findById/3")
+                .header("Authorization", adminToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Request not found."));
+    }
+
+    @Test
+    void acceptRequest_WithRequestThatDoesNotBelongToLoggedUser_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/accept/4")
+                .header("Authorization", adminToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Unauthorized."));
+    }
+
+    @Test
+    void acceptRequest_WhenUserIsSender_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/accept/8")
+                .header("Authorization", adminToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Unauthorized."));
+    }
+
+    @Test
+    void acceptRequest_WithNonExistentRequest_NotFound() throws Exception{
+        mockMvc.perform(post("/api/requests/auth/accept/222")
+                .header("Authorization", adminToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Request not found."));
     }
 }
