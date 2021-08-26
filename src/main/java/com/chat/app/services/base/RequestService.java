@@ -9,11 +9,13 @@ public interface RequestService {
 
     Request findById(long id);
 
+    Request findById(long id, long loggedUser);
+
     Page<Request> findAll(Long userId, int pageSize, String lastCreatedAt, long lastId);
 
     Request findByUsers(long firstUser, long secondUser);
 
-    void deleteById(long id);
+    void deleteById(long id, long loggedUser);
 
     void delete(Request request);
 
@@ -22,4 +24,6 @@ public interface RequestService {
     Request verifyAccept(long id, UserDetails loggedUser);
 
     Request verifyDeny(long id, UserDetails loggedUser);
+
+    Request findRequest(long firstUser, long loggedUser);
 }

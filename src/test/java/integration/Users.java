@@ -61,7 +61,7 @@ public class Users {
     private DataSource dataSource;
 
     private MockMvc mockMvc;
-    private static String adminToken;
+    private static String adminToken, userToken;
     private ObjectMapper objectMapper;
 
     @BeforeEach
@@ -75,8 +75,15 @@ public class Users {
     public void setup() {
         UserModel admin = new UserModel("adminUser", "password", "ROLE_ADMIN");
         admin.setId(1);
+
+        UserModel user = new UserModel("testUser", "password", "ROLE_USER");
+        user.setId(2);
+
         adminToken = "Token " + Jwt.generate(new UserDetails(admin, Collections
                 .singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+
+        userToken = "Token " + Jwt.generate(new UserDetails(user, Collections
+                .singletonList(new SimpleGrantedAuthority("ROLE_USER"))));
 
         objectMapper = new ObjectMapper();
         mockMvc = MockMvcBuilders
@@ -111,6 +118,7 @@ public class Users {
         if(token != null){
             request.header("Authorization", token);
         }
+
         userDto.setRole(role);
         userDto.setId(10);
 
@@ -131,6 +139,14 @@ public class Users {
         mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", adminToken))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString(objectMapper.writeValueAsString(userDto))));
+    }
+
+    @WithMockUser(value = "spring")
+    @Test
+    public void registerAdmin_WithUserThatIsNotAdmin_Unauthorized() throws Exception {
+        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", userToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Unauthorized."));
     }
 
     @Test

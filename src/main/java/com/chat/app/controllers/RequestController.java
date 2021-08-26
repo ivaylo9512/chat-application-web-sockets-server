@@ -1,5 +1,6 @@
 package com.chat.app.controllers;
 
+import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.Chat;
 import com.chat.app.models.Dtos.ChatDto;
 import com.chat.app.models.Dtos.PageDto;
@@ -33,7 +34,7 @@ public class RequestController {
         this.requestService = requestService;
     }
 
-    @PostMapping("/auth/addRequest/{id}")
+    @PostMapping("/auth/add/{id}")
     public UserDto addRequest(@PathVariable("id") long id) {
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
@@ -50,12 +51,28 @@ public class RequestController {
         if(request != null){
             if(request.getReceiver().getId() == loggedUser.getId()){
                 requestService.delete(request);
-                return new UserDto(receiver, chatService.create(user, receiver ));
+                return new UserDto(receiver, chatService.create(user, receiver));
             }
             return new UserDto(receiver, request);
         }
 
         return new UserDto(receiver, requestService.create(user, receiver));
+    }
+
+    @GetMapping("/auth/findById/{id}")
+    private RequestDto findById(@PathVariable("id") long id){
+        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getDetails();
+
+        return new RequestDto(requestService.findById(id, loggedUser.getId()));
+    }
+
+    @GetMapping("/auth/findByUser/{id}")
+    private RequestDto findByUser(@PathVariable("id") long id){
+        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getDetails();
+
+        return new RequestDto(requestService.findRequest(id, loggedUser.getId()));
     }
 
     @GetMapping(value = {"/auth/findAll/{pageSize}", "/auth/findAll/{pageSize}/{lastCreatedAt}/{lastId}"})
@@ -99,7 +116,14 @@ public class RequestController {
     @ExceptionHandler
     ResponseEntity handleEntityNotFoundException(EntityNotFoundException e) {
         return ResponseEntity
-                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .status(HttpStatus.NOT_FOUND)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler
+    ResponseEntity handleUnauthorized(UnauthorizedException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(e.getMessage());
     }
 }

@@ -13,7 +13,7 @@ import javax.persistence.EntityNotFoundException;
 
 @Service
 public class RequestServiceImpl implements RequestService {
-    private RequestRepository requestRepository;
+    private final RequestRepository requestRepository;
 
     public RequestServiceImpl(RequestRepository requestRepository) {
         this.requestRepository = requestRepository;
@@ -23,6 +23,19 @@ public class RequestServiceImpl implements RequestService {
     public Request findById(long id){
         return requestRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException("Request not found."));
+    }
+
+    @Override
+    public Request findById(long id, long loggedUser){
+        Request request = requestRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Request not found."));
+
+        if(request.getSender().getId() != loggedUser &&
+                    request.getReceiver().getId() != loggedUser){
+            throw new UnauthorizedException("Unauthorized.");
+        }
+
+        return request;
     }
 
     @Override
@@ -39,9 +52,14 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public void deleteById(long id) {
+    public void deleteById(long id, long loggedUser) {
         Request request = requestRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException("Request not found."));
+
+        if(request.getSender().getId() != loggedUser &&
+                request.getReceiver().getId() != loggedUser){
+            throw new UnauthorizedException("Unauthorized.");
+        }
 
         requestRepository.delete(request);
     }
@@ -74,6 +92,17 @@ public class RequestServiceImpl implements RequestService {
         if(request.getReceiver().getId() != loggedUser.getId() &&
                 request.getSender().getId() != loggedUser.getId() ){
             throw new UnauthorizedException("Unauthorized.");
+        }
+
+        return request;
+    }
+
+    @Override
+    public Request findRequest(long secondUser, long loggedUser) {
+        Request request = requestRepository.findRequest(secondUser, loggedUser);
+
+        if(request == null){
+            throw new EntityNotFoundException("Request not found.");
         }
 
         return request;
