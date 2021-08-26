@@ -21,7 +21,6 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,8 +44,9 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     @Override
     public UserModel findById(long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User doesn't exist."));
+                .orElseThrow(() -> new EntityNotFoundException("User not found."));
     }
+
     @Override
     public Page<UserModel> findByUsernameWithRegex(long userId, String name, int take, String lastName, long lastId){
         if(lastName != null){
@@ -111,9 +111,8 @@ public class UserServiceImpl implements UserService,UserDetailsService {
 
     @Override
     public UserModel changePassword(NewPasswordSpec passwordSpec){
-
         if(!passwordSpec.getNewPassword().equals(passwordSpec.getRepeatNewPassword())){
-            throw new PasswordsMissMatchException("Password don't match");
+            throw new PasswordsMissMatchException("Passwords don't match");
         }
 
         UserModel user = userRepository.findByUsername(passwordSpec.getUsername());

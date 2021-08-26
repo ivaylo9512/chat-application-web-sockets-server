@@ -11,6 +11,9 @@ public class PageDto<T> {
         this.data = data;
     }
 
+    public PageDto(){
+    }
+
     public List<T> getData() {
         return data;
     }

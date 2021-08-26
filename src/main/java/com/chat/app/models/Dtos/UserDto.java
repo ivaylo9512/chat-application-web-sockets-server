@@ -23,7 +23,7 @@ public class UserDto {
     public UserDto(UserModel userModel, Chat chatWithUser){
         this(userModel);
         this.chatWithUser = new ChatDto(chatWithUser);
-        this.requestState = "complete";
+        this.requestState = "completed";
     }
 
     public UserDto(){

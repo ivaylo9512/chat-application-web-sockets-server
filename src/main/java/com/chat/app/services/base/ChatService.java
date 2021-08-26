@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ChatService {
 
-    Chat findById(long id);
+    Chat findById(long id, long loggedUser);
 
     Page<Chat> findUserChats(long id, int pageSize, String lastUpdatedAt, long lastId);
 

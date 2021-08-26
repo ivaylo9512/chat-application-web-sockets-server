@@ -23,12 +23,12 @@ public class UserModel {
     private String country;
     private String role;
 
-    @OneToMany(cascade = CascadeType.ALL , fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinTable(name = "requests",joinColumns ={@JoinColumn(name ="from")},
-            inverseJoinColumns = @JoinColumn(name ="to" ))
+    @ManyToMany(cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+    @JoinTable(name = "requests",joinColumns ={@JoinColumn(name ="receiver")},
+            inverseJoinColumns = @JoinColumn(name ="sender" ))
     private List<Chat> requests;
 
-    @OneToMany(cascade = CascadeType.ALL , fetch = FetchType.LAZY, orphanRemoval = true)
+    @ManyToMany(cascade = CascadeType.ALL , fetch = FetchType.LAZY)
     @JoinTable(name = "chats",joinColumns ={@JoinColumn(name ="first_user")},
             inverseJoinColumns = @JoinColumn(name ="second_user" ))
     private List<Chat> chats;
@@ -37,18 +37,25 @@ public class UserModel {
 
     }
 
-    public UserModel(String username, String password, String role, String firstName,
+    public UserModel(String username, String password, String firstName,
                      String lastName, int age, String country) {
-        this(username, password, role);
-
+        this.username = username;
+        this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
         this.country = country;
     }
 
+    public UserModel(String username, String password, String role, String firstName,
+                     String lastName, int age, String country) {
+        this(username, password, firstName, lastName, age, country);
+        this.role = role;
+    }
+
     public UserModel(RegisterSpec newUser, String role) {
-        this(newUser.getUsername(), newUser.getPassword(), role);
+        this(newUser.getUsername(), newUser.getPassword(), role, newUser.getFirstName(),
+                newUser.getLastName(), newUser.getAge(), newUser.getCountry());
     }
 
     public UserModel(String username, String password, String role){

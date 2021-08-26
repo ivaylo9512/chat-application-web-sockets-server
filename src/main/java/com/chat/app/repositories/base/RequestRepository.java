@@ -18,7 +18,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
             @Param("user") long user,
             Pageable pageable);
 
-    @Query("Select r From Request r where receiver.id LIKE :user AND (createdAt LIKE :lastCreatedAt AND id > :lastId OR createdAt > :lastCreatedAt) " +
+    @Query("Select r From Request r where receiver.id LIKE :user AND (created_at = :lastCreatedAt AND id > :lastId OR created_at < :lastCreatedAt) " +
             "ORDER BY createdAt desc, id asc")
     Page<Request> findNextAll(
             @Param("user") long user,

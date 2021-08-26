@@ -1,5 +1,6 @@
 package com.chat.app.services;
 
+import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.*;
 import com.chat.app.models.compositePK.SessionPK;
 import com.chat.app.models.specs.MessageSpec;
@@ -20,10 +21,10 @@ import java.util.List;
 @Service
 public class ChatServiceImpl implements ChatService {
 
-    private ChatRepository chatRepository;
-    private SessionRepository sessionRepository;
-    private MessageRepository messageRepository;
-    private UserRepository userRepository;
+    private final ChatRepository chatRepository;
+    private final SessionRepository sessionRepository;
+    private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
 
     ChatServiceImpl(ChatRepository chatRepository, SessionRepository sessionRepository, MessageRepository messageRepository, UserRepository userRepository){
         this.chatRepository = chatRepository;
@@ -33,9 +34,15 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Chat findById(long id) {
-        return chatRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException(String.format("Chat with id %d is not found.", id)));
+    public Chat findById(long id, long loggedUser) {
+        Chat chat = chatRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException("Chat not found."));
+
+        if(chat.getFirstUserModel().getId() != loggedUser &&
+                chat.getSecondUserModel().getId() != loggedUser){
+            throw new UnauthorizedException("Unauthorized.");
+        }
+        return chat;
     }
 
     @Override
@@ -125,7 +132,7 @@ public class ChatServiceImpl implements ChatService {
         long chatSecondUser = chat.getSecondUserModel().getId();
 
         if ((sender != chatFirstUser && sender != chatSecondUser) || (receiver != chatFirstUser && receiver != chatSecondUser)) {
-            throw new EntityNotFoundException("Users don't match the given chat.");
+            throw new UnauthorizedException("Users don't match the given chat.");
         }
     }
 

@@ -15,19 +15,17 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
-import javax.transaction.Transactional;
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.chat.app.models.UserDetails;
-
 
 @RestController
 @RequestMapping("/api/chats/auth")
 public class ChatController {
     private final ChatService chatService;
     private final UserService userService;
-    private SimpMessagingTemplate messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
 
     public ChatController(ChatService chatService, UserService userService, SimpMessagingTemplate messagingTemplate) {
@@ -55,10 +53,11 @@ public class ChatController {
         return new PageDto<>(page.getTotalPages(), chatDtos);
     }
 
-    @GetMapping(value = {"/findChatsByName/{pageSize}/{name}", "/findChatsByName/{pageSize}/{name}/{lastName}/{lastId}"})
+    @GetMapping(value = {"/findChatsByName/{pageSize}/{name}", "/findChatsByName/{pageSize}",
+            "/findChatsByName/{pageSize}/{lastName}/{lastId}", "/findChatsByName/{pageSize}/{name}/{lastName}/{lastId}"})
     public PageDto<ChatDto> findChatsByName(
             @PathVariable(name = "pageSize") int pageSize,
-            @PathVariable(name = "name") String name,
+            @PathVariable(name = "name", required = false) String name,
             @PathVariable(name = "lastName", required = false) String lastName,
             @PathVariable(name = "lastId", required = false) Long lastId
     ){
@@ -68,7 +67,7 @@ public class ChatController {
                 .getDetails();
         long userId = loggedUser.getId();
 
-        Page<Chat> page = chatService.findUserChatsByName(userId, pageSize, name, lastName, lastId == null ? 0 : lastId);
+        Page<Chat> page = chatService.findUserChatsByName(userId, pageSize, name == null ? "" : name, lastName, lastId == null ? 0 : lastId);
 
         List<ChatDto> chatDtos = page.getContent().stream().map(ChatDto::new).collect(Collectors.toList());
 
