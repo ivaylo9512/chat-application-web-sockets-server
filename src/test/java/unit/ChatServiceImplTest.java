@@ -1,5 +1,6 @@
 package unit;
 
+import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.Chat;
 import com.chat.app.models.Message;
 import com.chat.app.models.Session;
@@ -11,21 +12,23 @@ import com.chat.app.repositories.base.MessageRepository;
 import com.chat.app.repositories.base.SessionRepository;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.services.ChatServiceImpl;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ChatServiceImplTest {
 
     @Mock
@@ -43,25 +46,67 @@ public class ChatServiceImplTest {
     @InjectMocks
     private ChatServiceImpl chatService;
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void findById_withNonExistingChat_shouldThrow() {
         when(chatRepository.findById(1L)).thenReturn(Optional.empty());
 
-        chatService.findById(1L);
+        EntityNotFoundException thrown = assertThrows(
+                EntityNotFoundException.class,
+                () -> chatService.findById(1L, 1L)
+        );
+
+        assertEquals(thrown.getMessage(), "Chat not found.");
     }
 
-    @Test()
+    @Test
     public void findById() {
-        Chat chat = new Chat();
+        UserModel firsUser = new UserModel();
+        UserModel secondUser = new UserModel();
+        firsUser.setId(1);
+        secondUser.setId(2);
+        Chat chat = new Chat(firsUser, secondUser);
 
         when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
 
-        Chat foundChat = chatService.findById(1L);
+        Chat foundChat = chatService.findById(1L, 2L);
 
-        Assert.assertEquals(chat, foundChat);
+        assertEquals(chat, foundChat);
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
+    public void findById_WithSecondUser() {
+        UserModel firsUser = new UserModel();
+        UserModel secondUser = new UserModel();
+        firsUser.setId(1);
+        secondUser.setId(2);
+        Chat chat = new Chat(firsUser, secondUser);
+
+        when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
+
+        Chat foundChat = chatService.findById(1L, 1L);
+
+        assertEquals(chat, foundChat);
+    }
+
+    @Test
+    public void findById_WithChatThatDoesNotBelongToUser() {
+        UserModel firsUser = new UserModel();
+        UserModel secondUser = new UserModel();
+        firsUser.setId(1);
+        secondUser.setId(2);
+        Chat chat = new Chat(firsUser, secondUser);
+
+        when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
+
+        UnauthorizedException thrown = assertThrows(
+                UnauthorizedException.class,
+                () -> chatService.findById(1L, 3L)
+        );
+
+        assertEquals(thrown.getMessage(), "Unauthorized.");
+    }
+
+    @Test
     public void addNewMessage_withChatThatIsNotWithSameSenderAndReceiverId_shouldThrow() {
         UserModel sender = new UserModel();
         sender.setId(1);
@@ -76,10 +121,15 @@ public class ChatServiceImplTest {
 
         when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
 
-        chatService.addNewMessage(messageSpec);
+        UnauthorizedException thrown = assertThrows(
+                UnauthorizedException.class,
+                () -> chatService.addNewMessage(messageSpec)
+        );
+
+        assertEquals(thrown.getMessage(), "Users don't match the given chat.");
     }
 
-    @Test()
+    @Test
     public void addNewMessage_withNewSession() {
         UserModel sender = new UserModel();
         sender.setId(2);
@@ -102,10 +152,10 @@ public class ChatServiceImplTest {
 
         Message savedMessage = chatService.addNewMessage(messageSpec);
 
-        Assert.assertEquals(message, savedMessage);
+        assertEquals(message, savedMessage);
     }
 
-    @Test()
+    @Test
     public void findUsersChats() {
         List<Session> sessions = new ArrayList<>(Arrays.asList(new Session(), new Session()));
         Chat chat = new Chat();
@@ -117,11 +167,11 @@ public class ChatServiceImplTest {
 
         Chat foundChat = chatService.findUsersChat(1, 2);
 
-        Assert.assertEquals(sessions, foundChat.getSessions());
+        assertEquals(sessions, foundChat.getSessions());
     }
 
 
-    @Test()
+    @Test
     public void findUserChats(){
         UserModel user = new UserModel();
         UserModel user2 = new UserModel();
@@ -152,13 +202,13 @@ public class ChatServiceImplTest {
         Page<Chat> chatPage = chatService.findUserChats(1, 5, "2021-02-02", 0);
 
 
-        Assert.assertEquals(chatPage.getTotalElements(), chats.size());
-        Assert.assertEquals(chatPage.getContent().get(0).getSessions(), sessions);
-        Assert.assertEquals(chatPage.getContent(), chats);
-        Assert.assertEquals(chat.getFirstUserModel(), user);
-        Assert.assertEquals(chat.getSecondUserModel(), user2);
-        Assert.assertEquals(chat1.getFirstUserModel(), user);
-        Assert.assertEquals(chat1.getSecondUserModel(), user3);
+        assertEquals(chatPage.getTotalElements(), chats.size());
+        assertEquals(chatPage.getContent().get(0).getSessions(), sessions);
+        assertEquals(chatPage.getContent(), chats);
+        assertEquals(chat.getFirstUserModel(), user);
+        assertEquals(chat.getSecondUserModel(), user2);
+        assertEquals(chat1.getFirstUserModel(), user);
+        assertEquals(chat1.getSecondUserModel(), user3);
     }
 
     @Test()
@@ -191,12 +241,12 @@ public class ChatServiceImplTest {
 
         Page<Chat> chatPage = chatService.findUserChatsByName(1, 5, "name", "lastName", 0);
 
-        Assert.assertEquals(chatPage.getTotalElements(), chats.size());
-        Assert.assertEquals(chatPage.getContent().get(0).getSessions(), sessions);
-        Assert.assertEquals(chatPage.getContent(), chats);
-        Assert.assertEquals(chat.getFirstUserModel(), user);
-        Assert.assertEquals(chat.getSecondUserModel(), user2);
-        Assert.assertEquals(chat1.getFirstUserModel(), user);
-        Assert.assertEquals(chat1.getSecondUserModel(), user3);
+        assertEquals(chatPage.getTotalElements(), chats.size());
+        assertEquals(chatPage.getContent().get(0).getSessions(), sessions);
+        assertEquals(chatPage.getContent(), chats);
+        assertEquals(chat.getFirstUserModel(), user);
+        assertEquals(chat.getSecondUserModel(), user2);
+        assertEquals(chat1.getFirstUserModel(), user);
+        assertEquals(chat1.getSecondUserModel(), user3);
     }
 }
