@@ -25,16 +25,12 @@ public class FileController {
 
     @GetMapping("/download/{fileName:.+}")
     public ResponseEntity<Resource> get(@PathVariable String fileName, HttpServletRequest request) throws FileNotFoundException {
+        Resource resource = fileService.getAsResource(fileName);
+        String contentType;
 
-        Resource resource = fileService.getFileAsResource(fileName);
-        String contentType = null;
         try {
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
         } catch (IOException e) {
-            System.out.println("Could not get file type");
-        }
-
-        if (contentType == null) {
             contentType = "application/octet-stream";
         }
 
@@ -43,5 +39,13 @@ public class FileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" +
                         resource.getFilename() + "\"")
                 .body(resource);
+    }
+
+    @DeleteMapping("/auth/delete/{name}")
+    public boolean delete(@PathVariable("name") String name){
+        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getDetails();
+
+        return fileService.delete(name, userService.findById(loggedUser.getId(), loggedUser));
     }
 }
