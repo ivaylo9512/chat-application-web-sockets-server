@@ -8,6 +8,7 @@ import com.chat.app.controllers.UserController;
 import com.chat.app.models.Dtos.UserDto;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
+import com.chat.app.models.specs.UserSpec;
 import com.chat.app.security.Jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
@@ -28,6 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -37,8 +39,7 @@ import javax.sql.DataSource;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -146,7 +147,7 @@ public class Users {
     public void registerAdmin_WithUserThatIsNotAdmin_Unauthorized() throws Exception {
         mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", userToken))
                 .andExpect(status().isUnauthorized())
-                .andExpect(content().string("Unauthorized."));
+                .andExpect(content().string("Access is denied"));
     }
 
     @Test
@@ -200,5 +201,26 @@ public class Users {
     void findById_WithNonExistentId() throws Exception {
         mockMvc.perform(get("/api/users/findById/222"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void changeUserInfo() throws Exception {
+        UserSpec userSpec = new UserSpec("newUsername", "newFirstName", "newLastName", 26, "newCountry");
+        mockMvc.perform(post("/api/users/auth/changeUserInfo")
+                .header("Authorization", adminToken)
+                .contentType("Application/json")
+                .content(objectMapper.writeValueAsString(userSpec)))
+                .andExpect(status().isOk());
+
+        MvcResult result = mockMvc.perform(get("/api/users/findById/1"))
+                .andExpect(status().isOk())
+                .andReturn();
+        UserDto user = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
+
+        assertEquals(user.getUsername(), userSpec.getUsername());
+        assertEquals(user.getFirstName(), userSpec.getFirstName());
+        assertEquals(user.getLastName(), userSpec.getLastName());
+        assertEquals(user.getCountry(), userSpec.getCountry());
+        assertEquals(user.getAge(), userSpec.getAge());
     }
 }

@@ -10,6 +10,7 @@ import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.services.UserServiceImpl;
+import org.h2.engine.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,6 +18,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
@@ -80,49 +83,44 @@ public class UserServiceImplTests {
 
     @Test
     public void registerUser_RoleAdmin() {
-        //Arrange
         UserModel user = new UserModel("Test", "Test", "ROLE_ADMIN");
 
         when(userRepository.findByUsername("Test")).thenReturn(null);
         when(userRepository.save(user)).thenReturn(user);
 
-        //Act
         UserModel registeredUser = userService.create(user);
 
-        //Assert
         assertEquals(registeredUser.getRole(),"ROLE_ADMIN");
     }
 
     @Test
     public void changePasswords(){
-        String password = "currentPassword";
-        String newPassword = "newTestPassword1";
-
-        NewPasswordSpec passwordSpec = new NewPasswordSpec("user", password, newPassword, newPassword);
+        NewPasswordSpec passwordSpec = new NewPasswordSpec("user",
+                "currentPassword", "newTestPassword", "newTestPassword");
 
         UserModel userModel = new UserModel();
-        userModel.setPassword(password);
+        userModel.setPassword("currentPassword");
 
-        when(userRepository.findByUsername("user")).thenReturn(userModel);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));
+        when(userRepository.save(userModel)).thenReturn(userModel);
 
-        userService.changePassword(passwordSpec);
-
-        assertEquals(userModel.getPassword(),newPassword);
+        UserModel user = userService.changePassword(passwordSpec, 1);
+        assertTrue(BCrypt.checkpw("newTestPassword", user.getPassword()));
     }
 
     @Test
     public void changePasswordState_WithWrongPassword_ShouldThrow(){
         NewPasswordSpec passwordSpec = new NewPasswordSpec("user", "InvalidPassword",
-                "newTestPassword1","newTestPassword1" );
+                "newTestPassword","newTestPassword" );
 
         UserModel userModel = new UserModel();
         userModel.setPassword("currentPassword");
 
-        when(userRepository.findByUsername("user")).thenReturn(userModel);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));
 
         BadCredentialsException thrown = assertThrows(
                 BadCredentialsException.class,
-                () -> userService.changePassword(passwordSpec)
+                () -> userService.changePassword(passwordSpec, 1)
         );
 
         assertEquals(thrown.getMessage(), "Invalid current password.");
@@ -130,20 +128,30 @@ public class UserServiceImplTests {
 
     @Test
     public void ChangePasswordState_WithNotMatchingPasswords_ShouldThrow(){
-        String name = "name";
-
-        NewPasswordSpec passwordSpec = new NewPasswordSpec();
-        passwordSpec.setUsername(name);
-        passwordSpec.setCurrentPassword("Current");
-        passwordSpec.setNewPassword("newTestPassword1");
-        passwordSpec.setRepeatNewPassword("InvalidPassword");
+        NewPasswordSpec passwordSpec = new NewPasswordSpec("username",
+                "current", "newTestPassword", "InvalidPassword");
 
         PasswordsMissMatchException thrown = assertThrows(
                 PasswordsMissMatchException.class,
-                () -> userService.changePassword(passwordSpec)
+                () -> userService.changePassword(passwordSpec, 1)
         );
 
         assertEquals(thrown.getMessage(), "Passwords don't match");
+    }
+
+    @Test
+    public void ChangePasswordState_WithNonExistentUser_EntityNotFound(){
+        NewPasswordSpec passwordSpec = new NewPasswordSpec("username",
+                "current", "newTestPassword", "newTestPassword");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException thrown = assertThrows(
+                EntityNotFoundException.class,
+                () -> userService.changePassword(passwordSpec, 1)
+        );
+
+        assertEquals(thrown.getMessage(), "User not found.");
     }
 
     @Test
@@ -176,8 +184,28 @@ public class UserServiceImplTests {
 
     @Test()
     public void changeUserInfo(){
+        UserSpec user = new UserSpec("newUsername", "firstName", "lastName", 25, "Country");
+        UserModel userModel = new UserModel();
+        userModel.setUsername("username");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));
+        when(userRepository.save(any(UserModel.class))).thenReturn(userModel);
+        when(userRepository.findByUsername("newUsername")).thenReturn(null);
+
+        userService.changeUserInfo(1L, user);
+
+        assertEquals(userModel.getUsername(), user.getUsername());
+        assertEquals(userModel.getFirstName(), user.getFirstName());
+        assertEquals(userModel.getLastName(), user.getLastName());
+        assertEquals(userModel.getCountry(), user.getCountry());
+        assertEquals(userModel.getAge(), user.getAge());
+    }
+
+    @Test()
+    public void changeUserInfo_WhenSameUsername(){
         UserSpec user = new UserSpec("username", "firstName", "lastName", 25, "Country");
         UserModel userModel = new UserModel();
+        userModel.setUsername("username");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));
         when(userRepository.save(any(UserModel.class))).thenReturn(userModel);
@@ -190,8 +218,25 @@ public class UserServiceImplTests {
         assertEquals(userModel.getAge(), user.getAge());
     }
 
+    @Test()
+    public void changeUserInfo_WhenUsernameIsTaken(){
+        UserSpec user = new UserSpec("newUsername", "firstName", "lastName", 25, "Country");
+        UserModel userModel = new UserModel();
+        userModel.setUsername("username");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));
+        when(userRepository.findByUsername("newUsername")).thenReturn(new UserModel());
+
+        UsernameExistsException thrown = assertThrows(
+                UsernameExistsException.class,
+                () -> userService.changeUserInfo(1L, user)
+        );
+
+        assertEquals(thrown.getMessage(), "Username is already taken.");
+    }
+
     @Test
-    public void loadByUsername_WithNonExistentUsername_shouldThrow(){
+    public void loadByUsername_WithNonExistentUsername_BadCredentials(){
         when(userRepository.findByUsername("username")).thenReturn(null);
 
         BadCredentialsException thrown = assertThrows(
@@ -233,6 +278,7 @@ public class UserServiceImplTests {
         List<SimpleGrantedAuthority> authorities = Collections
                 .singletonList(new SimpleGrantedAuthority("ROLE_USER"));
         UserDetails userDetails = new UserDetails("username", "password", authorities, 2);
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(new UserModel()));
 
         UnauthorizedException thrown = assertThrows(
@@ -248,6 +294,7 @@ public class UserServiceImplTests {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>(
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN")));
         UserDetails userDetails = new UserDetails("username", "password", authorities, 2);
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(new UserModel()));
 
         userService.delete(1L, userDetails);
