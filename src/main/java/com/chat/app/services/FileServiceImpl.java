@@ -39,8 +39,10 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public File create(MultipartFile receivedFile, String name, String type) {
+    public File create(MultipartFile receivedFile, String name, String type, UserModel owner) {
         File file = generate(receivedFile, name, type);
+        file.setOwner(owner);
+
         try {
             save(file, receivedFile);
         } catch (IOException e) {
@@ -65,10 +67,15 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean delete(String fileName) {
+    public boolean delete(String fileName, UserModel loggedUser) {
         File file = findByName(fileName);
         if(file == null){
             throw new EntityNotFoundException("File not found.");
+        }
+
+        if(file.getOwner().getId() != loggedUser.getId()
+                && !loggedUser.getRole().equals("ROLE_ADMIN")){
+            throw new UnauthorizedException("Unauthorized");
         }
 
         if(new java.io.File("./uploads/" + fileName).delete()){

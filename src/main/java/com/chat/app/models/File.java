@@ -16,6 +16,10 @@ public class File {
     private String type;
     private double size;
 
+    @ManyToOne
+    @PrimaryKeyJoinColumn
+    private UserModel owner;
+
     public File() {
 
     }
@@ -70,5 +74,13 @@ public class File {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public UserModel getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserModel owner) {
+        this.owner = owner;
     }
 }

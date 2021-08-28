@@ -1,14 +1,14 @@
 package com.chat.app.controllers;
 
+import com.chat.app.models.UserDetails;
 import com.chat.app.services.base.FileService;
+import com.chat.app.services.base.UserService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,11 +16,12 @@ import java.io.IOException;
 @RestController
 @RequestMapping(value = "/images")
 public class FileController {
-
     private final FileService fileService;
+    private final UserService userService;
 
-    public FileController(FileService fileService) {
+    public FileController(FileService fileService, UserService userService) {
         this.fileService = fileService;
+        this.userService = userService;
     }
 
     @GetMapping("/download/{fileName:.+}")
@@ -46,6 +47,6 @@ public class FileController {
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        return fileService.delete(name, userService.findById(loggedUser.getId(), loggedUser));
+        return fileService.delete(name, userService.findById(loggedUser.getId()));
     }
 }
