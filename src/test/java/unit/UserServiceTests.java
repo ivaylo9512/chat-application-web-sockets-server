@@ -10,7 +10,6 @@ import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.services.UserServiceImpl;
-import org.h2.engine.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
@@ -28,7 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceImplTests {
+public class UserServiceTests {
 
     @Mock
     private UserRepository userRepository;
@@ -174,62 +172,104 @@ public class UserServiceImplTests {
     public void changeUserInfo_WithNonExistentUser_ShouldThrow(){
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
+        UserSpec userSpec = new UserSpec();
+        userSpec.setId(1);
+
+        UserModel loggedUserModel = new UserModel(1, "username",
+                "password", "ROLE_ADMIN");
+        UserDetails loggedUser = new UserDetails(loggedUserModel, List.of(
+                new SimpleGrantedAuthority(loggedUserModel.getRole())));
+
         EntityNotFoundException thrown = assertThrows(
                 EntityNotFoundException.class,
-                () -> userService.changeUserInfo(1L, new UserSpec())
+                () -> userService.changeUserInfo(userSpec, loggedUser)
         );
 
-        assertEquals(thrown.getMessage(), "Username not found.");
+        assertEquals(thrown.getMessage(), "User not found.");
     }
 
     @Test()
-    public void changeUserInfo(){
-        UserSpec user = new UserSpec("newUsername", "firstName", "lastName", 25, "Country");
-        UserModel userModel = new UserModel();
-        userModel.setUsername("username");
+    public void changeUserInfo_WithSameId(){
+        UserSpec newUser = new UserSpec(1, "newUsername", "firstName",
+                "lastName", 25, "Country");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));
-        when(userRepository.save(any(UserModel.class))).thenReturn(userModel);
+        UserModel oldUser = new UserModel(1, "username", "password", "ROLE_USER");
+        UserDetails loggedUser = new UserDetails(oldUser, List.of(
+                new SimpleGrantedAuthority(oldUser.getRole())));
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
+        when(userRepository.save(oldUser)).thenReturn(oldUser);
         when(userRepository.findByUsername("newUsername")).thenReturn(null);
 
-        userService.changeUserInfo(1L, user);
+        userService.changeUserInfo(newUser, loggedUser);
 
-        assertEquals(userModel.getUsername(), user.getUsername());
-        assertEquals(userModel.getFirstName(), user.getFirstName());
-        assertEquals(userModel.getLastName(), user.getLastName());
-        assertEquals(userModel.getCountry(), user.getCountry());
-        assertEquals(userModel.getAge(), user.getAge());
+        assertEquals(newUser.getUsername(), oldUser.getUsername());
+        assertEquals(newUser.getFirstName(), oldUser.getFirstName());
+        assertEquals(newUser.getLastName(), oldUser.getLastName());
+        assertEquals(newUser.getCountry(), oldUser.getCountry());
+        assertEquals(newUser.getAge(), oldUser.getAge());
     }
 
     @Test()
-    public void changeUserInfo_WhenSameUsername(){
-        UserSpec user = new UserSpec("username", "firstName", "lastName", 25, "Country");
-        UserModel userModel = new UserModel();
-        userModel.setUsername("username");
+    public void changeUserInfo_WithAdmin(){
+        UserSpec newUser = new UserSpec(1, "newUsername", "firstName",
+                "lastName", 25, "Country");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));
-        when(userRepository.save(any(UserModel.class))).thenReturn(userModel);
+        UserModel oldUser = new UserModel();
+        oldUser.setUsername("username");
 
-        userService.changeUserInfo(1L, user);
+        UserModel loggedUserModel = new UserModel(2, "username",
+                "password", "ROLE_ADMIN");
+        UserDetails loggedUser = new UserDetails(loggedUserModel, List.of(
+                new SimpleGrantedAuthority(loggedUserModel.getRole())));
 
-        assertEquals(userModel.getFirstName(), user.getFirstName());
-        assertEquals(userModel.getLastName(), user.getLastName());
-        assertEquals(userModel.getCountry(), user.getCountry());
-        assertEquals(userModel.getAge(), user.getAge());
+        when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
+        when(userRepository.save(oldUser)).thenReturn(oldUser);
+        when(userRepository.findByUsername("newUsername")).thenReturn(null);
+
+        userService.changeUserInfo(newUser, loggedUser);
+
+        assertEquals(oldUser.getUsername(), newUser.getUsername());
+        assertEquals(oldUser.getFirstName(), newUser.getFirstName());
+        assertEquals(oldUser.getLastName(), newUser.getLastName());
+        assertEquals(oldUser.getCountry(), newUser.getCountry());
+        assertEquals(oldUser.getAge(), newUser.getAge());
+    }
+
+    @Test()
+    public void changeUserInfo_WhenSameOldNewUsername(){
+        UserSpec newUser = new UserSpec(1, "username", "firstName", "lastName", 25, "Country");
+
+        UserModel oldUser = new UserModel(1, "username", "password", "ROLE_USER");
+        UserDetails loggedUser = new UserDetails(oldUser, List.of(
+                new SimpleGrantedAuthority(oldUser.getRole())));
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
+        when(userRepository.save(oldUser)).thenReturn(oldUser);
+
+        userService.changeUserInfo(newUser, loggedUser);
+
+        assertEquals(oldUser.getFirstName(), newUser.getFirstName());
+        assertEquals(oldUser.getLastName(), newUser.getLastName());
+        assertEquals(oldUser.getCountry(), newUser.getCountry());
+        assertEquals(oldUser.getAge(), newUser.getAge());
     }
 
     @Test()
     public void changeUserInfo_WhenUsernameIsTaken(){
-        UserSpec user = new UserSpec("newUsername", "firstName", "lastName", 25, "Country");
-        UserModel userModel = new UserModel();
-        userModel.setUsername("username");
+        UserSpec newUser = new UserSpec(1, "newUsername", "firstName",
+                "lastName", 25, "Country");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));
+        UserModel oldUser = new UserModel(1, "username", "password", "ROLE_USER");
+        UserDetails loggedUser = new UserDetails(oldUser, List.of(
+                new SimpleGrantedAuthority(oldUser.getRole())));
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
         when(userRepository.findByUsername("newUsername")).thenReturn(new UserModel());
 
         UsernameExistsException thrown = assertThrows(
                 UsernameExistsException.class,
-                () -> userService.changeUserInfo(1L, user)
+                () -> userService.changeUserInfo(newUser, loggedUser)
         );
 
         assertEquals(thrown.getMessage(), "Username is already taken.");
@@ -250,10 +290,9 @@ public class UserServiceImplTests {
     @Test
     public void loadByUsername(){
         UserModel userModel = new UserModel("username", "password", "ROLE_ADMIN");
-        List<SimpleGrantedAuthority> authorities = Collections
-                .singletonList(new SimpleGrantedAuthority(userModel.getRole()));
 
-        UserDetails userDetails = new UserDetails(userModel, authorities);
+        UserDetails userDetails = new UserDetails(userModel, List.of(
+                new SimpleGrantedAuthority(userModel.getRole())));
 
         when(userRepository.findByUsername("username")).thenReturn(userModel);
 
@@ -275,8 +314,8 @@ public class UserServiceImplTests {
 
     @Test()
     public void delete_WithDifferentLoggedId_ThatIsNotAdmin_shouldThrow(){
-        List<SimpleGrantedAuthority> authorities = Collections
-                .singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        List<SimpleGrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_USER"));
         UserDetails userDetails = new UserDetails("username", "password", authorities, 2);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(new UserModel()));
@@ -291,8 +330,8 @@ public class UserServiceImplTests {
 
     @Test
     public void delete_WithDifferentLoggedId_ThatIsAdmin(){
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>(
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        List<SimpleGrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_ADMIN"));
         UserDetails userDetails = new UserDetails("username", "password", authorities, 2);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(new UserModel()));
@@ -302,8 +341,8 @@ public class UserServiceImplTests {
 
     @Test
     public void delete_WithSameLoggedId(){
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>(
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+        List<SimpleGrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_USER"));
         UserDetails userDetails = new UserDetails("username", "password", authorities, 1);
         when(userRepository.findById(1L)).thenReturn(Optional.of(new UserModel()));
 
