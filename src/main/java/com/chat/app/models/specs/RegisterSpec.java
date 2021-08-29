@@ -1,15 +1,28 @@
 package com.chat.app.models.specs;
 
+import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
+import javax.validation.constraints.NotNull;
 
 public class RegisterSpec {
+    @Length(min = 8, max=20)
     private String username;
+
+    @Length(min = 8, max=20)
     private String password;
+
+    @Length(min = 8, max=20)
     private String repeatPassword;
+
     private MultipartFile profileImage;
+
+    @NotNull
     private String firstName;
+    @NotNull
     private String lastName;
+    @NotNull
     private String country;
+    @NotNull
     private int age;
 
 

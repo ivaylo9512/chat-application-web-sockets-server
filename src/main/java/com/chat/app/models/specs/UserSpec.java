@@ -1,25 +1,33 @@
 package com.chat.app.models.specs;
 
-import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.NotNull;
 
 public class UserSpec {
+    @NotNull
+    private long id;
 
-    @Size(min=7, max=22, message="Name should be be between 7 and 18 char.")
+    @Length(min = 8, max=20)
     private String username;
 
+    @NotNull
     private String firstName;
 
+    @NotNull
     private String lastName;
 
+    @NotNull
     private int age;
 
+    @NotNull
     private String country;
 
     public UserSpec() {
 
     }
 
-    public UserSpec(String username, String firstName, String lastName, int age, String country) {
+    public UserSpec(long id, String username, String firstName, String lastName, int age, String country) {
+        this.id = id;
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -67,4 +75,11 @@ public class UserSpec {
         this.country = country;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 }

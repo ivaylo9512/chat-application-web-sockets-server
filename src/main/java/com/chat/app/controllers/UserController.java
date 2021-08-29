@@ -1,7 +1,6 @@
 package com.chat.app.controllers;
 
 import com.chat.app.exceptions.PasswordsMissMatchException;
-import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.*;
 import com.chat.app.models.Dtos.PageDto;
@@ -20,8 +19,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,11 +43,25 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = "/auth/registerAdmin")
-    public UserDto registerAdmin(@ModelAttribute RegisterSpec registerSpec, HttpServletResponse response){
+    public UserDto registerAdmin(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response){
         UserModel newUser = new UserModel(registerSpec, "ROLE_ADMIN");
+        userService.create(newUser);
 
         if(registerSpec.getProfileImage() != null){
-            File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "logo");
+            File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "logo", "image", newUser);
+            newUser.setProfileImage(profileImage);
+        }
+
+        return new UserDto(userService.save(newUser));
+    }
+
+    @PostMapping(value = "/register")
+    public UserDto register(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) {
+        UserModel newUser = new UserModel(registerSpec, "ROLE_USER");
+        userService.create(newUser);
+
+        if(registerSpec.getProfileImage() != null){
+            File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "profile", "image", newUser);
             newUser.setProfileImage(profileImage);
         }
 
@@ -56,19 +69,7 @@ public class UserController {
                 Collections.singletonList(new SimpleGrantedAuthority(newUser.getRole())))));
         response.addHeader("Authorization", "Token " + token);
 
-        return new UserDto(userService.create(newUser));
-    }
-
-    @PostMapping(value = "/register")
-    public UserDto register(@ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) {
-        UserModel newUser = new UserModel(registerSpec, "ROLE_USER");
-
-        if(registerSpec.getProfileImage() != null){
-            File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "profile");
-            newUser.setProfileImage(profileImage);
-        }
-
-        return new UserDto(userService.create(newUser));
+        return new UserDto(userService.save(newUser));
     }
 
     @PostMapping("/login")
@@ -110,18 +111,11 @@ public class UserController {
     }
 
     @PostMapping(value = "/auth/changeUserInfo")
-    public UserDto changeUserInfo(@RequestBody UserSpec userModel){
+    public UserDto changeUserInfo(@Valid @RequestBody UserSpec userModel){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        return new UserDto(userService.changeUserInfo(loggedUser.getId(), userModel));
-    }
-
-    @ExceptionHandler
-    ResponseEntity handleEntityNotFoundException(EntityNotFoundException e) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(e.getMessage());
+        return new UserDto(userService.changeUserInfo(userModel, loggedUser));
     }
 
     @ExceptionHandler
@@ -132,14 +126,7 @@ public class UserController {
     }
 
     @ExceptionHandler
-    ResponseEntity handleUnauthorizedException(UnauthorizedException e) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(e.getMessage());
-    }
-
-    @ExceptionHandler
-    ResponseEntity handlePasswordsMissMatchException(PasswordsMissMatchException e) {
+    ResponseEntity<String> handlePasswordsMissMatchException(PasswordsMissMatchException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());

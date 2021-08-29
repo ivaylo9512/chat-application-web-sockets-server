@@ -1,9 +1,18 @@
 package com.chat.app.models.specs;
 
+import javax.validation.constraints.NotNull;
+
 public class MessageSpec {
+    @NotNull
     private long chatId;
+
+    @NotNull
     private long senderId;
+
+    @NotNull
     private long receiverId;
+
+    @NotNull
     private String message;
 
     public MessageSpec(){

@@ -64,6 +64,11 @@ public class UserModel {
         this.role = role;
     }
 
+    public UserModel(long id, String username, String password, String role){
+        this(username, password, role);
+        this.id = id;
+    }
+
     public String getUsername() {
         return username;
     }

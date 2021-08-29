@@ -16,9 +16,11 @@ public interface UserService {
 
     UserModel create(UserModel user);
 
+    UserModel save(UserModel userModel);
+
     void delete(long id, UserDetails loggedUser);
 
-    UserModel changeUserInfo(long loggedUser, UserSpec userSpec);
+    UserModel changeUserInfo(UserSpec userSpec, UserDetails loggedUser);
 
-    UserModel changePassword(NewPasswordSpec changePasswordSpec);
+    UserModel changePassword(NewPasswordSpec changePasswordSpec, long loggedUser);
 }

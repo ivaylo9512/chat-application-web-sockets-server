@@ -1,9 +1,19 @@
 package com.chat.app.models.specs;
 
+import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.NotNull;
+
 public class NewPasswordSpec {
+    @NotNull
     private String username;
+
+    @NotNull
     private String currentPassword;
+
+    @Length(min = 8, max=20)
     private String newPassword;
+
+    @Length(min = 8, max=20)
     private String repeatNewPassword;
 
     public NewPasswordSpec(String username, String currentPassword, String newPassword, String repeatNewPassword) {

@@ -26,14 +26,11 @@ import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService,UserDetailsService {
-
     private final UserRepository userRepository;
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -59,15 +56,20 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     }
 
     @Override
-    public UserModel create(UserModel user) {
-        UserModel existingUser = userRepository.findByUsername(user.getUsername());
+    public UserModel create(UserModel userSpec) {
+        UserModel existingUser = userRepository.findByUsername(userSpec.getUsername());
 
         if (existingUser != null) {
             throw new UsernameExistsException("Username is already taken.");
         }
 
-        user.setPassword(BCrypt.hashpw(user.getPassword(),BCrypt.gensalt(4)));
-        return userRepository.save(user);
+        userSpec.setPassword(BCrypt.hashpw(userSpec.getPassword(),BCrypt.gensalt(4)));
+        return userRepository.save(userSpec);
+    }
+
+    @Override
+    public UserModel save(UserModel userModel){
+        return userRepository.save(userModel);
     }
 
     @Override
@@ -97,10 +99,24 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     }
 
     @Override
-    public UserModel changeUserInfo(long loggedUser, UserSpec userSpec){
-        UserModel user = userRepository.findById(loggedUser)
-                .orElseThrow(() -> new EntityNotFoundException("Username not found."));
+    public UserModel changeUserInfo(UserSpec userSpec, UserDetails loggedUser){
+        if(userSpec.getId() != loggedUser.getId() &&
+                !loggedUser.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))){
+            throw new UnauthorizedException("Unauthorized");
+        }
 
+        UserModel user = userRepository.findById(userSpec.getId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+
+        if(!user.getUsername().equals(userSpec.getUsername())){
+            UserModel existingUser = userRepository.findByUsername(userSpec.getUsername());
+
+            if(existingUser != null){
+                throw new UsernameExistsException("Username is already taken.");
+            }
+        }
+
+        user.setUsername(userSpec.getUsername());
         user.setFirstName(userSpec.getFirstName());
         user.setLastName(userSpec.getLastName());
         user.setAge(userSpec.getAge());
@@ -110,23 +126,17 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     }
 
     @Override
-    public UserModel changePassword(NewPasswordSpec passwordSpec){
+    public UserModel changePassword(NewPasswordSpec passwordSpec, long loggedUser){
         if(!passwordSpec.getNewPassword().equals(passwordSpec.getRepeatNewPassword())){
             throw new PasswordsMissMatchException("Passwords don't match");
         }
 
-        UserModel user = userRepository.findByUsername(passwordSpec.getUsername());
-
-        if(user == null){
-            throw new EntityNotFoundException("User with" + passwordSpec.getUsername() + "is not found.");
-        }
-
+        UserModel user = this.findById(loggedUser);
         if (!user.getPassword().equals(passwordSpec.getCurrentPassword())){
             throw new BadCredentialsException("Invalid current password.");
         }
-        user.setPassword(passwordSpec.getNewPassword());
+
+        user.setPassword(BCrypt.hashpw(passwordSpec.getNewPassword(),BCrypt.gensalt(4)));
         return userRepository.save(user);
-
-
     }
 }
