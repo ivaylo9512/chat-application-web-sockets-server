@@ -1,6 +1,5 @@
 package com.chat.app.controllers;
 
-import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.*;
 import com.chat.app.models.Dtos.PageDto;
@@ -120,13 +119,6 @@ public class UserController {
 
     @ExceptionHandler
     ResponseEntity<String> handleUsernameExistsException(UsernameExistsException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(e.getMessage());
-    }
-
-    @ExceptionHandler
-    ResponseEntity<String> handlePasswordsMissMatchException(PasswordsMissMatchException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());

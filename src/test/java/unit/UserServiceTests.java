@@ -1,12 +1,10 @@
 package unit;
 
-import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.NewPasswordSpec;
-import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.repositories.base.UserRepository;
 import com.chat.app.services.UserServiceImpl;
@@ -93,8 +91,7 @@ public class UserServiceTests {
 
     @Test
     public void changePasswords(){
-        NewPasswordSpec passwordSpec = new NewPasswordSpec("user",
-                "currentPassword", "newTestPassword", "newTestPassword");
+        NewPasswordSpec passwordSpec = new NewPasswordSpec("user", "currentPassword", "newTestPassword");
 
         UserModel userModel = new UserModel();
         userModel.setPassword("currentPassword");
@@ -108,8 +105,7 @@ public class UserServiceTests {
 
     @Test
     public void changePasswordState_WithWrongPassword_ShouldThrow(){
-        NewPasswordSpec passwordSpec = new NewPasswordSpec("user", "InvalidPassword",
-                "newTestPassword","newTestPassword" );
+        NewPasswordSpec passwordSpec = new NewPasswordSpec("user", "InvalidPassword","newTestPassword" );
 
         UserModel userModel = new UserModel();
         userModel.setPassword("currentPassword");
@@ -125,22 +121,9 @@ public class UserServiceTests {
     }
 
     @Test
-    public void ChangePasswordState_WithNotMatchingPasswords_ShouldThrow(){
-        NewPasswordSpec passwordSpec = new NewPasswordSpec("username",
-                "current", "newTestPassword", "InvalidPassword");
-
-        PasswordsMissMatchException thrown = assertThrows(
-                PasswordsMissMatchException.class,
-                () -> userService.changePassword(passwordSpec, 1)
-        );
-
-        assertEquals(thrown.getMessage(), "Passwords don't match");
-    }
-
-    @Test
     public void ChangePasswordState_WithNonExistentUser_EntityNotFound(){
         NewPasswordSpec passwordSpec = new NewPasswordSpec("username",
-                "current", "newTestPassword", "newTestPassword");
+                "current", "newTestPassword");
 
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -150,22 +133,6 @@ public class UserServiceTests {
         );
 
         assertEquals(thrown.getMessage(), "User not found.");
-    }
-
-    @Test
-    public void RegisterUser_WithNotMatchingPasswords_shouldThrow() {
-        RegisterSpec newRegistration = new RegisterSpec("Test", "TestPassword", "TestPasswordMissMatch");
-
-        UserModel userModel = new UserModel(newRegistration, "ROLE_USER");
-
-        when(userRepository.findByUsername("Test")).thenReturn(null);
-
-        PasswordsMissMatchException thrown = assertThrows(
-                PasswordsMissMatchException.class,
-                () -> userService.create(userModel)
-        );
-
-        assertEquals(thrown.getMessage(), "Password doesn't match.");
     }
 
     @Test()

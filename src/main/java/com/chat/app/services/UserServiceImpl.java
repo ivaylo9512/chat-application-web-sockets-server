@@ -1,6 +1,5 @@
 package com.chat.app.services;
 
-import com.chat.app.exceptions.PasswordsMissMatchException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.repositories.base.UserRepository;
@@ -127,10 +126,6 @@ public class UserServiceImpl implements UserService,UserDetailsService {
 
     @Override
     public UserModel changePassword(NewPasswordSpec passwordSpec, long loggedUser){
-        if(!passwordSpec.getNewPassword().equals(passwordSpec.getRepeatNewPassword())){
-            throw new PasswordsMissMatchException("Passwords don't match");
-        }
-
         UserModel user = this.findById(loggedUser);
         if (!user.getPassword().equals(passwordSpec.getCurrentPassword())){
             throw new BadCredentialsException("Invalid current password.");
