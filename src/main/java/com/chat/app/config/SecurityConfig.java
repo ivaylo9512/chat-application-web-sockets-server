@@ -21,14 +21,12 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-
 import java.util.Collections;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
     @Autowired
     private UserServiceImpl userService;
     @Autowired
@@ -51,7 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("*");
+        config.addAllowedOrigin("http://192.168.0.105:3000");
         config.addAllowedHeader("*");
         config.addExposedHeader(HttpHeaders.AUTHORIZATION);
         config.addAllowedMethod("*");
@@ -68,7 +66,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("**/api/**/auth/**").authenticated()
                 .and()
                 .addFilterBefore(authenticationFilter(), ConcurrentSessionFilter.class)
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .exceptionHandling().accessDeniedHandler(new FailureAccessHandler());
 
         http.addFilterBefore(authorizationFilter(), UsernamePasswordAuthenticationFilter.class);
         http.headers().cacheControl();
