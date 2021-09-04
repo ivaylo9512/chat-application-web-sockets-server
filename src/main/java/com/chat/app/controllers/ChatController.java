@@ -15,6 +15,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
+import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +28,6 @@ public class ChatController {
     private final ChatService chatService;
     private final UserService userService;
     private final SimpMessagingTemplate messagingTemplate;
-
 
     public ChatController(ChatService chatService, UserService userService, SimpMessagingTemplate messagingTemplate) {
         this.chatService = chatService;
@@ -83,7 +84,7 @@ public class ChatController {
     }
 
     @MessageMapping("/message")
-    public void message(Principal principal, MessageSpec messageSpec, SimpMessageHeaderAccessor headers) throws  Exception {
+    public void message(@Valid MessageSpec messageSpec, SimpMessageHeaderAccessor headers) throws  Exception {
         UserDetails loggedUser;
         try{
             String auth = headers.getNativeHeader("Authorization").get(0);
@@ -97,4 +98,13 @@ public class ChatController {
 
         messagingTemplate.convertAndSendToUser(String.valueOf(message.getReceiverId()), "/message", message);
     }
+
+    @GetMapping("/findByUser/{id}")
+    public ChatDto findChatByUser(@PathVariable("id") long id){
+        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getDetails();
+
+        return new ChatDto(chatService.findUsersChat(loggedUser.getId(), id));
+    }
+
 }

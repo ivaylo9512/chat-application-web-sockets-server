@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 public class WebSocketInterceptor implements ChannelInterceptor, HandshakeInterceptor {
-
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor =
@@ -34,6 +33,31 @@ public class WebSocketInterceptor implements ChannelInterceptor, HandshakeInterc
             accessor.setUser(user::getUsername);
         }
         return message;
+    }
+
+    @Override
+    public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
+
+    }
+
+    @Override
+    public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
+
+    }
+
+    @Override
+    public boolean preReceive(MessageChannel channel) {
+        return false;
+    }
+
+    @Override
+    public Message<?> postReceive(Message<?> message, MessageChannel channel) {
+        return null;
+    }
+
+    @Override
+    public void afterReceiveCompletion(Message<?> message, MessageChannel channel, Exception ex) {
+
     }
 
     @Override

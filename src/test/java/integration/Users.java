@@ -226,4 +226,63 @@ public class Users {
 
         checkDbForUser(userDto);
     }
+
+    @Test
+    void registerAdmin_WithoutToken_Unauthorized() throws Exception{
+        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", "username", null))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    void registerAdmin_WithIncorrectToken_Unauthorized() throws Exception{
+        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", "username","Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    void changeUserInfo_WithoutToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/users/auth/changeUserInfo"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    void changeUserInfo_WithIncorrectToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/users/auth/changeUserInfo")
+                .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    void searchForUsers_WithoutToken_Unauthorized() throws Exception{
+        mockMvc.perform(get("/api/users/auth/searchForUsers/2"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    void searchForUsers_WithIncorrectToken_Unauthorized() throws Exception{
+        mockMvc.perform(get("/api/users/auth/searchForUsers/2")
+                .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    void changePassword_WithoutToken_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/users/auth/changePassword"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    void changePassword_WithIncorrectToken_Unauthorized() throws Exception{
+        mockMvc.perform(get("/api/users/auth/changePassword")
+                .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
 }

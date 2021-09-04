@@ -57,7 +57,6 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     @Override
     public UserModel create(UserModel userSpec) {
         UserModel existingUser = userRepository.findByUsername(userSpec.getUsername());
-
         if (existingUser != null) {
             throw new UsernameExistsException("Username is already taken.");
         }

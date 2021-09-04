@@ -43,7 +43,6 @@ public class UserController {
 
     @PostMapping(value = "/register")
     public UserDto register(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) {
-        System.out.println("here");
         UserModel newUser = userService.create(new UserModel(registerSpec, "ROLE_USER"));
 
         if(registerSpec.getProfileImage() != null){
