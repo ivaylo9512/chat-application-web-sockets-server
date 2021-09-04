@@ -10,6 +10,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 @Profile("test")
 public class TestDataSourceConfig {
@@ -27,15 +28,24 @@ public class TestDataSourceConfig {
         em.setDataSource(dataSource());
         em.setPackagesToScan("com/chat/app/models");
         em.setJpaVendorAdapter(vendorAdapter);
+        em.setJpaProperties(additionalProperties());
 
         return em;
     }
     @Bean(name = "test-datasource")
     public DataSource dataSource(){
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setUrl("jdbc:mysql://192.168.0.105:3306/chat-app");
+        dataSource.setUrl("jdbc:mysql://192.168.0.105:3306/chat-app-test");
         dataSource.setUsername( "root" );
         dataSource.setPassword( "1234" );
-         return dataSource;
+
+        return dataSource;
+    }
+
+    Properties additionalProperties() {
+        Properties properties = new Properties();
+        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
+
+        return properties;
     }
 }

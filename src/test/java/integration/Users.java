@@ -106,9 +106,9 @@ public class Users {
             "lastname", 25, "Bulgaria");
     private UserDto userDto = new UserDto(user);
 
-    private RequestBuilder createMediaRegisterRequest(String url, String role, String token){
+    private RequestBuilder createMediaRegisterRequest(String url, String role, String username, String token){
         MockHttpServletRequestBuilder request = post(url)
-                .param("username", user.getUsername())
+                .param("username", username)
                 .param("password", user.getPassword())
                 .param("repeatPassword", user.getPassword())
                 .param("firstName", user.getFirstName())
@@ -129,23 +129,27 @@ public class Users {
     @WithMockUser(value = "spring")
     @Test
     public void register() throws Exception {
-        mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER", null))
+        mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER", "username", null))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString(objectMapper.writeValueAsString(userDto))));
+
+        checkDbForUser(userDto);
     }
 
     @WithMockUser(value = "spring")
     @Test
     public void registerAdmin() throws Exception {
-        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", adminToken))
+        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", "username", adminToken))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString(objectMapper.writeValueAsString(userDto))));
+
+        checkDbForUser(userDto);
     }
 
     @WithMockUser(value = "spring")
     @Test
     public void registerAdmin_WithUserThatIsNotAdmin_Unauthorized() throws Exception {
-        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", userToken))
+        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", "username", userToken))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Access is denied"));
     }
@@ -157,8 +161,13 @@ public class Users {
                 .param("password", "password")
                 .param("repeatPassword", "password");
 
-        mockMvc.perform(request)
+        mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER", "testUser", null))
                 .andExpect(content().string(containsString("Username is already taken.")));
+    }
+
+    private void checkDbForUser(UserDto user) throws Exception{
+        mockMvc.perform(get("/api/users/findById/" + user.getId()))
+                .andExpect(content().string(objectMapper.writeValueAsString(user)));
     }
 
     @Test
@@ -193,8 +202,7 @@ public class Users {
                 "firstName", "lastName", 25, "Bulgaria"));
         user.setId(1);
 
-        mockMvc.perform(get("/api/users/findById/1"))
-                .andExpect(content().string(objectMapper.writeValueAsString(user)));
+        checkDbForUser(user);
     }
 
     @Test
@@ -205,22 +213,17 @@ public class Users {
 
     @Test
     void changeUserInfo() throws Exception {
-        UserSpec userSpec = new UserSpec("newUsername", "newFirstName", "newLastName", 26, "newCountry");
+        UserSpec userSpec = new UserSpec(1, "newUsername", "newFirstName",
+                "newLastName", 26, "newCountry");
+        UserDto userDto = new UserDto(userSpec, "ROLE_ADMIN");
+
         mockMvc.perform(post("/api/users/auth/changeUserInfo")
                 .header("Authorization", adminToken)
                 .contentType("Application/json")
                 .content(objectMapper.writeValueAsString(userSpec)))
-                .andExpect(status().isOk());
-
-        MvcResult result = mockMvc.perform(get("/api/users/findById/1"))
                 .andExpect(status().isOk())
-                .andReturn();
-        UserDto user = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);
+                .andExpect(content().string(objectMapper.writeValueAsString(userDto)));
 
-        assertEquals(user.getUsername(), userSpec.getUsername());
-        assertEquals(user.getFirstName(), userSpec.getFirstName());
-        assertEquals(user.getLastName(), userSpec.getLastName());
-        assertEquals(user.getCountry(), userSpec.getCountry());
-        assertEquals(user.getAge(), userSpec.getAge());
+        checkDbForUser(userDto);
     }
 }

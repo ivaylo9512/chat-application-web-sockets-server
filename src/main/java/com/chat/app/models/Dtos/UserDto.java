@@ -4,6 +4,8 @@ import com.chat.app.models.Chat;
 import com.chat.app.models.File;
 import com.chat.app.models.Request;
 import com.chat.app.models.UserModel;
+import com.chat.app.models.specs.UserSpec;
+
 import java.util.List;
 
 public class UserDto {
@@ -35,15 +37,25 @@ public class UserDto {
         setRequestState(request);
     }
 
-    public UserDto(UserModel userModel){
-        this.id = userModel.getId();
-        this.username = userModel.getUsername();
-        this.age = userModel.getAge();
-        this.firstName = userModel.getFirstName();
-        this.lastName = userModel.getLastName();
-        this.country = userModel.getCountry();
-        this.role = userModel.getRole();
-        setProfileImage(userModel.getProfileImage());
+    public UserDto(UserSpec user, String role) {
+        this(user.getId(), user.getUsername(), user.getAge(), user.getFirstName(),
+                user.getLastName(), user.getCountry(), role);
+    }
+
+    public UserDto(UserModel user){
+        this(user.getId(), user.getUsername(), user.getAge(), user.getFirstName(),
+                user.getLastName(), user.getCountry(), user.getRole());
+        setProfileImage(user.getProfileImage());
+    }
+
+    public UserDto(long id, String username, int age, String firstName, String lastName, String country, String role){
+        this.id = id;
+        this.username = username;
+        this.age = age;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.country = country;
+        this.role = role;
     }
 
     public String getUsername() {

@@ -252,6 +252,16 @@ class Requests {
                 .header("Authorization", adminToken))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Request not found.")));
+
+        MvcResult chatResult = mockMvc.perform(get("/api/chats/auth/findByUser/3")
+                        .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ChatDto chatDto = objectMapper.readValue(chatResult.getResponse().getContentAsString(), ChatDto.class);
+
+        assertEquals(chatDto.getFirstUser().getId(), 1);
+        assertEquals(chatDto.getSecondUser().getId(), 3);
     }
 
     @Test

@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTests {
-
     @Mock
     private UserRepository userRepository;
 
@@ -53,9 +52,9 @@ public class UserServiceTests {
     }
 
     @Test
-    public void registerUser_WithAlreadyTakenUsername_ShouldThrow() {
-        UserModel user = new UserModel("Test", "Test", "ROLE_ADMIN");
-        when(userRepository.findByUsername("Test")).thenReturn(user);
+    public void registerUser_WithAlreadyTakenUsername_UsernameExists() {
+        UserModel user = new UserModel("test", "test", "ROLE_ADMIN");
+        when(userRepository.findByUsername("test")).thenReturn(user);
 
         UsernameExistsException thrown = assertThrows(
                 UsernameExistsException.class,
@@ -67,9 +66,9 @@ public class UserServiceTests {
 
     @Test
     public void registerUser() {
-        UserModel user = new UserModel("Test", "Test", "ROLE_USER");
+        UserModel user = new UserModel("test", "test", "ROLE_USER");
 
-        when(userRepository.findByUsername("Test")).thenReturn(null);
+        when(userRepository.findByUsername("test")).thenReturn(null);
         when(userRepository.save(user)).thenReturn(user);
 
         UserModel registeredUser = userService.create(user);
