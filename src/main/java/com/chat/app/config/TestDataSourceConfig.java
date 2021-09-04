@@ -33,7 +33,7 @@ public class TestDataSourceConfig {
     @Bean(name = "test-datasource")
     public DataSource dataSource(){
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setUrl("jdbc:mysql://localhost:3306/chat-app-test");
+        dataSource.setUrl("jdbc:mysql://192.168.0.105:3306/chat-app");
         dataSource.setUsername( "root" );
         dataSource.setPassword( "1234" );
          return dataSource;

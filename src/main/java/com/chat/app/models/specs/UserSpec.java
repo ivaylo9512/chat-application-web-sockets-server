@@ -10,10 +10,10 @@ public class UserSpec {
     @Length(min = 8, max=20)
     private String username;
 
-    @NotNull
+    @NotNull(message = "You must provide first name.")
     private String firstName;
 
-    @NotNull
+    @NotNull(message = "You must provide last name.")
     private String lastName;
 
     @NotNull

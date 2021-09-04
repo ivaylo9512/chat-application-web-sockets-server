@@ -13,14 +13,10 @@ public class NewPasswordSpec {
     @Length(min = 8, max=20)
     private String newPassword;
 
-    @Length(min = 8, max=20)
-    private String repeatNewPassword;
-
-    public NewPasswordSpec(String username, String currentPassword, String newPassword, String repeatNewPassword) {
+    public NewPasswordSpec(String username, String currentPassword, String newPassword) {
         this.username = username;
         this.currentPassword = currentPassword;
         this.newPassword = newPassword;
-        this.repeatNewPassword = repeatNewPassword;
     }
 
     public NewPasswordSpec() {
@@ -40,14 +36,6 @@ public class NewPasswordSpec {
 
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
-    }
-
-    public String getRepeatNewPassword() {
-        return repeatNewPassword;
-    }
-
-    public void setRepeatNewPassword(String repeatNewPassword) {
-        this.repeatNewPassword = repeatNewPassword;
     }
 
     public String getUsername() {

@@ -4,6 +4,7 @@ import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.*;
 import com.chat.app.models.Dtos.PageDto;
 import com.chat.app.models.Dtos.UserDto;
+import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.security.Jwt;
@@ -40,24 +41,10 @@ public class UserController {
         this.requestService = requestService;
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping(value = "/auth/registerAdmin")
-    public UserDto registerAdmin(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response){
-        UserModel newUser = new UserModel(registerSpec, "ROLE_ADMIN");
-        userService.create(newUser);
-
-        if(registerSpec.getProfileImage() != null){
-            File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "logo", "image", newUser);
-            newUser.setProfileImage(profileImage);
-        }
-
-        return new UserDto(userService.save(newUser));
-    }
-
     @PostMapping(value = "/register")
     public UserDto register(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) {
-        UserModel newUser = new UserModel(registerSpec, "ROLE_USER");
-        userService.create(newUser);
+        System.out.println("here");
+        UserModel newUser = userService.create(new UserModel(registerSpec, "ROLE_USER"));
 
         if(registerSpec.getProfileImage() != null){
             File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "profile", "image", newUser);
@@ -67,6 +54,19 @@ public class UserController {
         String token = Jwt.generate(new UserDetails(newUser, new ArrayList<>(
                 Collections.singletonList(new SimpleGrantedAuthority(newUser.getRole())))));
         response.addHeader("Authorization", "Token " + token);
+
+        return new UserDto(userService.save(newUser));
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping(value = "/auth/registerAdmin")
+    public UserDto registerAdmin(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response){
+        UserModel newUser = userService.create(new UserModel(registerSpec, "ROLE_ADMIN"));
+
+        if(registerSpec.getProfileImage() != null){
+            File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "logo", "image", newUser);
+            newUser.setProfileImage(profileImage);
+        }
 
         return new UserDto(userService.save(newUser));
     }
@@ -115,6 +115,14 @@ public class UserController {
                 .getAuthentication().getDetails();
 
         return new UserDto(userService.changeUserInfo(userModel, loggedUser));
+    }
+
+    @PostMapping(value = "/auth/changePassword")
+    public UserDto changePassword(@Valid @RequestBody NewPasswordSpec newPasswordSpec){
+        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getDetails();
+
+        return new UserDto(userService.changePassword(newPasswordSpec, loggedUser.getId()));
     }
 
     @ExceptionHandler

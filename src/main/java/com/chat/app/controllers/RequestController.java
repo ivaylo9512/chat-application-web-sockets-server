@@ -1,6 +1,5 @@
 package com.chat.app.controllers;
 
-import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.Chat;
 import com.chat.app.models.Dtos.ChatDto;
 import com.chat.app.models.Dtos.PageDto;
@@ -13,12 +12,8 @@ import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.RequestService;
 import com.chat.app.services.base.UserService;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import javax.persistence.EntityNotFoundException;
 import java.util.stream.Collectors;
 
 @RestController
@@ -111,19 +106,5 @@ public class RequestController {
         requestService.delete(request);
 
         return true;
-    }
-
-    @ExceptionHandler
-    ResponseEntity handleEntityNotFoundException(EntityNotFoundException e) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(e.getMessage());
-    }
-
-    @ExceptionHandler
-    ResponseEntity handleUnauthorized(UnauthorizedException e) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(e.getMessage());
     }
 }

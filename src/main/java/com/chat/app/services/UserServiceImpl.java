@@ -127,6 +127,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     @Override
     public UserModel changePassword(NewPasswordSpec passwordSpec, long loggedUser){
         UserModel user = this.findById(loggedUser);
+
         if (!user.getPassword().equals(passwordSpec.getCurrentPassword())){
             throw new BadCredentialsException("Invalid current password.");
         }
