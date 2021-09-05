@@ -2,18 +2,31 @@ plugins {
     id 'org.springframework.boot' version '2.5.4'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'java'
+    id 'jacoco'
 }
 
 group = 'web-app'
 version = '1.0-SNAPSHOT'
-sourceCompatibility = 16
-targetCompatibility = 16
-
+java {
+    sourceCompatibility = 16
+    targetCompatibility = 16
+}
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
 repositories {
     mavenCentral()
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+    }
 }
 
 dependencies {
