@@ -31,4 +31,6 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
             @Param("userId") long userId,
             @Param("name") String name,
             Pageable pageable);
+
+    void isEnabled(boolean state);
 }

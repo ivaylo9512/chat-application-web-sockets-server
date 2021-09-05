@@ -134,4 +134,9 @@ public class UserServiceImpl implements UserService,UserDetailsService {
         user.setPassword(BCrypt.hashpw(passwordSpec.getNewPassword(),BCrypt.gensalt(4)));
         return userRepository.save(user);
     }
+
+    @Override
+    public void setEnable(boolean state){
+        userRepository.isEnabled(state);
+    }
 }

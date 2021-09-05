@@ -124,6 +124,12 @@ public class UserController {
         return new UserDto(userService.changePassword(newPasswordSpec, loggedUser.getId()));
     }
 
+    @PreAuthorize("has(ROLE_ADMIN)")
+    @PatchMapping(value = "/auth/setEnable/{state}")
+    private void setEnable(@PathVariable(name = "state") boolean state){
+        userService.setEnable(state);
+    }
+
     @ExceptionHandler
     ResponseEntity<String> handleUsernameExistsException(UsernameExistsException e) {
         return ResponseEntity

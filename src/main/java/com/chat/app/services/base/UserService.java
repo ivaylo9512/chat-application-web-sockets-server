@@ -23,4 +23,6 @@ public interface UserService {
     UserModel changeUserInfo(UserSpec userSpec, UserDetails loggedUser);
 
     UserModel changePassword(NewPasswordSpec changePasswordSpec, long loggedUser);
+
+    void setEnable(boolean state);
 }
