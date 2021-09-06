@@ -69,8 +69,10 @@ public class UserServiceTests {
 
     @Test
     public void registerUser_WithAlreadyTakenUsername_UsernameExists() {
-        UserModel user = new UserModel("test", "test", "ROLE_ADMIN");
-        when(userRepository.findByUsername("test")).thenReturn(user);
+        UserModel existingUser = new UserModel("test", "test@gmail.com", "test", "ROLE_ADMIN");
+        UserModel user = new UserModel("test", "nonexistent@gmail.com", "test", "ROLE_ADMIN");
+
+        when(userRepository.findByUsernameOrEmail("test", "nonexistent@gmail.com")).thenReturn(existingUser);
 
         UsernameExistsException thrown = assertThrows(
                 UsernameExistsException.class,
@@ -82,9 +84,9 @@ public class UserServiceTests {
 
     @Test
     public void registerUser() {
-        UserModel user = new UserModel("test", "test", "ROLE_USER");
+        UserModel user = new UserModel("test", "test@gmail.com", "test", "ROLE_ADMIN");
 
-        when(userRepository.findByUsername("test")).thenReturn(null);
+        when(userRepository.findByUsernameOrEmail("test", "test@gmail.com")).thenReturn(null);
         when(userRepository.save(user)).thenReturn(user);
 
         UserModel registeredUser = userService.create(user);
@@ -94,9 +96,9 @@ public class UserServiceTests {
 
     @Test
     public void registerUser_RoleAdmin() {
-        UserModel user = new UserModel("Test", "Test", "ROLE_ADMIN");
+        UserModel user = new UserModel("test", "test@gmail.com", "test", "ROLE_ADMIN");
 
-        when(userRepository.findByUsername("Test")).thenReturn(null);
+        when(userRepository.findByUsernameOrEmail("test", "test@gmail.com")).thenReturn(null);
         when(userRepository.save(user)).thenReturn(user);
 
         UserModel registeredUser = userService.create(user);

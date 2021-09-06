@@ -1,6 +1,7 @@
 package com.chat.app.services;
 
 import com.chat.app.exceptions.DisabledUserException;
+import com.chat.app.exceptions.EmailExistsException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.repositories.base.UserRepository;
@@ -21,7 +22,6 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,9 +64,12 @@ public class UserServiceImpl implements UserService,UserDetailsService {
 
     @Override
     public UserModel create(UserModel userSpec) {
-        UserModel existingUser = userRepository.findByUsername(userSpec.getUsername());
+        UserModel existingUser = userRepository.findByUsernameOrEmail(userSpec.getUsername(), userSpec.getEmail());
         if (existingUser != null) {
-            throw new UsernameExistsException("Username is already taken.");
+            if(existingUser.getUsername().equals(userSpec.getUsername())){
+                throw new UsernameExistsException("Username is already taken.");
+            }
+            throw new EmailExistsException("Email is already taken.");
         }
 
         userSpec.setPassword(BCrypt.hashpw(userSpec.getPassword(),BCrypt.gensalt(4)));

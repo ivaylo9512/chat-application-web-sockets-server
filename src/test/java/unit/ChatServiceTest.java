@@ -147,7 +147,7 @@ public class ChatServiceTest {
         when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
         when(sessionRepository.findById(new SessionPK(chat, LocalDate.now()))).thenReturn(Optional.of(session));
         when(messageRepository.save(any(Message.class))).thenReturn(message);
-        when(userRepository.getOne(3L)).thenReturn(new UserModel());
+        when(userRepository.getById(3L)).thenReturn(new UserModel());
 
         Message savedMessage = chatService.addNewMessage(messageSpec);
 
@@ -161,7 +161,7 @@ public class ChatServiceTest {
         chat.setId(1);
 
         when(chatRepository.findUsersChat(1, 2)).thenReturn(chat);
-        when(sessionRepository.findSessions(chatRepository.getOne(1L),
+        when(sessionRepository.findSessions(chatRepository.getById(1L),
                 PageRequest.of(0, 5, Sort.Direction.DESC, "session_date"))).thenReturn(sessions);
 
         Chat foundChat = chatService.findUsersChat(1, 2);

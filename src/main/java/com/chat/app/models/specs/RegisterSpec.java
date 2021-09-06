@@ -2,11 +2,18 @@ package com.chat.app.models.specs;
 
 import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 public class RegisterSpec {
     @Length(min = 8, max=20)
     private String username;
+
+    @Email
+    @NotNull
+    private String email;
+
+    private MultipartFile profileImage;
 
     @Length(min = 8, max=20)
     private String password;
@@ -14,14 +21,15 @@ public class RegisterSpec {
     @Length(min = 8, max=20)
     private String repeatPassword;
 
-    private MultipartFile profileImage;
-
     @NotNull
     private String firstName;
+
     @NotNull
     private String lastName;
+
     @NotNull
     private String country;
+
     @NotNull
     private int age;
 
@@ -109,5 +117,13 @@ public class RegisterSpec {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

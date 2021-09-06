@@ -20,7 +20,6 @@ import java.util.List;
 
 @Service
 public class ChatServiceImpl implements ChatService {
-
     private final ChatRepository chatRepository;
     private final SessionRepository sessionRepository;
     private final MessageRepository messageRepository;
@@ -104,7 +103,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<Session> findSessions(long chatId, int page, int pageSize){
-        return sessionRepository.findSessions(chatRepository.getOne(chatId),
+        return sessionRepository.findSessions(chatRepository.getById(chatId),
                 PageRequest.of(page, pageSize, Sort.Direction.DESC, "session_date"));
     }
 
@@ -118,7 +117,7 @@ public class ChatServiceImpl implements ChatService {
         Session session = sessionRepository.findById(new SessionPK(chat, LocalDate.now()))
                 .orElse(new Session(chat, LocalDate.now()));
 
-        UserModel user = userRepository.getOne(messageSpec.getReceiverId());
+        UserModel user = userRepository.getById(messageSpec.getReceiverId());
         Message message = new Message(user, LocalTime.now(), messageSpec.getMessage(), session);
 
         return messageRepository.save(message);

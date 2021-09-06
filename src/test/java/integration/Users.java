@@ -106,9 +106,10 @@ public class Users {
             "lastname", 25, "Bulgaria");
     private UserDto userDto = new UserDto(user);
 
-    private RequestBuilder createMediaRegisterRequest(String url, String role, String username, String token){
+    private RequestBuilder createMediaRegisterRequest(String url, String role, String username, String email, String token){
         MockHttpServletRequestBuilder request = post(url)
                 .param("username", username)
+                .param("email", email)
                 .param("password", user.getPassword())
                 .param("repeatPassword", user.getPassword())
                 .param("firstName", user.getFirstName())
@@ -129,7 +130,8 @@ public class Users {
     @WithMockUser(value = "spring")
     @Test
     public void register() throws Exception {
-        mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER", "username", null))
+        mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER",
+                        "username", "username@gmail.com", null))
                 .andExpect(status().isOk());
 
         enableUser(userDto.getId());
@@ -139,7 +141,8 @@ public class Users {
     @WithMockUser(value = "spring")
     @Test
     public void registerAdmin() throws Exception {
-        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", "username", adminToken))
+        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
+                        "username", "username@gmail.com", adminToken))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString(objectMapper.writeValueAsString(userDto))));
 
@@ -149,7 +152,8 @@ public class Users {
     @WithMockUser(value = "spring")
     @Test
     public void registerAdmin_WithUserThatIsNotAdmin_Unauthorized() throws Exception {
-        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", "username", userToken))
+        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
+                        "username", "username@gmail.com", userToken))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Access is denied"));
     }
@@ -161,7 +165,8 @@ public class Users {
                 .param("password", "password")
                 .param("repeatPassword", "password");
 
-        mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER", "testUser", null))
+        mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER",
+                        "testUser", "username@gmail.com", null))
                 .andExpect(content().string(containsString("Username is already taken.")));
     }
 
@@ -235,14 +240,16 @@ public class Users {
 
     @Test
     void registerAdmin_WithoutToken_Unauthorized() throws Exception{
-        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", "username", null))
+        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
+                        "username", "username@gmail.com", null))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is missing"));
     }
 
     @Test
     void registerAdmin_WithIncorrectToken_Unauthorized() throws Exception{
-        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN", "username","Token incorrect"))
+        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
+                        "username", "username@gmail.com", "Token incorrect"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is incorrect"));
     }
