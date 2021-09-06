@@ -29,19 +29,18 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,6 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UserController.class)
 @Import(SecurityConfig.class)
 @ActiveProfiles("test")
+@Transactional
 public class Users {
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -130,9 +130,9 @@ public class Users {
     @Test
     public void register() throws Exception {
         mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER", "username", null))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString(objectMapper.writeValueAsString(userDto))));
+                .andExpect(status().isOk());
 
+        enableUser(userDto.getId());
         checkDbForUser(userDto);
     }
 
@@ -168,6 +168,12 @@ public class Users {
     private void checkDbForUser(UserDto user) throws Exception{
         mockMvc.perform(get("/api/users/findById/" + user.getId()))
                 .andExpect(content().string(objectMapper.writeValueAsString(user)));
+    }
+
+    private void enableUser(long id) throws Exception{
+        mockMvc.perform(patch("/api/users/auth/setEnabled/true/" + id)
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk());
     }
 
     @Test

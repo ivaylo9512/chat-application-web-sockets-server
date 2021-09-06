@@ -1,5 +1,6 @@
 package com.chat.app.services;
 
+import com.chat.app.exceptions.DisabledUserException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.repositories.base.UserRepository;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,8 +41,14 @@ public class UserServiceImpl implements UserService,UserDetailsService {
 
     @Override
     public UserModel findById(long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+        UserModel user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("UserModel not found."));
+
+        if(!user.isEnabled()){
+            throw new DisabledUserException("You must complete the registration. Check your email.");
+        }
+
+        return user;
     }
 
     @Override
@@ -73,7 +81,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     @Override
     public void delete(long id, UserDetails loggedUser) {
         UserModel user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+                .orElseThrow(() -> new EntityNotFoundException("UserModel not found."));
 
         if(id != loggedUser.getId() &&
                 !AuthorityUtils.authorityListToSet(loggedUser.getAuthorities()).contains("ROLE_ADMIN")){
@@ -104,7 +112,7 @@ public class UserServiceImpl implements UserService,UserDetailsService {
         }
 
         UserModel user = userRepository.findById(userSpec.getId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+                .orElseThrow(() -> new EntityNotFoundException("UserModel not found."));
 
         if(!user.getUsername().equals(userSpec.getUsername())){
             UserModel existingUser = userRepository.findByUsername(userSpec.getUsername());
@@ -136,7 +144,10 @@ public class UserServiceImpl implements UserService,UserDetailsService {
     }
 
     @Override
-    public void setEnable(boolean state){
-        userRepository.isEnabled(state);
+    public void setEnabled(boolean state, long id){
+        UserModel user = userRepository.getById(id);
+        user.setEnabled(true);
+
+        userRepository.save(user);
     }
 }

@@ -1,5 +1,6 @@
 package unit;
 
+import com.chat.app.exceptions.DisabledUserException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.UserDetails;
@@ -40,15 +41,30 @@ public class UserServiceTests {
                 () -> userService.findById(1L)
         );
 
-        assertEquals(thrown.getMessage(), "User not found.");
+        assertEquals(thrown.getMessage(), "UserModel not found.");
     }
 
     @Test()
     public void findById_withExistingUser() {
         UserModel user = new UserModel("Test", "Test", "ROLE_ADMIN");
+        user.setEnabled(true);
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         userService.findById(1L);
+    }
+
+    @Test()
+    public void findById_withNotEnabledUser(){
+        UserModel user = new UserModel("Test", "Test", "ROLE_ADMIN");
+        user.setEnabled(false);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        DisabledUserException thrown = assertThrows(DisabledUserException.class,
+                () -> userService.findById(1));
+
+        assertEquals(thrown.getMessage(), "You must complete the registration. Check your email.");
     }
 
     @Test
@@ -94,6 +110,7 @@ public class UserServiceTests {
 
         UserModel userModel = new UserModel();
         userModel.setPassword("currentPassword");
+        userModel.setEnabled(true);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));
         when(userRepository.save(userModel)).thenReturn(userModel);
@@ -108,6 +125,7 @@ public class UserServiceTests {
 
         UserModel userModel = new UserModel();
         userModel.setPassword("currentPassword");
+        userModel.setEnabled(true);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));
 
@@ -131,7 +149,7 @@ public class UserServiceTests {
                 () -> userService.changePassword(passwordSpec, 1)
         );
 
-        assertEquals(thrown.getMessage(), "User not found.");
+        assertEquals(thrown.getMessage(), "UserModel not found.");
     }
 
     @Test()
@@ -151,7 +169,7 @@ public class UserServiceTests {
                 () -> userService.changeUserInfo(userSpec, loggedUser)
         );
 
-        assertEquals(thrown.getMessage(), "User not found.");
+        assertEquals(thrown.getMessage(), "UserModel not found.");
     }
 
     @Test()
@@ -275,7 +293,7 @@ public class UserServiceTests {
                 () -> userService.delete(1L, any(UserDetails.class))
         );
 
-        assertEquals(thrown.getMessage(), "User not found.");
+        assertEquals(thrown.getMessage(), "UserModel not found.");
     }
 
     @Test()

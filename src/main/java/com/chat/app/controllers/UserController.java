@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/register")
-    public UserDto register(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) {
+    public boolean register(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) {
         UserModel newUser = userService.create(new UserModel(registerSpec, "ROLE_USER"));
 
         if(registerSpec.getProfileImage() != null){
@@ -54,13 +54,14 @@ public class UserController {
                 Collections.singletonList(new SimpleGrantedAuthority(newUser.getRole())))));
         response.addHeader("Authorization", "Token " + token);
 
-        return new UserDto(userService.save(newUser));
+        return true;
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = "/auth/registerAdmin")
     public UserDto registerAdmin(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response){
         UserModel newUser = userService.create(new UserModel(registerSpec, "ROLE_ADMIN"));
+        newUser.setEnabled(true);
 
         if(registerSpec.getProfileImage() != null){
             File profileImage = fileService.create(registerSpec.getProfileImage(), newUser.getId() + "logo", "image", newUser);
@@ -124,10 +125,11 @@ public class UserController {
         return new UserDto(userService.changePassword(newPasswordSpec, loggedUser.getId()));
     }
 
-    @PreAuthorize("has(ROLE_ADMIN)")
-    @PatchMapping(value = "/auth/setEnable/{state}")
-    private void setEnable(@PathVariable(name = "state") boolean state){
-        userService.setEnable(state);
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PatchMapping(value = "/auth/setEnabled/{state}/{id}")
+    public void setEnable(@PathVariable(name = "state") boolean state,
+                                 @PathVariable(name = "id") long id){
+        userService.setEnabled(state, id);
     }
 
     @ExceptionHandler

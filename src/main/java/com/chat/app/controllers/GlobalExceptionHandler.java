@@ -1,10 +1,10 @@
 package com.chat.app.controllers;
 
+import com.chat.app.exceptions.DisabledUserException;
 import com.chat.app.exceptions.FileFormatException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import javax.persistence.EntityNotFoundException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,9 +32,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
     ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
+        String model = Arrays.stream(e.getMessage().split("[ .]+"))
+                .filter(s -> s.equals("UserModel") || s.equals("File") || s.equals("Request")
+                        || s.equals("Chat")).findFirst().orElse("Entity");
+
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(e.getMessage());
+                .body(model + " not found.");
     }
 
     @Override
@@ -63,6 +68,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ResponseEntity<String> handleFileFormatException(FileFormatException e){
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler
+    ResponseEntity<String> disabledUserException(DisabledUserException e){
+        return ResponseEntity
+                .status(HttpStatus.LOCKED)
                 .body(e.getMessage());
     }
 }
