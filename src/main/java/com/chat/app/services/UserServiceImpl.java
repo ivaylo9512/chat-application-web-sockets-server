@@ -117,15 +117,19 @@ public class UserServiceImpl implements UserService,UserDetailsService {
         UserModel user = userRepository.findById(userSpec.getId())
                 .orElseThrow(() -> new EntityNotFoundException("UserModel not found."));
 
-        if(!user.getUsername().equals(userSpec.getUsername())){
-            UserModel existingUser = userRepository.findByUsername(userSpec.getUsername());
+        if(!user.getUsername().equals(userSpec.getUsername()) || !user.getEmail().equals(userSpec.getEmail())){
+            UserModel existingUser = userRepository.findByUsernameOrEmail(userSpec.getUsername(), userSpec.getEmail());
 
             if(existingUser != null){
-                throw new UsernameExistsException("Username is already taken.");
+                if(existingUser.getUsername().equals(userSpec.getUsername())){
+                    throw new UsernameExistsException("Username is already taken.");
+                }
+                throw new EmailExistsException("Email is already taken.");
             }
         }
 
         user.setUsername(userSpec.getUsername());
+        user.setEmail(userSpec.getEmail());
         user.setFirstName(userSpec.getFirstName());
         user.setLastName(userSpec.getLastName());
         user.setAge(userSpec.getAge());

@@ -224,7 +224,7 @@ public class Users {
 
     @Test
     void changeUserInfo() throws Exception {
-        UserSpec userSpec = new UserSpec(1, "newUsername", "newFirstName",
+        UserSpec userSpec = new UserSpec(1, "newUsername", "newUsername@gmail.com", "newFirstName",
                 "newLastName", 26, "newCountry");
         UserDto userDto = new UserDto(userSpec, "ROLE_ADMIN");
 

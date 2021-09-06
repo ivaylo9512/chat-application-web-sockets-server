@@ -1,6 +1,7 @@
 package com.chat.app.models.specs;
 
 import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 public class UserSpec {
@@ -9,6 +10,10 @@ public class UserSpec {
 
     @Length(min = 8, max=20)
     private String username;
+
+    @Email
+    @NotNull
+    private String email;
 
     @NotNull(message = "You must provide first name.")
     private String firstName;
@@ -26,13 +31,14 @@ public class UserSpec {
 
     }
 
-    public UserSpec(long id, String username, String firstName, String lastName, int age, String country) {
+    public UserSpec(long id, String username, String email, String firstName, String lastName, int age, String country) {
         this.id = id;
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
         this.country = country;
+        this.email = email;
     }
 
     public String getUsername() {
@@ -81,5 +87,13 @@ public class UserSpec {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

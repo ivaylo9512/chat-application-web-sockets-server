@@ -175,30 +175,8 @@ public class UserServiceTests {
     }
 
     @Test()
-    public void changeUserInfo_WithSameId(){
-        UserSpec newUser = new UserSpec(1, "newUsername", "firstName",
-                "lastName", 25, "Country");
-
-        UserModel oldUser = new UserModel(1, "username", "password", "ROLE_USER");
-        UserDetails loggedUser = new UserDetails(oldUser, List.of(
-                new SimpleGrantedAuthority(oldUser.getRole())));
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
-        when(userRepository.save(oldUser)).thenReturn(oldUser);
-        when(userRepository.findByUsername("newUsername")).thenReturn(null);
-
-        userService.changeUserInfo(newUser, loggedUser);
-
-        assertEquals(newUser.getUsername(), oldUser.getUsername());
-        assertEquals(newUser.getFirstName(), oldUser.getFirstName());
-        assertEquals(newUser.getLastName(), oldUser.getLastName());
-        assertEquals(newUser.getCountry(), oldUser.getCountry());
-        assertEquals(newUser.getAge(), oldUser.getAge());
-    }
-
-    @Test()
-    public void changeUserInfo_WithAdmin(){
-        UserSpec newUser = new UserSpec(1, "newUsername", "firstName",
+    public void changeUserInfo_WhenUserHasDifferentIdAndRoleAdmin(){
+        UserSpec newUser = new UserSpec(1, "newUsername", "newUsername@gmail.com", "firstName",
                 "lastName", 25, "Country");
 
         UserModel oldUser = new UserModel();
@@ -211,7 +189,7 @@ public class UserServiceTests {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
         when(userRepository.save(oldUser)).thenReturn(oldUser);
-        when(userRepository.findByUsername("newUsername")).thenReturn(null);
+        when(userRepository.findByUsernameOrEmail("newUsername", "newUsername@gmail.com")).thenReturn(null);
 
         userService.changeUserInfo(newUser, loggedUser);
 
@@ -223,18 +201,23 @@ public class UserServiceTests {
     }
 
     @Test()
-    public void changeUserInfo_WhenSameOldNewUsername(){
-        UserSpec newUser = new UserSpec(1, "username", "firstName", "lastName", 25, "Country");
+    public void changeUserInfo(){
+        UserSpec newUser = new UserSpec(1, "newUsername", "nonexistent@gmail.com", "firstName", "lastName", 25, "Country");
 
-        UserModel oldUser = new UserModel(1, "username", "password", "ROLE_USER");
+        UserModel oldUser = new UserModel("username", "username@gmail.com", "password", "ROLE_USER");
+        oldUser.setId(1);
+
         UserDetails loggedUser = new UserDetails(oldUser, List.of(
                 new SimpleGrantedAuthority(oldUser.getRole())));
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
         when(userRepository.save(oldUser)).thenReturn(oldUser);
+        when(userRepository.findByUsernameOrEmail("newUsername", "nonexistent@gmail.com")).thenReturn(null);
 
         userService.changeUserInfo(newUser, loggedUser);
 
+        assertEquals(oldUser.getUsername(), newUser.getUsername());
+        assertEquals(oldUser.getEmail(), newUser.getEmail());
         assertEquals(oldUser.getFirstName(), newUser.getFirstName());
         assertEquals(oldUser.getLastName(), newUser.getLastName());
         assertEquals(oldUser.getCountry(), newUser.getCountry());
@@ -243,15 +226,21 @@ public class UserServiceTests {
 
     @Test()
     public void changeUserInfo_WhenUsernameIsTaken(){
-        UserSpec newUser = new UserSpec(1, "newUsername", "firstName",
+        UserSpec newUser = new UserSpec(1, "username", "nonexistent@gmail.com", "firstName",
                 "lastName", 25, "Country");
 
-        UserModel oldUser = new UserModel(1, "username", "password", "ROLE_USER");
+        UserModel oldUser = new UserModel("oldUsername", "username@gmail.com", "password", "ROLE_USER");
+        oldUser.setId(1);
+
+        UserModel existingUser = new UserModel();
+        existingUser.setId(2);
+        existingUser.setUsername("username");
+
         UserDetails loggedUser = new UserDetails(oldUser, List.of(
                 new SimpleGrantedAuthority(oldUser.getRole())));
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
-        when(userRepository.findByUsername("newUsername")).thenReturn(new UserModel());
+        when(userRepository.findByUsernameOrEmail("username", "nonexistent@gmail.com")).thenReturn(existingUser);
 
         UsernameExistsException thrown = assertThrows(
                 UsernameExistsException.class,
