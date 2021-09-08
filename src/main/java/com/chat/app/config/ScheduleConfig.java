@@ -10,9 +10,7 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 @Configuration
 @ConfigurationProperties(prefix = "app.schedule")
 public class ScheduleConfig implements SchedulingConfigurer {
-
     private String threadPrefix;
-
 
     public ScheduleConfig() {
     }

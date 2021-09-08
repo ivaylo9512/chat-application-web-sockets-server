@@ -43,12 +43,12 @@ public class UserModel {
     private List<Chat> chats;
 
     public UserModel(){
-
     }
 
-    public UserModel(String username, String password, String firstName,
+    public UserModel(String username, String email, String password, String firstName,
                      String lastName, int age, String country) {
         this.username = username;
+        this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -56,15 +56,16 @@ public class UserModel {
         this.country = country;
     }
 
-    public UserModel(String username, String password, String role, String firstName,
+    public UserModel(String username, String email, String password, String role, String firstName,
                      String lastName, int age, String country) {
-        this(username, password, firstName, lastName, age, country);
+        this(username, email, password, firstName, lastName, age, country);
         this.role = role;
     }
 
     public UserModel(RegisterSpec newUser, String role) {
-        this(newUser.getUsername(), newUser.getPassword(), role, newUser.getFirstName(),
+        this(newUser.getUsername(), newUser.getEmail(), newUser.getPassword(), newUser.getFirstName(),
                 newUser.getLastName(), newUser.getAge(), newUser.getCountry());
+        this.role = role;
     }
 
     public UserModel(String username, String password, String role){

@@ -27,13 +27,14 @@ import java.util.Collections;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private UserServiceImpl userService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private AuthorizationProvider authorizationProvider;
+    private final UserServiceImpl userService;
+    private final AuthorizationProvider authorizationProvider;
+    private final FailureHandler failureHandler = new FailureHandler();
 
+    public SecurityConfig(UserServiceImpl userService, AuthorizationProvider authorizationProvider) {
+        this.userService = userService;
+        this.authorizationProvider = authorizationProvider;
+    }
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -68,7 +69,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(authenticationFilter(), ConcurrentSessionFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .exceptionHandling().accessDeniedHandler(new FailureHandler());
+                .exceptionHandling().accessDeniedHandler(failureHandler);
 
         http.addFilterBefore(authorizationFilter(), UsernamePasswordAuthenticationFilter.class);
         http.headers().cacheControl();
@@ -77,7 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthorizationFilter authorizationFilter() {
         AuthorizationFilter filter = new AuthorizationFilter();
         filter.setAuthenticationManager(authenticationManagerAuthorization());
-        filter.setAuthenticationFailureHandler(new FailureHandler());
+        filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationSuccessHandler((request, response, authentication) -> {});
         return filter;
     }

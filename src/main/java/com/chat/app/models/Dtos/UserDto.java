@@ -11,6 +11,7 @@ import java.util.List;
 public class UserDto {
     private long id;
     private String username;
+    private String email;
     private String firstName;
     private String lastName;
     private int age;
@@ -38,19 +39,20 @@ public class UserDto {
     }
 
     public UserDto(UserSpec user, String role) {
-        this(user.getId(), user.getUsername(), user.getAge(), user.getFirstName(),
+        this(user.getId(), user.getUsername(), user.getEmail(), user.getAge(), user.getFirstName(),
                 user.getLastName(), user.getCountry(), role);
     }
 
     public UserDto(UserModel user){
-        this(user.getId(), user.getUsername(), user.getAge(), user.getFirstName(),
+        this(user.getId(), user.getUsername(), user.getEmail(), user.getAge(), user.getFirstName(),
                 user.getLastName(), user.getCountry(), user.getRole());
         setProfileImage(user.getProfileImage());
     }
 
-    public UserDto(long id, String username, int age, String firstName, String lastName, String country, String role){
+    public UserDto(long id, String username, String email, int age, String firstName, String lastName, String country, String role){
         this.id = id;
         this.username = username;
+        this.email = email;
         this.age = age;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -171,5 +173,13 @@ public class UserDto {
 
     public void setRequestId(long requestId) {
         this.requestId = requestId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -57,7 +56,6 @@ public class Users {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-    @Qualifier("test-datasource")
     @Autowired
     private DataSource dataSource;
 
@@ -102,7 +100,7 @@ public class Users {
         assertNotNull(webApplicationContext.getBean("userController"));
     }
 
-    private UserModel user = new UserModel("username", "password","ROLE_USER", "firstname",
+    private UserModel user = new UserModel("username", "username@gmail.com", "password","ROLE_USER", "firstname",
             "lastname", 25, "Bulgaria");
     private UserDto userDto = new UserDto(user);
 
@@ -123,6 +121,7 @@ public class Users {
 
         userDto.setRole(role);
         userDto.setId(10);
+        userDto.setEmail(email);
 
         return  request;
     }
@@ -160,11 +159,6 @@ public class Users {
 
     @Test
     public void register_WhenUsernameIsTaken() throws Exception {
-        RequestBuilder request = post("/api/users/register")
-                .param("username", "testUser")
-                .param("password", "password")
-                .param("repeatPassword", "password");
-
         mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER",
                         "testUser", "username@gmail.com", null))
                 .andExpect(content().string(containsString("Username is already taken.")));
@@ -209,7 +203,7 @@ public class Users {
 
     @Test
     void findById() throws Exception {
-        UserDto user = new UserDto(new UserModel("adminUser", "password", "ROLE_ADMIN",
+        UserDto user = new UserDto(new UserModel("adminUser", "adminUser@gmail.com", "password", "ROLE_ADMIN",
                 "firstName", "lastName", 25, "Bulgaria"));
         user.setId(1);
 

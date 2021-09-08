@@ -1,5 +1,6 @@
 package com.chat.app.controllers;
 
+import com.chat.app.exceptions.EmailExistsException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.*;
 import com.chat.app.models.Dtos.PageDto;
@@ -50,8 +51,7 @@ public class UserController {
             newUser.setProfileImage(profileImage);
         }
 
-        String token = Jwt.generate(new UserDetails(newUser, new ArrayList<>(
-                Collections.singletonList(new SimpleGrantedAuthority(newUser.getRole())))));
+        String token = Jwt.generate(new UserDetails(newUser, List.of(new SimpleGrantedAuthority(newUser.getRole()))));
         response.addHeader("Authorization", "Token " + token);
 
         return true;
@@ -134,6 +134,13 @@ public class UserController {
 
     @ExceptionHandler
     ResponseEntity<String> handleUsernameExistsException(UsernameExistsException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler
+    ResponseEntity<String> handleEmailExistsException(EmailExistsException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
