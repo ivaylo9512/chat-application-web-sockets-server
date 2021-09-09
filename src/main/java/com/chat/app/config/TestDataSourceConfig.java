@@ -35,9 +35,9 @@ public class TestDataSourceConfig {
     @Bean(name = "test-datasource")
     public DataSource dataSource(){
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setUrl("jdbc:mysql://192.168.0.106:3306/chat-app-test");
-        dataSource.setUsername( "root" );
-        dataSource.setPassword( "1234" );
+        dataSource.setUrl("jdbc:mysql://database-2.cd3qhxwxyvzj.eu-west-2.rds.amazonaws.com:3306/chat-app-test");
+        dataSource.setUsername( "admin" );
+        dataSource.setPassword( "Admin1234" );
 
         return dataSource;
     }
