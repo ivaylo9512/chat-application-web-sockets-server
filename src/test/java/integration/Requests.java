@@ -2,7 +2,6 @@ package integration;
 
 import com.chat.app.config.AppConfig;
 import com.chat.app.config.SecurityConfig;
-import com.chat.app.config.TestDataSourceConfig;
 import com.chat.app.config.TestWebConfig;
 import com.chat.app.controllers.RequestController;
 import com.chat.app.models.Dtos.ChatDto;
@@ -50,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @AutoConfigureTestDatabase(replace=AutoConfigureTestDatabase.Replace.NONE)
-@ContextConfiguration(classes = { AppConfig.class, TestWebConfig.class, SecurityConfig.class, TestDataSourceConfig.class})
+@ContextConfiguration(classes = { AppConfig.class, TestWebConfig.class, SecurityConfig.class })
 @WebAppConfiguration(value = "src/main/java/com/chat/app")
 @WebMvcTest(controllers = RequestController.class)
 @Import(SecurityConfig.class)

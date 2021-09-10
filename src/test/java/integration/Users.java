@@ -2,7 +2,6 @@ package integration;
 
 import com.chat.app.config.AppConfig;
 import com.chat.app.config.SecurityConfig;
-import com.chat.app.config.TestDataSourceConfig;
 import com.chat.app.config.TestWebConfig;
 import com.chat.app.controllers.UserController;
 import com.chat.app.models.Dtos.UserDto;
@@ -46,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @AutoConfigureTestDatabase(replace=AutoConfigureTestDatabase.Replace.NONE)
-@ContextConfiguration(classes = { AppConfig.class, TestWebConfig.class, SecurityConfig.class, TestDataSourceConfig.class})
+@ContextConfiguration(classes = { AppConfig.class, TestWebConfig.class, SecurityConfig.class })
 @WebAppConfiguration(value = "src/main/java/com/chat/app")
 @WebMvcTest(UserController.class)
 @Import(SecurityConfig.class)
@@ -109,7 +108,6 @@ public class Users {
                 .param("username", username)
                 .param("email", email)
                 .param("password", user.getPassword())
-                .param("repeatPassword", user.getPassword())
                 .param("firstName", user.getFirstName())
                 .param("lastName", user.getLastName())
                 .param("age", String.valueOf(user.getAge()))
