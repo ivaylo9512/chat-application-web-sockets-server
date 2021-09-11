@@ -134,7 +134,8 @@ public class UserDto {
 
     public void setProfileImage(File profileImage) {
         if(profileImage != null){
-            this.profileImage = profileImage.getName();
+            this.profileImage = profileImage.getResourceType() + profileImage.getOwner().getId() +
+                    "." + profileImage.getExtension();
         }
     }
 

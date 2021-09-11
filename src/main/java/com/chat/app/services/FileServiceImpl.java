@@ -12,7 +12,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -39,46 +38,19 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public File create(MultipartFile receivedFile, String name, String type, UserModel owner) {
-        File file = generate(receivedFile, name, type);
-        file.setOwner(owner);
-
-        try {
-            save(file, receivedFile);
-        } catch (IOException e) {
-            throw new FileStorageException("Couldn't store the image.");
-        }
-
-        return fileRepository.save(file);
-    }
-
-    @Override
-    public File update(MultipartFile receivedFile, String name, long id, String type){
-        File file = generate(receivedFile, name, type);
-        file.setId(id);
-
-        try {
-            save(file, receivedFile);
-        } catch (IOException e) {
-            throw new FileStorageException("Couldn't store the image.");
-        }
-
-        return fileRepository.save(file);
-    }
-
-    @Override
-    public boolean delete(String fileName, UserModel loggedUser) {
-        File file = findByName(fileName);
-        if(file == null){
-            throw new EntityNotFoundException("File not found.");
-        }
-
-        if(file.getOwner().getId() != loggedUser.getId()
+    public boolean delete(String resourceType, long ownerId, UserModel loggedUser) {
+        if(ownerId != loggedUser.getId()
                 && !loggedUser.getRole().equals("ROLE_ADMIN")){
             throw new UnauthorizedException("Unauthorized");
         }
 
-        if(new java.io.File("./uploads/" + fileName).delete()){
+        File file = findByName(resourceType, ownerId);
+        if(file == null){
+            throw new EntityNotFoundException("File not found.");
+        }
+
+        boolean isDeleted = new java.io.File("./uploads/" + resourceType + ownerId + "." + file.getExtension()).delete();
+        if(isDeleted){
             fileRepository.delete(file);
             return true;
         }
@@ -103,24 +75,32 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public File findByName(String fileName){
-        return fileRepository.findByName(fileName);
+    public File findByName(String resourceType, long ownerId){
+        return fileRepository.findByName(resourceType, ownerId);
     }
 
-    public void save(File image, MultipartFile receivedFile) throws IOException {
-        Path targetLocation = this.fileLocation.resolve(image.getName());
-        Files.copy(receivedFile.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+    @Override
+    public void save(String name, MultipartFile receivedFile) {
+        try {
+            String extension = FilenameUtils.getExtension(receivedFile.getOriginalFilename());
+            String fileName = name + "." + extension;
+
+            Path targetLocation = this.fileLocation.resolve(fileName);
+            Files.copy(receivedFile.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new FileStorageException("Couldn't store the image.");
+        }
     }
 
-    public File generate(MultipartFile receivedFile, String name, String type) {
-        String fileType = FilenameUtils.getExtension(receivedFile.getOriginalFilename());
-        String fileName = name + "." + fileType;
-        File file = new File(fileName, receivedFile.getSize(), receivedFile.getContentType());
+    @Override
+    public File generate(MultipartFile receivedFile, String resourceType, String fileType) {
+        String extension = FilenameUtils.getExtension(receivedFile.getOriginalFilename());
+        String contentType = receivedFile.getContentType();
 
-        if (!file.getType().startsWith(type)) {
-            throw new FileFormatException("File should be of type " + type);
+        if (contentType == null || !contentType.startsWith(fileType)) {
+            throw new FileFormatException("File should be of type " + fileType);
         }
 
-        return file;
+        return new File(resourceType, receivedFile.getSize(), receivedFile.getContentType(), extension);
     }
 }

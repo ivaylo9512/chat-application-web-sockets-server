@@ -5,9 +5,10 @@ import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.models.specs.UserSpec;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import java.util.List;
 
-public interface UserService {
+public interface UserService extends UserDetailsService {
     List<UserModel> findAll();
 
     UserModel findById(long id);

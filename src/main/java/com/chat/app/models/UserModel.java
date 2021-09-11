@@ -68,6 +68,11 @@ public class UserModel {
         this.role = role;
     }
 
+    public UserModel(RegisterSpec newUser, File profileImage, String role) {
+        this(newUser, role);
+        setProfileImage(profileImage);
+    }
+
     public UserModel(String username, String password, String role){
         this.username = username;
         this.password = password;
@@ -163,7 +168,10 @@ public class UserModel {
     }
 
     public void setProfileImage(File profileImage) {
-        this.profileImage = profileImage;
+        if(profileImage != null){
+            this.profileImage = profileImage;
+            profileImage.setOwner(this);
+        }
     }
 
     public boolean isEnabled() {

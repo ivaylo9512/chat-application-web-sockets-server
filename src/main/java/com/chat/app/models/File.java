@@ -12,22 +12,28 @@ public class File {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String name;
-    private String type;
-    private double size;
+    @Column(name = "resource_type")
+    private String resourceType;
 
     @ManyToOne
     @PrimaryKeyJoinColumn
     private UserModel owner;
 
+    private String extension;
+    private String type;
+    private double size;
+
+
+
     public File() {
 
     }
 
-    public File(String name, double size, String type){
-        this.name = name;
+    public File(String resourceType, double size, String type, String extension){
+        this.resourceType = resourceType;
         this.size = size;
         this.type = type;
+        this.extension = extension;
     }
 
     @Override
@@ -38,9 +44,8 @@ public class File {
     @Override
     public boolean equals(Object obj) {
         if(obj == this) return true;
-        if(!(obj instanceof File)) return false;
+        if(!(obj instanceof File extension)) return false;
 
-        File extension = (File) obj;
         return extension.getId() == getId();
     }
 
@@ -68,12 +73,12 @@ public class File {
         this.type = type;
     }
 
-    public String getName() {
-        return name;
+    public String getResourceType() {
+        return resourceType;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
     }
 
     public UserModel getOwner() {
@@ -82,5 +87,13 @@ public class File {
 
     public void setOwner(UserModel owner) {
         this.owner = owner;
+    }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
     }
 }

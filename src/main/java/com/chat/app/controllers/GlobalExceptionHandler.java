@@ -5,9 +5,11 @@ import com.chat.app.exceptions.FileFormatException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -51,7 +53,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         Map<String, String> errors = e.getBindingResult()
                         .getFieldErrors()
                         .stream()
-                        .collect(Collectors.toMap(o -> o.getField(), o -> o.getDefaultMessage(), (existing, replacement) -> existing, HashMap::new));
+                        .collect(Collectors.toMap(FieldError::getField, DefaultMessageSourceResolvable::getDefaultMessage, (existing, replacement) -> existing, HashMap::new));
 
         try {
             return ResponseEntity

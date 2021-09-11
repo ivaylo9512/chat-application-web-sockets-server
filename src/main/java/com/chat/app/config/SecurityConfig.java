@@ -1,9 +1,8 @@
 package com.chat.app.config;
 
 import com.chat.app.security.*;
-import com.chat.app.services.UserServiceImpl;
+import com.chat.app.services.base.UserService;
 import org.apache.http.HttpHeaders;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -27,11 +25,11 @@ import java.util.Collections;
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final AuthorizationProvider authorizationProvider;
     private final FailureHandler failureHandler = new FailureHandler();
 
-    public SecurityConfig(UserServiceImpl userService, AuthorizationProvider authorizationProvider) {
+    public SecurityConfig(UserService userService, AuthorizationProvider authorizationProvider) {
         this.userService = userService;
         this.authorizationProvider = authorizationProvider;
     }

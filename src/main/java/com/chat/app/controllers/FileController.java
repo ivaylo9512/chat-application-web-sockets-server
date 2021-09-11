@@ -42,11 +42,11 @@ public class FileController {
                 .body(resource);
     }
 
-    @DeleteMapping("/auth/delete/{name}")
-    public boolean delete(@PathVariable("name") String name){
+    @DeleteMapping("/auth/delete/{resourceType}/{ownerId}")
+    public boolean delete(@PathVariable("resourceType") String resourceType, @PathVariable("ownerId") long ownerId){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        return fileService.delete(name, userService.findById(loggedUser.getId()));
+        return fileService.delete(resourceType, ownerId, userService.findById(loggedUser.getId()));
     }
 }
