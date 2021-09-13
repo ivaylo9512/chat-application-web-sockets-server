@@ -62,14 +62,9 @@ public class UserModel {
         this.role = role;
     }
 
-    public UserModel(RegisterSpec newUser, String role) {
-        this(newUser.getUsername(), newUser.getEmail(), newUser.getPassword(), newUser.getFirstName(),
-                newUser.getLastName(), newUser.getAge(), newUser.getCountry());
-        this.role = role;
-    }
-
     public UserModel(RegisterSpec newUser, File profileImage, String role) {
-        this(newUser, role);
+        this(newUser.getUsername(), newUser.getEmail(), newUser.getPassword(), role, newUser.getFirstName(),
+                newUser.getLastName(), newUser.getAge(), newUser.getCountry());
         setProfileImage(profileImage);
     }
 

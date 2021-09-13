@@ -4,12 +4,14 @@ import com.chat.app.config.AppConfig;
 import com.chat.app.config.SecurityConfig;
 import com.chat.app.config.TestWebConfig;
 import com.chat.app.controllers.UserController;
+import com.chat.app.models.Dtos.FileDto;
 import com.chat.app.models.Dtos.UserDto;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.security.Jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -27,13 +30,17 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsString;
@@ -65,8 +72,14 @@ public class Users {
     @BeforeEach
     public void setupData() {
         ResourceDatabasePopulator rdp = new ResourceDatabasePopulator();
+        rdp.addScript(new ClassPathResource("integrationTestsSql/FilesData.sql"));
         rdp.addScript(new ClassPathResource("integrationTestsSql/UsersData.sql"));
         rdp.execute(dataSource);
+    }
+
+    @AfterEach
+    public void reset(){
+        new File("./uploads/profileImage10.png").delete();
     }
 
     @BeforeAll
@@ -75,7 +88,7 @@ public class Users {
         admin.setId(1);
 
         UserModel user = new UserModel("testUser", "password", "ROLE_USER");
-        user.setId(2);
+        user.setId(3);
 
         adminToken = "Token " + Jwt.generate(new UserDetails(admin, Collections
                 .singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))));
@@ -99,12 +112,18 @@ public class Users {
         assertNotNull(webApplicationContext.getBean("userController"));
     }
 
-    private UserModel user = new UserModel("username", "username@gmail.com", "password","ROLE_USER", "firstname",
+    private final UserModel user = new UserModel("username", "username@gmail.com", "password","ROLE_USER", "firstname",
             "lastname", 25, "Bulgaria");
-    private UserDto userDto = new UserDto(user);
+    private final UserDto userDto = new UserDto(user);
 
-    private RequestBuilder createMediaRegisterRequest(String url, String role, String username, String email, String token){
-        MockHttpServletRequestBuilder request = post(url)
+    private RequestBuilder createMediaRegisterRequest(String url, String role, String username, String email, String token) throws Exception{
+        FileInputStream input = new FileInputStream("./uploads/test.png");
+        MockMultipartFile profileImage = new MockMultipartFile("profileImage", "test.png", "image/png",
+                IOUtils.toByteArray(input));
+        input.close();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.multipart(url)
+                .file(profileImage)
                 .param("username", username)
                 .param("email", email)
                 .param("password", user.getPassword())
@@ -120,6 +139,7 @@ public class Users {
         userDto.setRole(role);
         userDto.setId(10);
         userDto.setEmail(email);
+        userDto.setProfileImage("profileImage10.png");
 
         return  request;
     }
@@ -132,7 +152,8 @@ public class Users {
                 .andExpect(status().isOk());
 
         enableUser(userDto.getId());
-        checkDbForUser(userDto);
+        checkDBForUser(userDto);
+        checkDBForImage("profileImage", userDto.getId());
     }
 
     @WithMockUser(value = "spring")
@@ -143,7 +164,8 @@ public class Users {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString(objectMapper.writeValueAsString(userDto))));
 
-        checkDbForUser(userDto);
+        checkDBForUser(userDto);
+        checkDBForImage("profileImage", userDto.getId());
     }
 
     @WithMockUser(value = "spring")
@@ -162,9 +184,23 @@ public class Users {
                 .andExpect(content().string(containsString("Username is already taken.")));
     }
 
-    private void checkDbForUser(UserDto user) throws Exception{
+    private void checkDBForUser(UserDto user) throws Exception{
         mockMvc.perform(get("/api/users/findById/" + user.getId()))
                 .andExpect(content().string(objectMapper.writeValueAsString(user)));
+    }
+
+    private void checkDBForImage(String resourceType, long userId) throws Exception{
+        MvcResult result = mockMvc.perform(get(String.format("/api/files/findByName/%s/%s", resourceType, userId)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        FileDto image = objectMapper.readValue(result.getResponse().getContentAsString(), FileDto.class);
+
+        assertEquals(image.getResourceType(), "profileImage");
+        assertEquals(image.getExtension(), "png");
+        assertEquals(image.getOwnerId(), userId);
+        assertEquals(image.getType(), "image/png");
+        assertEquals(image.getSize(), 66680.0);
     }
 
     private void enableUser(long id) throws Exception{
@@ -204,8 +240,9 @@ public class Users {
         UserDto user = new UserDto(new UserModel("adminUser", "adminUser@gmail.com", "password", "ROLE_ADMIN",
                 "firstName", "lastName", 25, "Bulgaria"));
         user.setId(1);
+        user.setProfileImage("profileImage1.png");
 
-        checkDbForUser(user);
+        checkDBForUser(user);
     }
 
     @Test
@@ -219,6 +256,7 @@ public class Users {
         UserSpec userSpec = new UserSpec(1, "newUsername", "newUsername@gmail.com", "newFirstName",
                 "newLastName", 26, "newCountry");
         UserDto userDto = new UserDto(userSpec, "ROLE_ADMIN");
+        userDto.setProfileImage("profileImage1.png");
 
         mockMvc.perform(post("/api/users/auth/changeUserInfo")
                 .header("Authorization", adminToken)
@@ -227,7 +265,7 @@ public class Users {
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(userDto)));
 
-        checkDbForUser(userDto);
+        checkDBForUser(userDto);
     }
 
     @Test

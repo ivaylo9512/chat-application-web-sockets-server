@@ -1,5 +1,6 @@
 package com.chat.app.controllers;
 
+import com.chat.app.models.Dtos.FileDto;
 import com.chat.app.models.UserDetails;
 import com.chat.app.services.base.FileService;
 import com.chat.app.services.base.UserService;
@@ -14,7 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @RestController
-@RequestMapping(value = "/images")
+@RequestMapping(value = "api/files")
 public class FileController {
     private final FileService fileService;
     private final UserService userService;
@@ -42,11 +43,16 @@ public class FileController {
                 .body(resource);
     }
 
+    @GetMapping("/findByName/{resourceType}/{ownerId}")
+    public FileDto findByName(@PathVariable("resourceType") String resourceType, @PathVariable("ownerId") long ownerId){
+        return new FileDto(fileService.findByName(resourceType, userService.getById(ownerId)));
+    }
+
     @DeleteMapping("/auth/delete/{resourceType}/{ownerId}")
     public boolean delete(@PathVariable("resourceType") String resourceType, @PathVariable("ownerId") long ownerId){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
-        return fileService.delete(resourceType, ownerId, userService.findById(loggedUser.getId()));
+        return fileService.delete(resourceType, userService.getById(ownerId), userService.findById(loggedUser.getId()));
     }
 }

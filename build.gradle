@@ -58,7 +58,6 @@ dependencies {
     implementation  group: 'org.apache.derby', name: 'derby', version: '10.14.2.0'
     implementation group: 'org.springframework', name: 'spring-context'
     implementation group: 'org.javassist', name: 'javassist', version: '3.28.0-GA'
-    implementation 'com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre8'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation group: 'org.springframework.security', name: 'spring-security-test'

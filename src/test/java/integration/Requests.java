@@ -76,15 +76,16 @@ class Requests {
 
     @BeforeAll
     void setup() {
+        ResourceDatabasePopulator rdp = new ResourceDatabasePopulator();
+        rdp.addScript(new ClassPathResource("integrationTestsSql/FilesData.sql"));
+        rdp.addScript(new ClassPathResource("integrationTestsSql/UsersData.sql"));
+        rdp.execute(dataSource);
+
         UserModel admin = new UserModel("adminUser", "password", "ROLE_ADMIN");
         admin.setId(1);
 
         adminToken = "Token " + Jwt.generate(new UserDetails(admin, Collections
                 .singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))));
-
-        ResourceDatabasePopulator rdp = new ResourceDatabasePopulator();
-        rdp.addScript(new ClassPathResource("integrationTestsSql/UsersData.sql"));
-        rdp.execute(dataSource);
 
         objectMapper = new ObjectMapper();
         mockMvc = MockMvcBuilders
@@ -110,7 +111,7 @@ class Requests {
                 .andReturn();
 
         PageDto<RequestDto> page = objectMapper.readValue(result.getResponse()
-                .getContentAsString(), new TypeReference<PageDto<RequestDto>>(){});
+                .getContentAsString(), new TypeReference<>() {});
         List<RequestDto> requests = page.getData();
 
         assertEquals(page.getCount(), 5);
@@ -127,7 +128,7 @@ class Requests {
                 .andReturn();
 
         PageDto<RequestDto> page = objectMapper.readValue(result.getResponse()
-                .getContentAsString(), new TypeReference<PageDto<RequestDto>>(){});
+                .getContentAsString(), new TypeReference<>(){});
         List<RequestDto> requests = page.getData();
 
         assertEquals(page.getCount(), 3);
@@ -205,7 +206,6 @@ class Requests {
     void addRequest_WhenRequestIsNotAlreadyPresent() throws Exception{
         MvcResult result = mockMvc.perform(post("/api/requests/auth/add/8")
                 .header("Authorization", adminToken))
-                .andExpect(status().isOk())
                 .andReturn();
 
         UserDto userDto = objectMapper.readValue(result.getResponse().getContentAsString(), UserDto.class);

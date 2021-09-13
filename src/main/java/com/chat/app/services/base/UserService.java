@@ -13,6 +13,8 @@ public interface UserService extends UserDetailsService {
 
     UserModel findById(long id);
 
+    UserModel getById(long id);
+
     Page<UserModel> findByUsernameWithRegex(long userId, String username, int take, String lastName, long lastId);
 
     UserModel create(UserModel user);

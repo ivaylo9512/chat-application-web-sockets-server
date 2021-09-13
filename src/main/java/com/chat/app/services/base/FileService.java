@@ -7,11 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.FileNotFoundException;
 
 public interface FileService {
-    boolean delete(String resourceType, long ownerId, UserModel loggedUser);
+    boolean delete(String resourceType, UserModel ownerId, UserModel loggedUser);
 
     Resource getAsResource(String fileName) throws FileNotFoundException;
 
-    File findByName(String resourceType, long ownerId);
+    File findByName(String resourceType, UserModel ownerId);
 
     void save(String name, MultipartFile receivedFile);
 

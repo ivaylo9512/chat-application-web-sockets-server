@@ -38,18 +38,15 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean delete(String resourceType, long ownerId, UserModel loggedUser) {
-        if(ownerId != loggedUser.getId()
+    public boolean delete(String resourceType, UserModel owner, UserModel loggedUser) {
+        if(owner.getId() != loggedUser.getId()
                 && !loggedUser.getRole().equals("ROLE_ADMIN")){
             throw new UnauthorizedException("Unauthorized");
         }
 
-        File file = findByName(resourceType, ownerId);
-        if(file == null){
-            throw new EntityNotFoundException("File not found.");
-        }
+        File file = findByName(resourceType, owner);
 
-        boolean isDeleted = new java.io.File("./uploads/" + resourceType + ownerId + "." + file.getExtension()).delete();
+        boolean isDeleted = new java.io.File("./uploads/" + resourceType + owner.getId() + "." + file.getExtension()).delete();
         if(isDeleted){
             fileRepository.delete(file);
             return true;
@@ -75,8 +72,9 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public File findByName(String resourceType, long ownerId){
-        return fileRepository.findByName(resourceType, ownerId);
+    public File findByName(String resourceType, UserModel owner){
+        return fileRepository.findByName(resourceType, owner).orElseThrow(() ->
+                new EntityNotFoundException("File not found."));
     }
 
     @Override

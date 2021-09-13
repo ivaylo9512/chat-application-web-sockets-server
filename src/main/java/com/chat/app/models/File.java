@@ -15,15 +15,13 @@ public class File {
     @Column(name = "resource_type")
     private String resourceType;
 
-    @ManyToOne
-    @PrimaryKeyJoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner")
     private UserModel owner;
 
     private String extension;
     private String type;
     private double size;
-
-
 
     public File() {
 
