@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/register")
-    public boolean register(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) {
+    public boolean register(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) throws IOException{
         MultipartFile profileImage = registerSpec.getProfileImage();
         File file = null;
 
@@ -64,7 +65,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = "/auth/registerAdmin")
-    public UserDto registerAdmin(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response){
+    public UserDto registerAdmin(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) throws IOException {
         MultipartFile profileImage = registerSpec.getProfileImage();
         File file = null;
 
