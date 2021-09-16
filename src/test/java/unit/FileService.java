@@ -93,7 +93,7 @@ public class FileService {
     }
 
     @Test
-    public void save() throws Exception{
+    public void createAndSave() throws Exception{
         FileInputStream input = new FileInputStream("./uploads/logo.txt");
         MultipartFile multipartFile = new MockMultipartFile("test", "logo.txt", "text/plain",
                 IOUtils.toByteArray(input));

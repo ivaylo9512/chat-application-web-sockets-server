@@ -4,7 +4,6 @@ import com.chat.app.models.File;
 import com.chat.app.models.UserModel;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 

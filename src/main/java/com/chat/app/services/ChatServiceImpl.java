@@ -98,6 +98,7 @@ public class ChatServiceImpl implements ChatService {
         if(chat != null){
             chat.setSessions(findSessions(chat.getId(), 0, 5));
         }
+
         return chat;
     }
 

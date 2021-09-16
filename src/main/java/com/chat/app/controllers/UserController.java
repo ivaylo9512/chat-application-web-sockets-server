@@ -80,7 +80,7 @@ public class UserController {
             fileService.save(file.getResourceType() + newUser.getId(), registerSpec.getProfileImage());
         }
 
-        return new UserDto(userService.save(newUser));
+        return new UserDto(newUser);
     }
 
     @PostMapping("/login")

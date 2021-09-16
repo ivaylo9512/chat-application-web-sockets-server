@@ -164,7 +164,7 @@ public class Files {
     @Test
     public void deleteFileWithUserThatIsNotOwner() throws Exception{
         mockMvc.perform(delete("/api/files/auth/delete/profileImage/1")
-                        .header("Authorization", userToken))
+                .header("Authorization", userToken))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Unauthorized"));
     }

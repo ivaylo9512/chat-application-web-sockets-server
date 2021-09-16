@@ -211,10 +211,17 @@ public class Users {
 
     @Test
     public void login() throws Exception {
+        UserModel user = new UserModel("adminUser", "adminUser@gmail.com", "password","ROLE_ADMIN", "firstName",
+                "lastName", 25, "Bulgaria");
+        UserDto userDto = new UserDto(user);
+        userDto.setId(1);
+        userDto.setProfileImage("profileImage1.png");
+
         mockMvc.perform(post("/api/users/login")
             .contentType("Application/json")
             .content("{\"username\": \"adminUser\", \"password\": \"password\"}"))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().string(objectMapper.writeValueAsString(userDto)));
     }
 
     @Test

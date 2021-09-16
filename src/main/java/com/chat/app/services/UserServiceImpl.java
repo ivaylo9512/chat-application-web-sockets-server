@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
         List<SimpleGrantedAuthority> authorities =
                 Collections.singletonList(new SimpleGrantedAuthority(userModel.getRole()));
 
-        return new UserDetails(userModel,authorities);
+        return new UserDetails(userModel, authorities);
     }
 
     @Override
