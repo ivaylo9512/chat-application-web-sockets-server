@@ -1,7 +1,6 @@
 package com.chat.app.services;
 
 import com.chat.app.exceptions.FileFormatException;
-import com.chat.app.exceptions.FileStorageException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.models.File;
 import com.chat.app.models.UserModel;
@@ -25,16 +24,12 @@ public class FileServiceImpl implements FileService {
     private final Path fileLocation;
     private final FileRepository fileRepository;
 
-    public FileServiceImpl(FileRepository fileRepository) {
+    public FileServiceImpl(FileRepository fileRepository) throws IOException {
         this.fileRepository = fileRepository;
         this.fileLocation = Paths.get("./uploads")
                 .toAbsolutePath().normalize();
 
-        try {
-            Files.createDirectories(this.fileLocation);
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't create directory");
-        }
+        Files.createDirectories(this.fileLocation);
     }
 
     @Override
@@ -56,19 +51,15 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Resource getAsResource(String fileName){
-        try {
-            Path filePath = this.fileLocation.resolve(fileName).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
+    public Resource getAsResource(String fileName) throws MalformedURLException{
+        Path filePath = this.fileLocation.resolve(fileName).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
 
-            if (!resource.exists()) {
-                throw new EntityNotFoundException("File not found");
-            }
-
-            return resource;
-        } catch (MalformedURLException e) {
-            throw new FileFormatException(e.getMessage());
+        if (!resource.exists()) {
+            throw new EntityNotFoundException("File not found");
         }
+
+        return resource;
     }
 
     @Override
@@ -78,16 +69,12 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void save(String name, MultipartFile receivedFile) {
-        try {
-            String extension = FilenameUtils.getExtension(receivedFile.getOriginalFilename());
-            String fileName = name + "." + extension;
+    public void save(String name, MultipartFile receivedFile) throws IOException{
+        String extension = FilenameUtils.getExtension(receivedFile.getOriginalFilename());
+        String fileName = name + "." + extension;
 
-            Path targetLocation = this.fileLocation.resolve(fileName);
-            Files.copy(receivedFile.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new FileStorageException("Couldn't store the image.");
-        }
+        Path targetLocation = this.fileLocation.resolve(fileName);
+        Files.copy(receivedFile.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
     }
 
     @Override

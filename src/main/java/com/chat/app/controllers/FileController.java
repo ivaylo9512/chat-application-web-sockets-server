@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 @RestController
 @RequestMapping(value = "api/files")
@@ -26,7 +27,7 @@ public class FileController {
     }
 
     @GetMapping("/download/{fileName:.+}")
-    public ResponseEntity<Resource> get(@PathVariable String fileName, HttpServletRequest request) throws FileNotFoundException {
+    public ResponseEntity<Resource> get(@PathVariable String fileName, HttpServletRequest request) throws MalformedURLException {
         Resource resource = fileService.getAsResource(fileName);
         String contentType;
 

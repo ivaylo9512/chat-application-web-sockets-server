@@ -169,7 +169,6 @@ public class ChatServiceTest {
         assertEquals(sessions, foundChat.getSessions());
     }
 
-
     @Test
     public void findUserChats(){
         UserModel user = new UserModel();

@@ -23,7 +23,6 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "com.chat.app.repositories.base")
 public class AppConfig {
-
     @Bean(name = "OBJECT_MAPPER_BEAN")
     @Primary
     public ObjectMapper jsonObjectMapper() {

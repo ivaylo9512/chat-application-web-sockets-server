@@ -15,9 +15,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
-import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.chat.app.models.UserDetails;
@@ -106,5 +104,4 @@ public class ChatController {
 
         return new ChatDto(chatService.findUsersChat(loggedUser.getId(), id));
     }
-
 }

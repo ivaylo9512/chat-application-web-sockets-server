@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
         List<SimpleGrantedAuthority> authorities =
                 Collections.singletonList(new SimpleGrantedAuthority(userModel.getRole()));
 
-        return new UserDetails(userModel,authorities);
+        return new UserDetails(userModel, authorities);
     }
 
     @Override
