@@ -49,12 +49,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
-    protected ResponseEntity<Object> handleServletRequestBindingException(ServletRequestBindingException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        System.out.println("here14");
-        return super.handleServletRequestBindingException(ex, headers, status, request);
-    }
-
-    @Override
     protected ResponseEntity<Object> handleBindException(BindException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
         Map<String, String> errors = e.getBindingResult()
                 .getFieldErrors()

@@ -6,16 +6,11 @@ import com.chat.app.models.UserModel;
 import org.springframework.data.domain.Page;
 
 public interface RequestService {
-
-    Request findById(long id);
-
     Request findById(long id, long loggedUser);
 
     Page<Request> findAll(Long userId, int pageSize, String lastCreatedAt, long lastId);
 
     Request findByUsers(long firstUser, long secondUser);
-
-    void deleteById(long id, long loggedUser);
 
     void delete(Request request);
 

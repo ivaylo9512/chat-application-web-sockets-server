@@ -27,12 +27,4 @@ public class ScheduleConfig implements SchedulingConfigurer {
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
     }
-
-    public String getThreadPrefix() {
-        return threadPrefix;
-    }
-
-    public void setThreadPrefix(String threadPrefix) {
-        this.threadPrefix = threadPrefix;
-    }
 }

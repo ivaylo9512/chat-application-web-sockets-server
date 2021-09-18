@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import javax.persistence.EntityNotFoundException;
+import javax.swing.text.html.Option;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -30,16 +31,17 @@ public class RequestService {
     private RequestServiceImpl requestService;
 
     @Test
-    public void findById_withNonExistingUser_shouldThrow() {
+    public void findById_withNonExistingRequest_shouldThrow() {
         when(requestRepository.findById(1L)).thenReturn(Optional.empty());
 
         EntityNotFoundException thrown = assertThrows(
                 EntityNotFoundException.class,
-                () -> requestService.findById(1L)
+                () -> requestService.findById(1L, 2L)
         );
 
         assertEquals(thrown.getMessage(), "Request not found.");
     }
+
     @Test
     public void findById_WithRequestThatDoesNotBelongToUser_shouldThrow() {
         UserModel receiver = new UserModel();
@@ -58,6 +60,43 @@ public class RequestService {
         assertEquals(thrown.getMessage(), "Unauthorized.");
     }
 
+    @Test
+    public void findById_WithReceiver(){
+        UserModel receiver = new UserModel();
+        UserModel sender = new UserModel();
+
+        receiver.setId(1);
+        sender.setId(2);
+
+        Request request = new Request();
+        request.setSender(sender);
+        request.setReceiver(receiver);
+
+        when(requestRepository.findById(2L)).thenReturn(Optional.of(request));
+
+        Request foundRequest = requestService.findById(2L, 1L);
+
+        assertEquals(request, foundRequest);
+    }
+
+    @Test
+    public void findById_WithSender(){
+        UserModel receiver = new UserModel();
+        UserModel sender = new UserModel();
+
+        receiver.setId(2);
+        sender.setId(1);
+
+        Request request = new Request();
+        request.setSender(sender);
+        request.setReceiver(receiver);
+
+        when(requestRepository.findById(2L)).thenReturn(Optional.of(request));
+
+        Request foundRequest = requestService.findById(2L, 1L);
+
+        assertEquals(request, foundRequest);
+    }
 
     @Test
     public void verifyAccept_WithIncorrectReceiver_shouldThrow() {
@@ -169,35 +208,5 @@ public class RequestService {
         );
 
         assertEquals(thrown.getMessage(), "Request not found.");
-    }
-
-    @Test
-    public void deleteById_withNonExistingId_shouldThrow() {
-        when(requestRepository.findById(1L)).thenReturn(Optional.empty());
-
-        EntityNotFoundException thrown = assertThrows(
-                EntityNotFoundException.class,
-                () -> requestService.deleteById(1L, 2L)
-        );
-
-        assertEquals(thrown.getMessage(), "Request not found.");
-    }
-
-    @Test
-    public void deleteById_WithRequestThatDoesNotBelongToUser_shouldThrow() {
-        UserModel receiver = new UserModel();
-        UserModel sender = new UserModel();
-
-        receiver.setId(1);
-        sender.setId(3);
-
-        when(requestRepository.findById(1L)).thenReturn(Optional.of(new Request(receiver, sender)));
-
-        UnauthorizedException thrown = assertThrows(
-                UnauthorizedException.class,
-                () -> requestService.deleteById(1L, 2L)
-        );
-
-        assertEquals(thrown.getMessage(), "Unauthorized.");
     }
 }

@@ -499,6 +499,14 @@ public class Users {
     }
 
     @Test
+    void changeUserInfo_WithTokenWithoutPrefix_Unauthorized() throws Exception{
+        mockMvc.perform(post("/api/users/auth/changeUserInfo")
+                .header("Authorization", "Incorrect token"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
     void changeUserInfo_WithIncorrectToken_Unauthorized() throws Exception{
         mockMvc.perform(post("/api/users/auth/changeUserInfo")
                 .header("Authorization", "Token incorrect"))

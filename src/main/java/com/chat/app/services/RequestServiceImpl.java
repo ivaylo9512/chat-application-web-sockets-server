@@ -19,16 +19,14 @@ public class RequestServiceImpl implements RequestService {
         this.requestRepository = requestRepository;
     }
 
-    @Override
-    public Request findById(long id){
+    private Request findById(long id){
         return requestRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException("Request not found."));
     }
 
     @Override
     public Request findById(long id, long loggedUser){
-        Request request = requestRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Request not found."));
+        Request request = findById(id);
 
         if(request.getSender().getId() != loggedUser &&
                     request.getReceiver().getId() != loggedUser){
@@ -49,19 +47,6 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public Request findByUsers(long firstUser, long secondUser) {
         return requestRepository.findRequest(firstUser, secondUser);
-    }
-
-    @Override
-    public void deleteById(long id, long loggedUser) {
-        Request request = requestRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Request not found."));
-
-        if(request.getSender().getId() != loggedUser &&
-                request.getReceiver().getId() != loggedUser){
-            throw new UnauthorizedException("Unauthorized.");
-        }
-
-        requestRepository.delete(request);
     }
 
     @Override
