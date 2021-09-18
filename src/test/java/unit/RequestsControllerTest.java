@@ -5,6 +5,7 @@ import com.chat.app.models.*;
 import com.chat.app.models.Dtos.ChatDto;
 import com.chat.app.models.Dtos.PageDto;
 import com.chat.app.models.Dtos.RequestDto;
+import com.chat.app.models.Dtos.UserDto;
 import com.chat.app.services.ChatServiceImpl;
 import com.chat.app.services.RequestServiceImpl;
 import com.chat.app.services.UserServiceImpl;
@@ -18,12 +19,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,12 +66,104 @@ public class RequestsControllerTest {
         assertEquals(requestDto.getReceiver().getId(), request.getReceiver().getId());
         assertEquals(requestDto.getSender().getId(), request.getSender().getId());
     }
-    @GetMapping("/auth/findById/{id}")
-    public RequestDto findById(@PathVariable("id") long id){
-        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
-                .getAuthentication().getDetails();
 
-        return new RequestDto(requestService.findById(id, loggedUser.getId()));
+    @Test
+    public void addRequest_WithChat(){
+        UserModel receiver = new UserModel();
+        receiver.setId(2);
+
+        Chat chat = new Chat(userModel, receiver);
+        chat.setId(3);
+        chat.setCreatedAt(dateTime);
+        chat.setUpdatedAt(dateTime);
+
+        auth.setDetails(user);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(userService.findById(1L)).thenReturn(userModel);
+        when(userService.findById(2L)).thenReturn(receiver);
+        when(chatService.findUsersChat(userModel.getId(), receiver.getId())).thenReturn(chat);
+
+        UserDto userDto = requestController.addRequest(2L);
+
+        assertEquals(userDto.getChatWithUser().getId(), chat.getId());
+        assertEquals(userDto.getId(), receiver.getId());
+        assertEquals(userDto.getRequestState(), "completed");
+    }
+
+    @Test
+    public void addRequest_WithRequest_WithReceiverLoggedUser() {
+        UserModel sender = new UserModel();
+        sender.setId(2);
+
+        Chat chat = new Chat(userModel, sender);
+        chat.setId(3);
+        chat.setCreatedAt(dateTime);
+        chat.setUpdatedAt(dateTime);
+
+        Request request = new Request(sender, userModel);
+
+        auth.setDetails(user);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(userService.findById(1L)).thenReturn(userModel);
+        when(userService.findById(2L)).thenReturn(sender);
+        when(chatService.findUsersChat(userModel.getId(), sender.getId())).thenReturn(null);
+        when(requestService.findByUsers(userModel.getId(), sender.getId())).thenReturn(request);
+        doNothing().when(requestService).delete(request);
+        when(chatService.create(userModel, sender)).thenReturn(chat);
+
+        UserDto userDto = requestController.addRequest(2L);
+
+        assertEquals(userDto.getChatWithUser().getId(), chat.getId());
+        assertEquals(userDto.getId(), sender.getId());
+        assertEquals(userDto.getRequestState(), "completed");
+        verify(requestService, times(1)).delete(request);
+    }
+
+    @Test
+    public void addRequest_WithRequest_WithSenderLoggedUser() {
+        UserModel receiver = new UserModel();
+        receiver.setId(2);
+
+        Request request = new Request(userModel, receiver);
+
+        auth.setDetails(user);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(userService.findById(1L)).thenReturn(userModel);
+        when(userService.findById(2L)).thenReturn(receiver);
+        when(chatService.findUsersChat(userModel.getId(), receiver.getId())).thenReturn(null);
+        when(requestService.findByUsers(userModel.getId(), receiver.getId())).thenReturn(request);
+
+        UserDto userDto = requestController.addRequest(2L);
+
+        assertEquals(userDto.getId(), receiver.getId());
+        assertNull(userDto.getChatWithUser());
+        assertEquals(userDto.getRequestState(), "pending");
+    }
+
+    @Test
+    public void addRequest_WhenRequestIsNotAlreadyPresent() {
+        UserModel receiver = new UserModel();
+        receiver.setId(2);
+
+        Request request = new Request(userModel, receiver);
+
+        auth.setDetails(user);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(userService.findById(1L)).thenReturn(userModel);
+        when(userService.findById(2L)).thenReturn(receiver);
+        when(chatService.findUsersChat(userModel.getId(), receiver.getId())).thenReturn(null);
+        when(requestService.findByUsers(userModel.getId(), receiver.getId())).thenReturn(null);
+        when(requestService.create(userModel, receiver)).thenReturn(request);
+
+        UserDto userDto = requestController.addRequest(2L);
+
+        assertEquals(userDto.getId(), receiver.getId());
+        assertNull(userDto.getChatWithUser());
+        assertEquals(userDto.getRequestState(), "pending");
     }
 
     @Test

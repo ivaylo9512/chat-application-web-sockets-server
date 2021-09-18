@@ -141,9 +141,9 @@ public class Files {
     }
 
     @Test
-    public void deleteFile() throws Exception{
+    public void deleteFile() throws Exception {
         mockMvc.perform(delete("/api/files/auth/delete/test/3")
-                .header("Authorization", userToken))
+                        .header("Authorization", userToken))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/files/findByType/test/3"))
@@ -154,23 +154,23 @@ public class Files {
     }
 
     @Test
-    public void deleteFileWithNonExistent() throws Exception{
+    public void deleteFileWithNonExistent() throws Exception {
         mockMvc.perform(delete("/api/files/auth/delete/nonexistent/3")
-                .header("Authorization", userToken))
+                        .header("Authorization", userToken))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("File not found."));
     }
 
     @Test
-    public void deleteFileWithUserThatIsNotOwner() throws Exception{
+    public void deleteFileWithUserThatIsNotOwner() throws Exception {
         mockMvc.perform(delete("/api/files/auth/delete/profileImage/1")
-                .header("Authorization", userToken))
+                        .header("Authorization", userToken))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Unauthorized"));
     }
 
     @Test
-    public void deleteFileWithUserThatIsNotOwnerAndIsRoleAdmin() throws Exception{
+    public void deleteFileWithUserThatIsNotOwnerAndIsRoleAdmin() throws Exception {
         mockMvc.perform(delete("/api/files/auth/delete/test/3")
                         .header("Authorization", adminToken))
                 .andExpect(status().isOk());
@@ -180,5 +180,20 @@ public class Files {
                 .andExpect(content().string("File not found."));
 
         assertFalse(new File("test3.png").exists());
+    }
+
+    @Test
+    public void deleteFile_WithIncorrectToken() throws Exception {
+        mockMvc.perform(delete("/api/files/auth/delete/test/3")
+                .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    public void deleteFile_WithoutToken() throws Exception {
+        mockMvc.perform(delete("/api/files/auth/delete/test/3"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
     }
 }

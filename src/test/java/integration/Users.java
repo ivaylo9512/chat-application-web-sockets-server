@@ -191,7 +191,16 @@ public class Users {
     public void register_WhenUsernameIsTaken() throws Exception {
         mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER",
                         "testUser", "username@gmail.com", null, true))
+                .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Username is already taken.")));
+    }
+
+    @Test
+    public void register_WhenEmailIsTaken() throws Exception {
+        mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER",
+                        "nonExistent", "adminUser@gmail.com", null, true))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Email is already taken.")));
     }
 
     private void checkDBForUser(UserDto user) throws Exception{
@@ -283,6 +292,36 @@ public class Users {
                 .andExpect(content().string(objectMapper.writeValueAsString(userDto)));
 
         checkDBForUser(userDto);
+    }
+
+    @Test
+    public void changeUserInfo_WhenUsernameIsTaken() throws Exception {
+        UserSpec userSpec = new UserSpec(1, "testUser", "newUsername@gmail.com", "newFirstName",
+                "newLastName", 26, "newCountry");
+        UserDto userDto = new UserDto(userSpec, "ROLE_ADMIN");
+        userDto.setProfileImage("profileImage1.png");
+
+        mockMvc.perform(post("/api/users/auth/changeUserInfo")
+                .header("Authorization", adminToken)
+                .contentType("Application/json")
+                .content(objectMapper.writeValueAsString(userSpec)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Username is already taken."));
+    }
+
+    @Test
+    public void changeUserInfo_WhenEmailIsTaken() throws Exception {
+        UserSpec userSpec = new UserSpec(1, "newUsername", "testUser@gmail.com", "newFirstName",
+                "newLastName", 26, "newCountry");
+        UserDto userDto = new UserDto(userSpec, "ROLE_ADMIN");
+        userDto.setProfileImage("profileImage1.png");
+
+        mockMvc.perform(post("/api/users/auth/changeUserInfo")
+                        .header("Authorization", adminToken)
+                        .contentType("Application/json")
+                        .content(objectMapper.writeValueAsString(userSpec)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Email is already taken."));
     }
 
     @Test

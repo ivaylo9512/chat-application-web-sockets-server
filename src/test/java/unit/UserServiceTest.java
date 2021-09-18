@@ -1,6 +1,7 @@
 package unit;
 
 import com.chat.app.exceptions.DisabledUserException;
+import com.chat.app.exceptions.EmailExistsException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.UserDetails;
@@ -68,7 +69,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void registerUser_WithAlreadyTakenUsername_UsernameExists() {
+    public void registerUser_WithAlreadyTakenUsername() {
         UserModel existingUser = new UserModel("test", "test@gmail.com", "test", "ROLE_ADMIN");
         UserModel user = new UserModel("test", "nonexistent@gmail.com", "test", "ROLE_ADMIN");
 
@@ -81,6 +82,22 @@ public class UserServiceTest {
 
         assertEquals(thrown.getMessage(), "Username is already taken.");
     }
+
+    @Test
+    public void registerUser_WithAlreadyTakenEmail() {
+        UserModel existingUser = new UserModel("test", "test@gmail.com", "test", "ROLE_ADMIN");
+        UserModel user = new UserModel("nonexistent", "test@gmail.com", "test", "ROLE_ADMIN");
+
+        when(userRepository.findByUsernameOrEmail("nonexistent", "test@gmail.com")).thenReturn(existingUser);
+
+        EmailExistsException thrown = assertThrows(
+                EmailExistsException.class,
+                () -> userService.create(user)
+        );
+
+        assertEquals(thrown.getMessage(), "Email is already taken.");
+    }
+
 
     @Test
     public void registerUser() {
@@ -248,6 +265,33 @@ public class UserServiceTest {
         );
 
         assertEquals(thrown.getMessage(), "Username is already taken.");
+    }
+
+    @Test()
+    public void changeUserInfo_WhenEmailIsTaken(){
+        UserSpec newUser = new UserSpec(1, "nonExistent", "taken@gmail.com", "firstName",
+                "lastName", 25, "Country");
+
+        UserModel oldUser = new UserModel("oldUsername", "oldEmail@gmail.com", "password", "ROLE_USER");
+        oldUser.setId(1);
+
+        UserModel existingUser = new UserModel();
+        existingUser.setId(2);
+        existingUser.setUsername("username");
+        existingUser.setUsername("taken@gmail.com");
+
+        UserDetails loggedUser = new UserDetails(oldUser, List.of(
+                new SimpleGrantedAuthority(oldUser.getRole())));
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
+        when(userRepository.findByUsernameOrEmail("nonExistent", "taken@gmail.com")).thenReturn(existingUser);
+
+        EmailExistsException thrown = assertThrows(
+                EmailExistsException.class,
+                () -> userService.changeUserInfo(newUser, loggedUser)
+        );
+
+        assertEquals(thrown.getMessage(), "Email is already taken.");
     }
 
     @Test
