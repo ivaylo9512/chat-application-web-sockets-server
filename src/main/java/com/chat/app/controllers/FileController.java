@@ -11,9 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 @RestController
 @RequestMapping(value = "api/files")
@@ -27,15 +25,9 @@ public class FileController {
     }
 
     @GetMapping("/download/{fileName:.+}")
-    public ResponseEntity<Resource> get(@PathVariable String fileName, HttpServletRequest request) throws MalformedURLException {
+    public ResponseEntity<Resource> getAsResource(@PathVariable String fileName, HttpServletRequest request) throws IOException {
         Resource resource = fileService.getAsResource(fileName);
-        String contentType;
-
-        try {
-            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-        } catch (IOException e) {
-            contentType = "application/octet-stream";
-        }
+        String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
@@ -44,9 +36,9 @@ public class FileController {
                 .body(resource);
     }
 
-    @GetMapping("/findByName/{resourceType}/{ownerId}")
-    public FileDto findByName(@PathVariable("resourceType") String resourceType, @PathVariable("ownerId") long ownerId){
-        return new FileDto(fileService.findByName(resourceType, userService.getById(ownerId)));
+    @GetMapping("/findByType/{resourceType}/{ownerId}")
+    public FileDto findByType(@PathVariable("resourceType") String resourceType, @PathVariable("ownerId") long ownerId){
+        return new FileDto(fileService.findByType(resourceType, userService.getById(ownerId)));
     }
 
     @DeleteMapping("/auth/delete/{resourceType}/{ownerId}")

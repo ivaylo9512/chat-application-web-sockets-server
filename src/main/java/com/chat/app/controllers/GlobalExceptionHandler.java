@@ -9,8 +9,13 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -44,11 +49,36 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
+    protected ResponseEntity<Object> handleServletRequestBindingException(ServletRequestBindingException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        System.out.println("here14");
+        return super.handleServletRequestBindingException(ex, headers, status, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleBindException(BindException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        Map<String, String> errors = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(FieldError::getField, DefaultMessageSourceResolvable::getDefaultMessage, (existing, replacement) -> existing, HashMap::new));
+
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .body(objectMapper.writeValueAsString(errors));
+        } catch (JsonProcessingException ex) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(ex.getMessage());
+        }
+    }
+
+    @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException e,
             HttpHeaders headers,
             HttpStatus status,
             WebRequest request) {
+        System.out.println("here");
 
         Map<String, String> errors = e.getBindingResult()
                         .getFieldErrors()
@@ -57,7 +87,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         try {
             return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
+                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body(objectMapper.writeValueAsString(errors));
         } catch (JsonProcessingException ex) {
             return ResponseEntity
@@ -77,6 +107,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ResponseEntity<String> disabledUserException(DisabledUserException e){
         return ResponseEntity
                 .status(HttpStatus.LOCKED)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler
+    ResponseEntity<String> badCredentialsException(BadCredentialsException e){
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(e.getMessage());
     }
 }

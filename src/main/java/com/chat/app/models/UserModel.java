@@ -1,6 +1,8 @@
 package com.chat.app.models;
 
 import com.chat.app.models.specs.RegisterSpec;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import java.util.List;
 
@@ -13,6 +15,7 @@ public class UserModel {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "profile_image")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private File profileImage;
 
     @Column(name = "is_enabled")
@@ -45,7 +48,7 @@ public class UserModel {
     public UserModel(){
     }
 
-    public UserModel(String username, String email, String password, String firstName,
+    public UserModel(String username, String email, String password, String role, String firstName,
                      String lastName, int age, String country) {
         this.username = username;
         this.email = email;
@@ -54,12 +57,13 @@ public class UserModel {
         this.lastName = lastName;
         this.age = age;
         this.country = country;
+        this.role = role;
     }
 
-    public UserModel(String username, String email, String password, String role, String firstName,
+    public UserModel(long id, String username, String email, String password, String role, String firstName,
                      String lastName, int age, String country) {
-        this(username, email, password, firstName, lastName, age, country);
-        this.role = role;
+        this(username, email, password, role,  firstName, lastName, age, country);
+        this.id = id;
     }
 
     public UserModel(RegisterSpec newUser, File profileImage, String role) {

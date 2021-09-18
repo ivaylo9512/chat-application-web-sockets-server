@@ -18,7 +18,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.util.Collections;
@@ -31,11 +30,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-    }
-
-    @Override
-    public List<UserModel> findAll() {
-        return userRepository.findAll();
     }
 
     @Override
@@ -78,11 +72,6 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(BCrypt.hashpw(user.getPassword(),BCrypt.gensalt(4)));
         return userRepository.save(user);
-    }
-
-    @Override
-    public UserModel save(UserModel userModel){
-        return userRepository.save(userModel);
     }
 
     @Override
@@ -146,7 +135,7 @@ public class UserServiceImpl implements UserService {
     public UserModel changePassword(NewPasswordSpec passwordSpec, long loggedUser){
         UserModel user = this.findById(loggedUser);
 
-        if (!user.getPassword().equals(passwordSpec.getCurrentPassword())){
+        if (!BCrypt.checkpw(passwordSpec.getCurrentPassword(), user.getPassword())){
             throw new BadCredentialsException("Invalid current password.");
         }
 

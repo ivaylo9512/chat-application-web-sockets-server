@@ -9,8 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import java.util.List;
 
 public interface UserService extends UserDetailsService {
-    List<UserModel> findAll();
-
     UserModel findById(long id);
 
     UserModel getById(long id);
@@ -18,8 +16,6 @@ public interface UserService extends UserDetailsService {
     Page<UserModel> findByUsernameWithRegex(long userId, String username, int take, String lastName, long lastId);
 
     UserModel create(UserModel user);
-
-    UserModel save(UserModel userModel);
 
     void delete(long id, UserDetails loggedUser);
 

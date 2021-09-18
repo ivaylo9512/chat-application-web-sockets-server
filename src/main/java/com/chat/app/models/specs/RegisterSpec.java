@@ -6,49 +6,42 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 public class RegisterSpec {
-    @Length(min = 8, max=20)
+    @Length(min = 8, max=20, message = "Username must be between 8 and 20 characters.")
+    @NotNull(message = "You must provide username.")
     private String username;
 
-    @Email
-    @NotNull
+    @Email(message = "Must be a valid email.")
+    @NotNull(message = "You must provide an email.")
     private String email;
 
     private MultipartFile profileImage;
 
-    @Length(min = 8, max=20)
+    @Length(min = 10, max=25, message = "Password must be between 10 and 25 characters.")
+    @NotNull(message = "You must provide password.")
     private String password;
 
-    @Length(min = 8, max=20)
-    private String repeatPassword;
-
-    @NotNull
+    @NotNull(message = "You must provide first name.")
     private String firstName;
 
-    @NotNull
+    @NotNull(message = "You must provide last name.")
     private String lastName;
 
-    @NotNull
+    @NotNull(message = "You must provide country.")
     private String country;
 
-    @NotNull
+    @NotNull(message = "You must provide age.")
     private int age;
 
 
-    public RegisterSpec(String username, String password, String repeatPassword, MultipartFile profileImage, String firstName, String lastName, String country, int age) {
+    public RegisterSpec(String username, String password, String email, MultipartFile profileImage, String firstName, String lastName, String country, int age) {
         this.username = username;
         this.password = password;
-        this.repeatPassword = repeatPassword;
+        this.email = email;
         this.profileImage = profileImage;
         this.firstName = firstName;
         this.lastName = lastName;
         this.country = country;
         this.age = age;
-    }
-
-    public RegisterSpec(String username, String password, String repeatPassword) {
-        this.username = username;
-        this.password = password;
-        this.repeatPassword = repeatPassword;
     }
 
     public RegisterSpec() {
@@ -69,14 +62,6 @@ public class RegisterSpec {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getRepeatPassword() {
-        return repeatPassword;
-    }
-
-    public void setRepeatPassword(String repeatPassword) {
-        this.repeatPassword = repeatPassword;
     }
 
     public MultipartFile getProfileImage() {

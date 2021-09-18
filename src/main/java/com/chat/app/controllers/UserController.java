@@ -8,7 +8,6 @@ import com.chat.app.models.Dtos.UserDto;
 import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
-import com.chat.app.security.Jwt;
 import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.FileService;
 import com.chat.app.services.base.RequestService;
@@ -17,11 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -43,12 +40,12 @@ public class UserController {
     }
 
     @PostMapping(value = "/register")
-    public boolean register(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) throws IOException{
+    public boolean register(@Valid @ModelAttribute RegisterSpec registerSpec) throws IOException{
         MultipartFile profileImage = registerSpec.getProfileImage();
         File file = null;
 
         if(profileImage != null){
-            file = fileService.generate(profileImage,"profileImage", "image/png");
+            file = fileService.generate(profileImage,"profileImage", "image");
         }
 
         UserModel newUser = userService.create(new UserModel(registerSpec, file, "ROLE_USER"));
@@ -57,15 +54,12 @@ public class UserController {
             fileService.save(file.getResourceType() + newUser.getId(), registerSpec.getProfileImage());
         }
 
-        String token = Jwt.generate(new UserDetails(newUser, List.of(new SimpleGrantedAuthority(newUser.getRole()))));
-        response.addHeader("Authorization", "Token " + token);
-
         return true;
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = "/auth/registerAdmin")
-    public UserDto registerAdmin(@Valid @ModelAttribute RegisterSpec registerSpec, HttpServletResponse response) throws IOException {
+    public UserDto registerAdmin(@Valid @ModelAttribute RegisterSpec registerSpec) throws IOException {
         MultipartFile profileImage = registerSpec.getProfileImage();
         File file = null;
 
@@ -129,7 +123,7 @@ public class UserController {
         return new UserDto(userService.changeUserInfo(userModel, loggedUser));
     }
 
-    @PostMapping(value = "/auth/changePassword")
+    @PatchMapping(value = "/auth/changePassword")
     public UserDto changePassword(@Valid @RequestBody NewPasswordSpec newPasswordSpec){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();

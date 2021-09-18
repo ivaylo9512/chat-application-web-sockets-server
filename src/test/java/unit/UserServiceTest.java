@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTests {
+public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
@@ -111,7 +111,7 @@ public class UserServiceTests {
         NewPasswordSpec passwordSpec = new NewPasswordSpec("user", "currentPassword", "newTestPassword");
 
         UserModel userModel = new UserModel();
-        userModel.setPassword("currentPassword");
+        userModel.setPassword(BCrypt.hashpw(passwordSpec.getCurrentPassword(),BCrypt.gensalt(4)));
         userModel.setEnabled(true);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));
@@ -126,7 +126,7 @@ public class UserServiceTests {
         NewPasswordSpec passwordSpec = new NewPasswordSpec("user", "InvalidPassword","newTestPassword" );
 
         UserModel userModel = new UserModel();
-        userModel.setPassword("currentPassword");
+        userModel.setPassword(BCrypt.hashpw("currentPassword",BCrypt.gensalt(4)));
         userModel.setEnabled(true);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userModel));

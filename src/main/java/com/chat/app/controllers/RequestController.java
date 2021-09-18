@@ -55,7 +55,7 @@ public class RequestController {
     }
 
     @GetMapping("/auth/findById/{id}")
-    private RequestDto findById(@PathVariable("id") long id){
+    public RequestDto findById(@PathVariable("id") long id){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
@@ -63,7 +63,7 @@ public class RequestController {
     }
 
     @GetMapping("/auth/findByUser/{id}")
-    private RequestDto findByUser(@PathVariable("id") long id){
+    public RequestDto findByUser(@PathVariable("id") long id){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
 
@@ -71,7 +71,7 @@ public class RequestController {
     }
 
     @GetMapping(value = {"/auth/findAll/{pageSize}", "/auth/findAll/{pageSize}/{lastCreatedAt}/{lastId}"})
-    private PageDto<RequestDto> findAll(
+    public PageDto<RequestDto> findAll(
             @PathVariable("pageSize") int pageSize,
             @PathVariable(value = "lastCreatedAt", required = false) String lastCreatedAt,
             @PathVariable(value = "lastId", required = false) Long lastId){

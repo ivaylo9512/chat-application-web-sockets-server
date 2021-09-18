@@ -2,6 +2,8 @@ package com.chat.app.models;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 
 @Entity
@@ -17,6 +19,7 @@ public class File {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private UserModel owner;
 
     private String extension;
@@ -32,6 +35,14 @@ public class File {
         this.size = size;
         this.type = type;
         this.extension = extension;
+    }
+
+    public File(String resourceType, double size, String type, String extension, UserModel owner){
+        this.resourceType = resourceType;
+        this.size = size;
+        this.type = type;
+        this.extension = extension;
+        this.owner = owner;
     }
 
     @Override

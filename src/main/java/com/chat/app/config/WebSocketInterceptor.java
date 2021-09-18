@@ -23,6 +23,11 @@ public class WebSocketInterceptor implements ChannelInterceptor, HandshakeInterc
                 MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             List<String> authorization = accessor.getNativeHeader("Authorization");
+
+            if(authorization == null){
+                throw new BadCredentialsException("Jwt token is missing");
+            }
+
             String token = authorization.get(0);
 
             if(token == null || !token.startsWith("Token")){
@@ -33,31 +38,6 @@ public class WebSocketInterceptor implements ChannelInterceptor, HandshakeInterc
             accessor.setUser(user::getUsername);
         }
         return message;
-    }
-
-    @Override
-    public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
-
-    }
-
-    @Override
-    public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
-
-    }
-
-    @Override
-    public boolean preReceive(MessageChannel channel) {
-        return false;
-    }
-
-    @Override
-    public Message<?> postReceive(Message<?> message, MessageChannel channel) {
-        return null;
-    }
-
-    @Override
-    public void afterReceiveCompletion(Message<?> message, MessageChannel channel, Exception ex) {
-
     }
 
     @Override

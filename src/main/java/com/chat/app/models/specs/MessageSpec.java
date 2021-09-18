@@ -3,16 +3,16 @@ package com.chat.app.models.specs;
 import javax.validation.constraints.NotNull;
 
 public class MessageSpec {
-    @NotNull
+    @NotNull(message = "You must provide chat id.")
     private long chatId;
 
-    @NotNull
+    @NotNull(message = "You must provide sender.")
     private long senderId;
 
-    @NotNull
+    @NotNull(message = "You must provide receiver.")
     private long receiverId;
 
-    @NotNull
+    @NotNull(message = "You must provide a message.")
     private String message;
 
     public MessageSpec(){

@@ -119,8 +119,8 @@ public class Files {
     }
 
     @Test
-    public void findByName() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/files/findByName/profileImage/1"))
+    public void findByType() throws Exception {
+        MvcResult result = mockMvc.perform(get("/api/files/findByType/profileImage/1"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -134,8 +134,8 @@ public class Files {
     }
 
     @Test
-    public void findByNameWithNonExistent() throws Exception {
-        mockMvc.perform(get("/api/files/findByName/nonexistent/1"))
+    public void findByTypeWithNonExistent() throws Exception {
+        mockMvc.perform(get("/api/files/findByType/nonexistent/1"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("File not found."));
     }
@@ -146,7 +146,7 @@ public class Files {
                 .header("Authorization", userToken))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/files/findByName/test/3"))
+        mockMvc.perform(get("/api/files/findByType/test/3"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("File not found."));
 
@@ -175,7 +175,7 @@ public class Files {
                         .header("Authorization", adminToken))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/files/findByName/test/3"))
+        mockMvc.perform(get("/api/files/findByType/test/3"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("File not found."));
 

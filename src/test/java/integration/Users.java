@@ -5,11 +5,14 @@ import com.chat.app.config.SecurityConfig;
 import com.chat.app.config.TestWebConfig;
 import com.chat.app.controllers.UserController;
 import com.chat.app.models.Dtos.FileDto;
+import com.chat.app.models.Dtos.PageDto;
 import com.chat.app.models.Dtos.UserDto;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
+import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.security.Jwt;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.*;
@@ -19,11 +22,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -42,6 +46,8 @@ import javax.transaction.Transactional;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,6 +80,7 @@ public class Users {
         ResourceDatabasePopulator rdp = new ResourceDatabasePopulator();
         rdp.addScript(new ClassPathResource("integrationTestsSql/FilesData.sql"));
         rdp.addScript(new ClassPathResource("integrationTestsSql/UsersData.sql"));
+        rdp.addScript(new ClassPathResource("integrationTestsSql/ChatsData.sql"));
         rdp.execute(dataSource);
     }
 
@@ -112,18 +119,20 @@ public class Users {
         assertNotNull(webApplicationContext.getBean("userController"));
     }
 
-    private final UserModel user = new UserModel("username", "username@gmail.com", "password","ROLE_USER", "firstname",
+    private final UserModel user = new UserModel("username", "username@gmail.com", "testPassword","ROLE_USER", "firstname",
             "lastname", 25, "Bulgaria");
     private final UserDto userDto = new UserDto(user);
 
-    private RequestBuilder createMediaRegisterRequest(String url, String role, String username, String email, String token) throws Exception{
+    private RequestBuilder createMediaRegisterRequest(String url, String role, String username, String email, String token, boolean isWithImage) throws Exception{
         FileInputStream input = new FileInputStream("./uploads/test.png");
         MockMultipartFile profileImage = new MockMultipartFile("profileImage", "test.png", "image/png",
                 IOUtils.toByteArray(input));
         input.close();
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.multipart(url)
-                .file(profileImage)
+
+        MockHttpServletRequestBuilder request = (isWithImage
+                ? MockMvcRequestBuilders.multipart(url).file(profileImage)
+                : MockMvcRequestBuilders.multipart(url))
                 .param("username", username)
                 .param("email", email)
                 .param("password", user.getPassword())
@@ -132,6 +141,7 @@ public class Users {
                 .param("age", String.valueOf(user.getAge()))
                 .param("country", user.getCountry());
 
+
         if(token != null){
             request.header("Authorization", token);
         }
@@ -139,16 +149,18 @@ public class Users {
         userDto.setRole(role);
         userDto.setId(10);
         userDto.setEmail(email);
-        userDto.setProfileImage("profileImage10.png");
+
+        userDto.setProfileImage(isWithImage
+                ? "profileImage10.png"
+                : null);
 
         return  request;
     }
 
-    @WithMockUser(value = "spring")
     @Test
     public void register() throws Exception {
         mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER",
-                        "username", "username@gmail.com", null))
+                        "username", "username@gmail.com", null, true))
                 .andExpect(status().isOk());
 
         enableUser(userDto.getId());
@@ -156,11 +168,10 @@ public class Users {
         checkDBForImage("profileImage", userDto.getId());
     }
 
-    @WithMockUser(value = "spring")
     @Test
     public void registerAdmin() throws Exception {
         mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
-                        "username", "username@gmail.com", adminToken))
+                        "username", "username@gmail.com", adminToken, true))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString(objectMapper.writeValueAsString(userDto))));
 
@@ -168,11 +179,10 @@ public class Users {
         checkDBForImage("profileImage", userDto.getId());
     }
 
-    @WithMockUser(value = "spring")
     @Test
     public void registerAdmin_WithUserThatIsNotAdmin_Unauthorized() throws Exception {
         mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
-                        "username", "username@gmail.com", userToken))
+                        "username", "username@gmail.com", userToken, true))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Access is denied"));
     }
@@ -180,7 +190,7 @@ public class Users {
     @Test
     public void register_WhenUsernameIsTaken() throws Exception {
         mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER",
-                        "testUser", "username@gmail.com", null))
+                        "testUser", "username@gmail.com", null, true))
                 .andExpect(content().string(containsString("Username is already taken.")));
     }
 
@@ -190,7 +200,7 @@ public class Users {
     }
 
     private void checkDBForImage(String resourceType, long userId) throws Exception{
-        MvcResult result = mockMvc.perform(get(String.format("/api/files/findByName/%s/%s", resourceType, userId)))
+        MvcResult result = mockMvc.perform(get(String.format("/api/files/findByType/%s/%s", resourceType, userId)))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -243,7 +253,7 @@ public class Users {
     }
 
     @Test
-    void findById() throws Exception {
+    public void findById() throws Exception {
         UserDto user = new UserDto(new UserModel("adminUser", "adminUser@gmail.com", "password", "ROLE_ADMIN",
                 "firstName", "lastName", 25, "Bulgaria"));
         user.setId(1);
@@ -253,13 +263,13 @@ public class Users {
     }
 
     @Test
-    void findById_WithNonExistentId() throws Exception {
+    public void findById_WithNonExistentId() throws Exception {
         mockMvc.perform(get("/api/users/findById/222"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void changeUserInfo() throws Exception {
+    public void changeUserInfo() throws Exception {
         UserSpec userSpec = new UserSpec(1, "newUsername", "newUsername@gmail.com", "newFirstName",
                 "newLastName", 26, "newCountry");
         UserDto userDto = new UserDto(userSpec, "ROLE_ADMIN");
@@ -276,9 +286,199 @@ public class Users {
     }
 
     @Test
+    public void searchForUsers_WithoutName() throws Exception {
+        String response = mockMvc.perform(get("/api/users/auth/searchForUsers/3")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        PageDto<UserDto> page = objectMapper.readValue(response, new TypeReference<>(){});
+        List<UserDto> users = page.getData();
+        UserDto last = users.get(2);
+
+        assertEquals(page.getCount(), 8);
+        assertEquals(users.get(0).getId(), 2);
+        assertEquals(users.get(1).getId(), 4);
+        assertEquals(last.getId(), 3);
+
+        String nextResponse = mockMvc.perform(get(String.format("/api/users/auth/searchForUsers/3/%s/%s",
+                        last.getFirstName() + ' ' + last.getLastName(), last.getId()))
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        PageDto<UserDto> nextPage = objectMapper.readValue(nextResponse, new TypeReference<>(){});
+        List<UserDto> nextUsers = nextPage.getData();
+
+        assertEquals(nextPage.getCount(), 5);
+        assertEquals(nextUsers.get(0).getId(), 6);
+        assertEquals(nextUsers.get(1).getId(), 9);
+        assertEquals(nextUsers.get(2).getId(), 8);
+    }
+
+    @Test
+    public void searchForUsers_WithName() throws Exception {
+        String response = mockMvc.perform(get("/api/users/auth/searchForUsers/3/test test")
+                        .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        PageDto<UserDto> page = objectMapper.readValue(response, new TypeReference<>(){});
+        List<UserDto> users = page.getData();
+        UserDto last = users.get(2);
+
+        assertEquals(page.getCount(), 4);
+        assertEquals(users.get(0).getId(), 9);
+        assertEquals(users.get(1).getId(), 8);
+        assertEquals(last.getId(), 5);
+
+        String nextResponse = mockMvc.perform(get(String.format("/api/users/auth/searchForUsers/3/test test/%s/%s",
+                        last.getFirstName() + ' ' + last.getLastName(), last.getId()))
+                        .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        PageDto<UserDto> nextPage = objectMapper.readValue(nextResponse, new TypeReference<>(){});
+        List<UserDto> nextUsers = nextPage.getData();
+
+        assertEquals(nextPage.getCount(), 1);
+        assertEquals(nextUsers.get(0).getId(), 7);
+    }
+
+    @Test
+    public void findById_withNotEnabled() throws Exception {
+        mockMvc.perform(get("/api/users/findById/6"))
+                .andExpect(status().isLocked());
+    }
+
+    @Test
+    public void changePassword() throws Exception {
+        NewPasswordSpec passwordSpec = new NewPasswordSpec("adminUser", "password", "newPassword");
+        UserModel user = new UserModel("adminUser", "adminUser@gmail.com", "password","ROLE_ADMIN", "firstName",
+                "lastName", 25, "Bulgaria");
+
+        UserDto userDto = new UserDto(user);
+        userDto.setId(1);
+        userDto.setProfileImage("profileImage1.png");
+
+        mockMvc.perform(patch("/api/users/auth/changePassword")
+                .header("Authorization", adminToken)
+                .contentType("Application/json")
+                .content(objectMapper.writeValueAsString(passwordSpec)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/users/login")
+                        .contentType("Application/json")
+                        .content("{\"username\": \"adminUser\", \"password\": \"newPassword\"}"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(userDto)));
+    }
+
+    @Test
+    public void changePassword_WithWrongCurrentPassword() throws Exception {
+        NewPasswordSpec passwordSpec = new NewPasswordSpec("adminUser", "invalid", "newPassword");
+
+
+        mockMvc.perform(patch("/api/users/auth/changePassword")
+                        .header("Authorization", adminToken)
+                        .contentType("Application/json")
+                        .content(objectMapper.writeValueAsString(passwordSpec)))
+                .andExpect(status().isForbidden());
+    }
+    @Test
+    public void register_WithWrongFileType() throws Exception {
+        FileInputStream input = new FileInputStream("./uploads/test.txt");
+        MockMultipartFile profileImage = new MockMultipartFile("profileImage", "test.txt", "text/plain",
+                IOUtils.toByteArray(input));
+        input.close();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.multipart("/api/users/register")
+                .file(profileImage)
+                .param("username", "username")
+                .param("email", "email@gmail.com")
+                .param("password", user.getPassword())
+                .param("firstName", user.getFirstName())
+                .param("lastName", user.getLastName())
+                .param("age", String.valueOf(user.getAge()))
+                .param("country", user.getCountry());
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("File should be of type image"));
+    }
+
+    @Test
+    public void register_WithoutProfileImage() throws Exception {
+        mockMvc.perform(createMediaRegisterRequest("/api/users/register", "ROLE_USER",
+                        "username", "username@gmail.com", null, false))
+                .andExpect(status().isOk());
+
+        enableUser(userDto.getId());
+        checkDBForUser(userDto);
+    }
+
+    @Test
+    public void registerAdmin_WithoutProfileImage() throws Exception {
+        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
+                        "username", "username@gmail.com", adminToken, false))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(objectMapper.writeValueAsString(userDto))));
+
+        checkDBForUser(userDto);
+    }
+
+    @Test
+    public void register_WithWrongFields() throws Exception {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.multipart("/api/users/register")
+                .param("password", "short")
+                .param("username", "short");
+
+        String response = mockMvc.perform(request)
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Map<String, String> errors = objectMapper.readValue(response, new TypeReference<>() {});
+
+        assertEquals(errors.get("username"), "Username must be between 8 and 20 characters.");
+        assertEquals(errors.get("password"), "Password must be between 10 and 25 characters.");
+        assertEquals(errors.get("country"), "You must provide country.");
+        assertEquals(errors.get("firstName"), "You must provide first name.");
+        assertEquals(errors.get("lastName"), "You must provide last name.");
+        assertEquals(errors.get("email"), "You must provide an email.");
+    }
+
+    @Test
+    public void changePassword_WithWrongFields() throws Exception {
+        String response = mockMvc.perform(patch("/api/users/auth/changePassword")
+                        .content("{\"newPassword\": \"short\"}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", adminToken))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Map<String, String> errors = objectMapper.readValue(response, new TypeReference<>() {});
+
+        assertEquals(errors.get("newPassword"), "Password must be between 10 and 25 characters.");
+        assertEquals(errors.get("currentPassword"), "You must provide current password.");
+        assertEquals(errors.get("username"), "You must provide username.");
+    }
+
+    @Test
     void registerAdmin_WithoutToken_Unauthorized() throws Exception{
         mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
-                        "username", "username@gmail.com", null))
+                        "username", "username@gmail.com", null, true))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is missing"));
     }
@@ -286,7 +486,7 @@ public class Users {
     @Test
     void registerAdmin_WithIncorrectToken_Unauthorized() throws Exception{
         mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
-                        "username", "username@gmail.com", "Token incorrect"))
+                        "username", "username@gmail.com", "Token incorrect", true))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is incorrect"));
     }
