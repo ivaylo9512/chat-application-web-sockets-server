@@ -158,10 +158,6 @@ public class UserDto {
     public void setRequestState(Request request) {
         if(request != null){
             this.requestId = request.getId();
-            if(request.getSender().getId() == id){
-                this.requestState = "accept";
-                return;
-            }
             this.requestState = "pending";
             return;
         }

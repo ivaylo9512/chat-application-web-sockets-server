@@ -198,6 +198,7 @@ public class UserServiceTest {
 
         UserModel oldUser = new UserModel();
         oldUser.setUsername("username");
+        oldUser.setUsername("email@gmail.com");
 
         UserModel loggedUserModel = new UserModel(2, "username",
                 "password", "ROLE_ADMIN");
@@ -215,6 +216,22 @@ public class UserServiceTest {
         assertEquals(oldUser.getLastName(), newUser.getLastName());
         assertEquals(oldUser.getCountry(), newUser.getCountry());
         assertEquals(oldUser.getAge(), newUser.getAge());
+    }
+
+    @Test()
+    public void changeUserInfo_WhenUserDifferentUserAndRoleUser() {
+        UserSpec newUser = new UserSpec(1, "newUsername", "newUsername@gmail.com", "firstName",
+                "lastName", 25, "Country");
+
+        UserModel loggedUserModel = new UserModel(2, "username",
+                "password", "ROLE_USER");
+        UserDetails loggedUser = new UserDetails(loggedUserModel, List.of(
+                new SimpleGrantedAuthority(loggedUserModel.getRole())));
+
+        UnauthorizedException thrown = assertThrows(UnauthorizedException.class,
+                () -> userService.changeUserInfo(newUser, loggedUser));
+
+        assertEquals(thrown.getMessage(), "Unauthorized");
     }
 
     @Test()
@@ -243,10 +260,10 @@ public class UserServiceTest {
 
     @Test()
     public void changeUserInfo_WhenUsernameIsTaken(){
-        UserSpec newUser = new UserSpec(1, "username", "nonexistent@gmail.com", "firstName",
+        UserSpec newUser = new UserSpec(1, "username", "email@gmail.com", "firstName",
                 "lastName", 25, "Country");
 
-        UserModel oldUser = new UserModel("oldUsername", "username@gmail.com", "password", "ROLE_USER");
+        UserModel oldUser = new UserModel("oldUsername", "email@gmail.com", "password", "ROLE_USER");
         oldUser.setId(1);
 
         UserModel existingUser = new UserModel();
@@ -257,7 +274,7 @@ public class UserServiceTest {
                 new SimpleGrantedAuthority(oldUser.getRole())));
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
-        when(userRepository.findByUsernameOrEmail("username", "nonexistent@gmail.com")).thenReturn(existingUser);
+        when(userRepository.findByUsernameOrEmail("username", "email@gmail.com")).thenReturn(existingUser);
 
         UsernameExistsException thrown = assertThrows(
                 UsernameExistsException.class,
@@ -269,7 +286,7 @@ public class UserServiceTest {
 
     @Test()
     public void changeUserInfo_WhenEmailIsTaken(){
-        UserSpec newUser = new UserSpec(1, "nonExistent", "taken@gmail.com", "firstName",
+        UserSpec newUser = new UserSpec(1, "oldUsername", "taken@gmail.com", "firstName",
                 "lastName", 25, "Country");
 
         UserModel oldUser = new UserModel("oldUsername", "oldEmail@gmail.com", "password", "ROLE_USER");
@@ -284,7 +301,7 @@ public class UserServiceTest {
                 new SimpleGrantedAuthority(oldUser.getRole())));
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
-        when(userRepository.findByUsernameOrEmail("nonExistent", "taken@gmail.com")).thenReturn(existingUser);
+        when(userRepository.findByUsernameOrEmail("oldUsername", "taken@gmail.com")).thenReturn(existingUser);
 
         EmailExistsException thrown = assertThrows(
                 EmailExistsException.class,

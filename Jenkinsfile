@@ -26,7 +26,7 @@ pipeline {
                 step([$class: 'JacocoPublisher',
                     execPattern: '**/build/jacoco/*.exec',
                     classPattern: '**/build/classes',
-                    sourcePattern: 'src/main/java',
+                    sourcePattern: 'src/main/java/com/chat/app/**/*',
                     exclusionPattern: 'src/test*'
                 ])
                 sh 'curl -Os https://uploader.codecov.io/latest/linux/codecov'
