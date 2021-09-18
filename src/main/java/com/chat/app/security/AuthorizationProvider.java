@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AuthorizationProvider extends AbstractUserDetailsAuthenticationProvider {
-
     @Override
     protected void additionalAuthenticationChecks(org.springframework.security.core.userdetails.UserDetails userDetails, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) throws AuthenticationException {
 

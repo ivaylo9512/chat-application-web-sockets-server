@@ -1,13 +1,11 @@
 package com.chat.app.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.time.LocalTime;
 
 @Entity
 @Table(name = "messages")
 public class Message{
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -16,7 +14,6 @@ public class Message{
     @JoinColumn(name = "receiver")
     private UserModel receiver;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumns({@JoinColumn(name = "chat", referencedColumnName="chat"),
             @JoinColumn(name = "session_date", referencedColumnName = "session_date")})

@@ -5,9 +5,13 @@ import com.chat.app.config.SecurityConfig;
 import com.chat.app.config.TestWebConfig;
 import com.chat.app.controllers.ChatController;
 import com.chat.app.models.Dtos.ChatDto;
+import com.chat.app.models.Dtos.MessageDto;
+import com.chat.app.models.Dtos.PageDto;
+import com.chat.app.models.Dtos.SessionDto;
 import com.chat.app.models.UserDetails;
 import com.chat.app.models.UserModel;
 import com.chat.app.security.Jwt;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +35,7 @@ import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -53,15 +58,19 @@ public class Chats {
     @Autowired
     private DataSource dataSource;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private MockMvc mockMvc;
     private static String adminToken, userToken;
-    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setupData() {
         ResourceDatabasePopulator rdp = new ResourceDatabasePopulator();
         rdp.addScript(new ClassPathResource("integrationTestsSql/UsersData.sql"));
         rdp.addScript(new ClassPathResource("integrationTestsSql/ChatsData.sql"));
+        rdp.addScript(new ClassPathResource("integrationTestsSql/SessionsData.sql"));
+        rdp.addScript(new ClassPathResource("integrationTestsSql/MessagesData.sql"));
         rdp.execute(dataSource);
     }
 
@@ -83,7 +92,6 @@ public class Chats {
         userToken = "Token " + Jwt.generate(new UserDetails(user, Collections
                 .singletonList(new SimpleGrantedAuthority("ROLE_USER"))));
 
-        objectMapper = new ObjectMapper();
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
@@ -113,5 +121,56 @@ public class Chats {
         assertEquals(chat.getId(), 1);
         assertEquals(chat.getFirstUser().getId(), 1);
         assertEquals(chat.getSecondUser().getId(), 2);
+    }
+
+    @Test
+    public void findChats() throws Exception {
+        String response = mockMvc.perform(get("/api/chats/auth/findChats/3")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        PageDto<ChatDto> page = objectMapper.readValue(response, new TypeReference<>(){});
+        List<ChatDto> chats = page.getData();
+        List<SessionDto> sessions = chats.get(1).getSessions();
+
+        assertEquals(page.getCount(), 2);
+        assertEquals(chats.size(), 3);
+
+        assertEquals(chats.get(0).getId(), 2);
+        assertEquals(chats.get(1).getId(), 1);
+        assertEquals(chats.get(2).getId(), 11);
+
+        assertEquals(sessions.get(0).getDate().toString(), "2021-09-18");
+        assertEquals(sessions.get(1).getDate().toString(), "2021-09-17");
+        assertEquals(sessions.get(2).getDate().toString(), "2021-09-16");
+
+        MessageDto message = sessions.get(0).getMessages().get(0);
+        assertEquals(message.getMessage(), "testMessage");
+        assertEquals(message.getReceiverId(), 1);
+        assertEquals(message.getTime().toString(), "23:57:16");
+        assertEquals(message.getChatId(), 1);
+        assertEquals(message.getSession().toString(), "2021-09-18");
+    }
+
+    @Test
+    public void findNextChats() throws Exception {
+        String response = mockMvc.perform(get("/api/chats/auth/findChats/3/2021-09-17 23:15:42/11")
+                        .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        PageDto<ChatDto> page = objectMapper.readValue(response, new TypeReference<>(){});
+        List<ChatDto> chats = page.getData();
+
+        assertEquals(page.getCount(), 1);
+        assertEquals(chats.size(), 2);
+
+        assertEquals(chats.get(0).getId(), 5);
+        assertEquals(chats.get(1).getId(), 6);
     }
 }

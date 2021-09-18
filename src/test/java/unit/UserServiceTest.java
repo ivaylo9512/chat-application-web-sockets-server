@@ -23,7 +23,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -282,6 +282,32 @@ public class UserServiceTest {
         );
 
         assertEquals(thrown.getMessage(), "Username is already taken.");
+    }
+
+    @Test()
+    public void changeUserInfo_WhenUsernameAndEmailAreTheSame(){
+        UserSpec newUser = new UserSpec(1, "oldUsername", "email@gmail.com", "firstName",
+                "lastName", 25, "Country");
+
+        UserModel oldUser = new UserModel("oldUsername", "email@gmail.com", "password", "ROLE_USER");
+        oldUser.setId(1);
+
+        UserDetails loggedUser = new UserDetails(oldUser, List.of(
+                new SimpleGrantedAuthority(oldUser.getRole())));
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(oldUser));
+        when(userRepository.save(oldUser)).thenReturn(oldUser);
+
+        userService.changeUserInfo(newUser, loggedUser);
+
+        assertEquals(oldUser.getUsername(), newUser.getUsername());
+        assertEquals(oldUser.getEmail(), newUser.getEmail());
+        assertEquals(oldUser.getFirstName(), newUser.getFirstName());
+        assertEquals(oldUser.getLastName(), newUser.getLastName());
+        assertEquals(oldUser.getCountry(), newUser.getCountry());
+        assertEquals(oldUser.getAge(), newUser.getAge());
+
+        verify(userRepository, times(0)).findByUsernameOrEmail("username", "email@gmail.com");
     }
 
     @Test()

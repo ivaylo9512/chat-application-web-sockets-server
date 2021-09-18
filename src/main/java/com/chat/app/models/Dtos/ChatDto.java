@@ -22,7 +22,7 @@ public class ChatDto {
         this.secondUser = new UserDto(chat.getSecondUserModel());
         this.updatedAt = chat.getUpdatedAt().toString();
         this.createdAt = chat.getCreatedAt().toString();
-        setSessions(chat.getSessions());
+        toSessionsDto(chat.getSessions());
     }
 
     public UserDto getFirstUser() {
@@ -53,12 +53,17 @@ public class ChatDto {
         return sessions;
     }
 
-    public void setSessions(List<Session> sessions) {
+    public void setSessions(List<SessionDto> sessions) {
+        if(sessions != null){
+            this.sessions = sessions;
+        }
+    }
+
+    public void toSessionsDto(List<Session> sessions) {
         if(sessions != null){
             this.sessions = sessions.stream().map(SessionDto::new).collect(Collectors.toList());
         }
     }
-
     public String getUpdatedAt() {
         return updatedAt;
     }

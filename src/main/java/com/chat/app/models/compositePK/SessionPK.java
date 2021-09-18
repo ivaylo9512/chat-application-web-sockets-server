@@ -8,9 +8,8 @@ import java.util.Objects;
 
 @Embeddable
 public class SessionPK implements Serializable {
-
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "chat", insertable = false, updatable = false)
+    @JoinColumn(name = "chat")
     private Chat chat;
 
     @Column(name = "session_date")

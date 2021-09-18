@@ -106,7 +106,7 @@ public class ChatServiceTest {
     }
 
     @Test
-    public void addNewMessage_withChatThatIsNotWithSameSenderAndReceiverId_shouldThrow() {
+    public void addNewMessage_withChatWithDifferentSender_shouldThrow() {
         UserModel sender = new UserModel();
         sender.setId(1);
         UserModel receiver = new UserModel();
@@ -116,7 +116,30 @@ public class ChatServiceTest {
         chat.setFirstUserModel(sender);
         chat.setSecondUserModel(receiver);
 
-        MessageSpec messageSpec = new MessageSpec(1, 2, 3, "message");
+        MessageSpec messageSpec = new MessageSpec(1, 2, 5, "message");
+
+        when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
+
+        UnauthorizedException thrown = assertThrows(
+                UnauthorizedException.class,
+                () -> chatService.addNewMessage(messageSpec)
+        );
+
+        assertEquals(thrown.getMessage(), "Users don't match the given chat.");
+    }
+
+    @Test
+    public void addNewMessage_withChatWithDifferentReceiver_shouldThrow() {
+        UserModel sender = new UserModel();
+        sender.setId(5);
+        UserModel receiver = new UserModel();
+        receiver.setId(1);
+
+        Chat chat = new Chat();
+        chat.setFirstUserModel(sender);
+        chat.setSecondUserModel(receiver);
+
+        MessageSpec messageSpec = new MessageSpec(1, 2, 5, "message");
 
         when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
 
@@ -192,6 +215,46 @@ public class ChatServiceTest {
         List<Chat> chats = new ArrayList<>(Arrays.asList(chat, chat1, chat2, chat3));
         Page<Chat> page = new PageImpl<>(chats);
 
+        when(chatRepository.findUserChats(1, PageRequest.of(0, 5)))
+                .thenReturn(page);
+        when(sessionRepository.findSessions(chat, PageRequest.of(0, 5,
+                Sort.Direction.DESC, "session_date"))).thenReturn(sessions);
+
+        Page<Chat> chatPage = chatService.findUserChats(1, 5, null, 0);
+
+
+        assertEquals(chatPage.getTotalElements(), chats.size());
+        assertEquals(chatPage.getContent().get(0).getSessions(), sessions);
+        assertEquals(chatPage.getContent(), chats);
+        assertEquals(chat.getFirstUserModel(), user);
+        assertEquals(chat.getSecondUserModel(), user2);
+        assertEquals(chat1.getFirstUserModel(), user);
+        assertEquals(chat1.getSecondUserModel(), user3);
+    }
+
+    @Test
+    public void findNextUserChats(){
+        UserModel user = new UserModel();
+        UserModel user2 = new UserModel();
+        UserModel user3 = new UserModel();
+        UserModel user4 = new UserModel();
+        UserModel user5 = new UserModel();
+        user.setId(1);
+        user2.setId(2);
+        user3.setId(3);
+        user4.setId(4);
+        user5.setId(5);
+
+        Chat chat = new Chat(user, user2);
+        Chat chat1 = new Chat(user3, user);
+        Chat chat2 = new Chat(user, user4);
+        Chat chat3 = new Chat(user5, user);
+
+        List<Session> sessions = new ArrayList<>(Arrays.asList(new Session(), new Session()));
+
+        List<Chat> chats = new ArrayList<>(Arrays.asList(chat, chat1, chat2, chat3));
+        Page<Chat> page = new PageImpl<>(chats);
+
         when(chatRepository.findNextUserChats(1, 0, "2021-02-02", PageRequest.of(0, 5)))
                 .thenReturn(page);
         when(sessionRepository.findSessions(chat, PageRequest.of(0, 5,
@@ -211,6 +274,45 @@ public class ChatServiceTest {
 
     @Test()
     public void findUserChatsByName(){
+        UserModel user = new UserModel();
+        UserModel user2 = new UserModel();
+        UserModel user3 = new UserModel();
+        UserModel user4 = new UserModel();
+        UserModel user5 = new UserModel();
+        user.setId(1);
+        user2.setId(2);
+        user3.setId(3);
+        user4.setId(4);
+        user5.setId(5);
+
+        Chat chat = new Chat(user, user2);
+        Chat chat1 = new Chat(user3, user);
+        Chat chat2 = new Chat(user, user4);
+        Chat chat3 = new Chat(user5, user);
+
+        List<Session> sessions = new ArrayList<>(Arrays.asList(new Session(), new Session()));
+
+        List<Chat> chats = new ArrayList<>(Arrays.asList(chat, chat1, chat2, chat3));
+        Page<Chat> page = new PageImpl<>(chats);
+
+        when(chatRepository.findUserChatsByName(1, "name", PageRequest.of(0, 5)))
+                .thenReturn(page);
+        when(sessionRepository.findSessions(chat, PageRequest.of(0, 5,
+                Sort.Direction.DESC, "session_date"))).thenReturn(sessions);
+
+        Page<Chat> chatPage = chatService.findUserChatsByName(1, 5, "name", null, 0);
+
+        assertEquals(chatPage.getTotalElements(), chats.size());
+        assertEquals(chatPage.getContent().get(0).getSessions(), sessions);
+        assertEquals(chatPage.getContent(), chats);
+        assertEquals(chat.getFirstUserModel(), user);
+        assertEquals(chat.getSecondUserModel(), user2);
+        assertEquals(chat1.getFirstUserModel(), user);
+        assertEquals(chat1.getSecondUserModel(), user3);
+    }
+
+    @Test()
+    public void findNextUserChatsByName(){
         UserModel user = new UserModel();
         UserModel user2 = new UserModel();
         UserModel user3 = new UserModel();

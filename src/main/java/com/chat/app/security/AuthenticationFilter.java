@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private byte[] encodedBytes = Base64.getEncoder().encode(Jwt.jwtSecret.getBytes());
-
     public AuthenticationFilter() {
     }
 

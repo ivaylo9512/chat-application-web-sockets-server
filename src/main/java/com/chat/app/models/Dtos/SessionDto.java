@@ -10,6 +10,9 @@ public class SessionDto {
     private LocalDate date;
     private List<MessageDto> messages;
 
+    public SessionDto() {
+    }
+
     public SessionDto(LocalDate date, List<Message> messages) {
         this.date = date;
         this.messages = messages.stream().map(MessageDto::new).collect(Collectors.toList());
