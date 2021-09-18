@@ -168,7 +168,7 @@ public class RequestService {
         UserModel sender = new UserModel();
 
         receiver.setId(1);
-        receiver.setId(2);
+        sender.setId(2);
 
         UserModel loggedUser = new UserModel("username", "password", "ROLE_ADMIN");
         loggedUser.setId(2);
