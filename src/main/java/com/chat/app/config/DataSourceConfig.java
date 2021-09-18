@@ -2,7 +2,6 @@ package com.chat.app.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -41,6 +40,7 @@ public class DataSourceConfig {
 
         return em;
     }
+
     @Bean
     public DataSource dataSource(){
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
