@@ -173,4 +173,49 @@ public class Chats {
         assertEquals(chats.get(0).getId(), 5);
         assertEquals(chats.get(1).getId(), 6);
     }
+
+    @Test
+    public void findUsersChat_WithIncorrectToken() throws Exception {
+        mockMvc.perform(get("/api/chats/auth/findByUser/2")
+                .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    public void findUsersChat_WithoutToken() throws Exception {
+        mockMvc.perform(get("/api/chats/auth/findByUser/2"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    public void findNextChats_WithIncorrectToken() throws Exception {
+        mockMvc.perform(get("/api/chats/auth/findChats/3/2021-09-17 23:15:42/11")
+                .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    public void findNextChats_WithoutToken() throws Exception {
+        mockMvc.perform(get("/api/chats/auth/findChats/3/2021-09-17 23:15:42/11"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
+
+    @Test
+    public void findChats_WithIncorrectToken() throws Exception {
+        mockMvc.perform(get("/api/chats/auth/findChats/3")
+                .header("Authorization", "Token incorrect"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is incorrect"));
+    }
+
+    @Test
+    public void findChats_WithoutToken() throws Exception {
+        mockMvc.perform(get("/api/chats/auth/findChats/3"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token is missing"));
+    }
 }

@@ -62,32 +62,16 @@ public class File {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public double getSize() {
         return size;
-    }
-
-    public void setSize(double size) {
-        this.size = size;
     }
 
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public String getResourceType() {
         return resourceType;
-    }
-
-    public void setResourceType(String resourceType) {
-        this.resourceType = resourceType;
     }
 
     public UserModel getOwner() {

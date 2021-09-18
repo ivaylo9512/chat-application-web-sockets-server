@@ -27,8 +27,7 @@ public class SessionPK implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SessionPK)) return false;
-        SessionPK that = (SessionPK) o;
+        if (!(o instanceof SessionPK that)) return false;
         return Objects.equals(getChat(), that.getChat()) &&
                 Objects.equals(getDate(), that.getDate());
     }
@@ -38,20 +37,11 @@ public class SessionPK implements Serializable {
         return Objects.hash(getDate(), getChat());
     }
 
-
     public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
     public Chat getChat() {
         return chat;
-    }
-
-    public void setChat(Chat chat) {
-        this.chat = chat;
     }
 }

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class MessageDto {
+    private long id;
     private long chatId;
     private long senderId;
     private long receiverId;
@@ -16,13 +17,8 @@ public class MessageDto {
     public MessageDto() {
     }
 
-    public MessageDto(String message, long chatId, long senderId, long receiverId) {
-        this.message = message;
-        this.chatId = chatId;
-        this.senderId = senderId;
-        this.receiverId = receiverId;
-    }
     public MessageDto(Message message) {
+        this.id = message.getId();
         this.message = message.getMessage();
         this.chatId = message.getSession().getChat().getId();
         this.receiverId = message.getReceiver().getId();

@@ -4,7 +4,6 @@ import com.chat.app.models.specs.RegisterSpec;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -33,17 +32,6 @@ public class UserModel {
     private int age;
     private String country;
     private String role;
-
-
-    @ManyToMany(cascade = CascadeType.ALL , fetch = FetchType.LAZY)
-    @JoinTable(name = "requests",joinColumns ={@JoinColumn(name ="receiver")},
-            inverseJoinColumns = @JoinColumn(name ="sender" ))
-    private List<Chat> requests;
-
-    @ManyToMany(cascade = CascadeType.ALL , fetch = FetchType.LAZY)
-    @JoinTable(name = "chats",joinColumns ={@JoinColumn(name ="first_user")},
-            inverseJoinColumns = @JoinColumn(name ="second_user" ))
-    private List<Chat> chats;
 
     public UserModel(){
     }
@@ -152,14 +140,6 @@ public class UserModel {
 
     public void setCountry(String country) {
         this.country = country;
-    }
-
-    public List<Chat> getChats() {
-        return chats;
-    }
-
-    public void setChats(List<Chat> chats) {
-        this.chats = chats;
     }
 
     public File getProfileImage() {

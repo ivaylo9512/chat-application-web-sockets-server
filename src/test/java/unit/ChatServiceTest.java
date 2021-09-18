@@ -106,7 +106,7 @@ public class ChatServiceTest {
     }
 
     @Test
-    public void addNewMessage_withChatWithDifferentSender_shouldThrow() {
+    public void addNewMessage_withChatWithDifferentSender() {
         UserModel sender = new UserModel();
         sender.setId(1);
         UserModel receiver = new UserModel();
@@ -129,7 +129,30 @@ public class ChatServiceTest {
     }
 
     @Test
-    public void addNewMessage_withChatWithDifferentReceiver_shouldThrow() {
+    public void addNewMessage_withChatWithDifferentSender_WithChatSecondUser() {
+        UserModel sender = new UserModel();
+        sender.setId(1);
+        UserModel receiver = new UserModel();
+        receiver.setId(5);
+
+        Chat chat = new Chat();
+        chat.setFirstUserModel(receiver);
+        chat.setSecondUserModel(sender);
+
+        MessageSpec messageSpec = new MessageSpec(1, 2, 5, "message");
+
+        when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
+
+        UnauthorizedException thrown = assertThrows(
+                UnauthorizedException.class,
+                () -> chatService.addNewMessage(messageSpec)
+        );
+
+        assertEquals(thrown.getMessage(), "Users don't match the given chat.");
+    }
+
+    @Test
+    public void addNewMessage_withChatWithDifferentReceiver() {
         UserModel sender = new UserModel();
         sender.setId(5);
         UserModel receiver = new UserModel();
@@ -138,6 +161,29 @@ public class ChatServiceTest {
         Chat chat = new Chat();
         chat.setFirstUserModel(sender);
         chat.setSecondUserModel(receiver);
+
+        MessageSpec messageSpec = new MessageSpec(1, 2, 5, "message");
+
+        when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
+
+        UnauthorizedException thrown = assertThrows(
+                UnauthorizedException.class,
+                () -> chatService.addNewMessage(messageSpec)
+        );
+
+        assertEquals(thrown.getMessage(), "Users don't match the given chat.");
+    }
+
+    @Test
+    public void addNewMessage_withChatWithDifferentReceiver_WithChatSecondUser() {
+        UserModel sender = new UserModel();
+        sender.setId(5);
+        UserModel receiver = new UserModel();
+        receiver.setId(1);
+
+        Chat chat = new Chat();
+        chat.setFirstUserModel(receiver);
+        chat.setSecondUserModel(sender);
 
         MessageSpec messageSpec = new MessageSpec(1, 2, 5, "message");
 
