@@ -15,7 +15,7 @@ public class SessionDto {
 
     public SessionDto(Session session){
         this.date = session.getDate();
-        this.messages = session.getMessages().stream().map(MessageDto::new).collect(Collectors.toList());
+        toMessageDto(session.getMessages());
     }
 
     public LocalDate getDate() {
@@ -32,5 +32,11 @@ public class SessionDto {
 
     public void setMessages(List<MessageDto> messages) {
         this.messages = messages;
+    }
+
+    public void toMessageDto(List<Message> messages) {
+        if(messages != null){
+            this.messages = messages.stream().map(MessageDto::new).collect(Collectors.toList());
+        }
     }
 }

@@ -64,6 +64,7 @@ public class ChatDto {
             this.sessions = sessions.stream().map(SessionDto::new).collect(Collectors.toList());
         }
     }
+
     public String getUpdatedAt() {
         return updatedAt;
     }

@@ -101,7 +101,6 @@ public class ChatServiceImpl implements ChatService {
         return chat;
     }
 
-
     @Override
     public List<Session> findSessions(long chatId, String lastSession){
         if(lastSession == null){
@@ -129,15 +128,13 @@ public class ChatServiceImpl implements ChatService {
         return messageRepository.save(message);
     }
 
-    private boolean verifyMessage(MessageSpec message, Chat chat) {
+    private void verifyMessage(MessageSpec message, Chat chat) {
         long sender = message.getSenderId();
         long receiver = message.getReceiverId();
 
-        if (chat.hasUser(sender) && chat.hasUser(receiver)) {
-            return true;
+        if (!chat.hasUser(sender) || !chat.hasUser(receiver)) {
+            throw new UnauthorizedException("Users don't match the given chat.");
         }
-
-        throw new UnauthorizedException("Users don't match the given chat.");
     }
 
     @Override

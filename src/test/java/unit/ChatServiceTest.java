@@ -162,7 +162,7 @@ public class ChatServiceTest {
         chat.setFirstUser(sender);
         chat.setSecondUser(receiver);
 
-        MessageSpec messageSpec = new MessageSpec(1, 2, 5, "message");
+        MessageSpec messageSpec = new MessageSpec(1, 5, 2, "message");
 
         when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
 

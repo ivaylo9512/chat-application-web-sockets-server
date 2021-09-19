@@ -79,7 +79,7 @@ public class ChatController {
 
     @GetMapping(value = "/findNextSessions/{chatId}/{lastSession}")
     public List<SessionDto> findNextSessions(
-            @PathVariable(name = "chatId") int chatId,
+            @PathVariable(name = "chatId") long chatId,
             @PathVariable(name = "lastSession") String lastSession){
         return chatService.findSessions(chatId, lastSession).stream().map(SessionDto::new)
                 .collect(Collectors.toList());
