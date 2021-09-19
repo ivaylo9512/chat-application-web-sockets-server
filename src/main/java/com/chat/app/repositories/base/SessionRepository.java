@@ -10,6 +10,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface SessionRepository extends JpaRepository<Session, SessionPK> {
-    @Query(value="from Session where chat = :chat")
+    @Query(value="FROM Session WHERE chat = :chat")
     List<Session> findSessions(@Param("chat") Chat chat, Pageable pageable);
+
+    @Query(value="FROM Session WHERE chat = :chat AND session_date < :session")
+    List<Session> findNextSessions(@Param("chat") Chat chat, @Param("session") String session, Pageable pageable);
 }

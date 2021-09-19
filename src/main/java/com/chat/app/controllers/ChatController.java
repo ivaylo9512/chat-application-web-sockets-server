@@ -4,6 +4,7 @@ import com.chat.app.models.*;
 import com.chat.app.models.Dtos.ChatDto;
 import com.chat.app.models.Dtos.MessageDto;
 import com.chat.app.models.Dtos.PageDto;
+import com.chat.app.models.Dtos.SessionDto;
 import com.chat.app.models.specs.MessageSpec;
 import com.chat.app.services.base.ChatService;
 import com.chat.app.services.base.UserService;
@@ -15,6 +16,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
+
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,19 +69,20 @@ public class ChatController {
                 .getDetails();
         long userId = loggedUser.getId();
 
-        Page<Chat> page = chatService.findUserChatsByName(userId, pageSize, name == null ? "" : name, lastName, lastId == null ? 0 : lastId);
+        Page<Chat> page = chatService.findUserChatsByName(userId, pageSize, name == null ?
+                "" : name, lastName, lastId == null ? 0 : lastId);
 
         List<ChatDto> chatDtos = page.getContent().stream().map(ChatDto::new).collect(Collectors.toList());
 
         return new PageDto<>(page.getTotalElements(), chatDtos);
     }
 
-    @GetMapping(value = "/nextSessions")
-    public List<Session> getChatSessions(
-            @RequestParam(name = "chatId") int chatId,
-            @RequestParam(name = "page") int page,
-            @RequestParam(name = "pageSize") int pageSize){
-        return chatService.findSessions(chatId, page);
+    @GetMapping(value = "/findNextSessions/{chatId}/{lastSession}")
+    public List<SessionDto> findNextSessions(
+            @PathVariable(name = "chatId") int chatId,
+            @PathVariable(name = "lastSession") String lastSession){
+        return chatService.findSessions(chatId, lastSession).stream().map(SessionDto::new)
+                .collect(Collectors.toList());
     }
 
     @DeleteMapping(value = "/delete/{id}")
@@ -109,7 +113,12 @@ public class ChatController {
     public ChatDto findChatByUser(@PathVariable("id") long id){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();
+        Chat chat = chatService.findUsersChat(loggedUser.getId(), id);
 
-        return new ChatDto(chatService.findUsersChat(loggedUser.getId(), id));
+        if(chat == null){
+            throw new EntityNotFoundException("Chat not found.");
+        }
+
+        return new ChatDto(chat);
     }
 }

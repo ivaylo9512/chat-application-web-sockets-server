@@ -26,7 +26,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ChatServiceTest {
@@ -289,11 +289,9 @@ public class ChatServiceTest {
 
         when(chatRepository.findUserChats(1, PageRequest.of(0, 5)))
                 .thenReturn(page);
-        when(sessionRepository.findSessions(chat, PageRequest.of(0, 5,
-                Sort.Direction.DESC, "session_date"))).thenReturn(sessions);
+        when(chatService.findSessions(chat.getId(), null)).thenReturn(sessions);
 
         Page<Chat> chatPage = chatService.findUserChats(1, 5, null, 0);
-
 
         assertEquals(chatPage.getTotalElements(), chats.size());
         assertEquals(chatPage.getContent().get(0).getSessions(), sessions);
@@ -329,8 +327,8 @@ public class ChatServiceTest {
 
         when(chatRepository.findNextUserChats(1, 0, "2021-02-02", PageRequest.of(0, 5)))
                 .thenReturn(page);
-        when(sessionRepository.findSessions(chat, PageRequest.of(0, 5,
-                Sort.Direction.DESC, "session_date"))).thenReturn(sessions);
+        when(chatService.findSessions(chat.getId(), null)).thenReturn(sessions);
+
 
         Page<Chat> chatPage = chatService.findUserChats(1, 5, "2021-02-02", 0);
 
@@ -369,7 +367,7 @@ public class ChatServiceTest {
 
         when(chatRepository.findUserChatsByName(1, "name", PageRequest.of(0, 5)))
                 .thenReturn(page);
-        when(chatService.findSessions(chat.getId(), 0)).thenReturn(sessions);
+        when(chatService.findSessions(chat.getId(), null)).thenReturn(sessions);
 
         Page<Chat> chatPage = chatService.findUserChatsByName(1, 5, "name", null, 0);
 
@@ -407,7 +405,7 @@ public class ChatServiceTest {
 
         when(chatRepository.findNextUserChatsByName(1, "name", "lastName", 0, PageRequest.of(0, 5)))
                 .thenReturn(page);
-        when(chatService.findSessions(chat.getId(), 0)).thenReturn(sessions);
+        when(chatService.findSessions(chat.getId(), null)).thenReturn(sessions);
 
         Page<Chat> chatPage = chatService.findUserChatsByName(1, 5, "name", "lastName", 0);
 
@@ -418,5 +416,32 @@ public class ChatServiceTest {
         assertEquals(chat.getSecondUser(), user2);
         assertEquals(chat1.getFirstUser(), user);
         assertEquals(chat1.getSecondUser(), user3);
+    }
+
+    @Test
+    public void delete(){
+        UserModel user = new UserModel();
+        user.setId(1);
+        user.setRole("ROLE_USER");
+
+        Chat chat = new Chat();
+        chat.setFirstUser(user);
+
+        when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
+
+        chatService.delete(1L, user);
+
+        verify(chatRepository, times(1)).delete(chat);
+    }
+
+    @Test
+    public void delete_WithAdmin(){
+        UserModel user = new UserModel();
+        user.setId(1);
+        user.setRole("ROLE_ADMIN");
+
+        chatService.delete(1L, user);
+
+        verify(chatRepository, times(1)).deleteById(1L);
     }
 }

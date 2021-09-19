@@ -20,7 +20,7 @@ public interface ChatService {
 
     Chat findUsersChat(long firstUser, long secondUser);
 
-    List<Session> findSessions(long chatId, int page);
+    List<Session> findSessions(long chatId, String lastSessions);
 
     Chat create(UserModel firstUser, UserModel secondUser);
 

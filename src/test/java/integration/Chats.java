@@ -260,6 +260,33 @@ public class Chats {
     }
 
     @Test
+    public void findNextSessions() throws Exception {
+        String response = mockMvc.perform(get("/api/chats/auth/findNextSessions/1/2021-09-16/")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<SessionDto> sessions = objectMapper.readValue(response, new TypeReference<List<SessionDto>>() {});
+
+        assertEquals(sessions.get(0).getDate().toString(), "2021-09-15");
+        assertEquals(sessions.get(1).getDate().toString(), "2021-09-13");
+        assertEquals(sessions.get(2).getDate().toString(), "2021-09-12");
+    }
+
+    @Test
+    public void deleteChat() throws Exception {
+        mockMvc.perform(delete("/api/chats/auth/delete/1")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/chats/auth/findByUser/2")
+                .header("Authorization", adminToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void findUsersChat_WithIncorrectToken() throws Exception {
         mockMvc.perform(get("/api/chats/auth/findByUser/2")
                 .header("Authorization", "Token incorrect"))

@@ -56,8 +56,7 @@ public class ChatServiceImpl implements ChatService {
         }
 
         chatsPage.getContent().forEach(chat -> {
-            chat.setSessions(sessionRepository.findSessions(chat, PageRequest.of(0, pageSize,
-                    Sort.Direction.DESC, "session_date")));
+            chat.setSessions(findSessions(chat.getId(), null));
 
             UserModel loggedUser = chat.getFirstUser();
             if (loggedUser.getId() != userId) {
@@ -80,7 +79,7 @@ public class ChatServiceImpl implements ChatService {
         }
 
         chatsPage.getContent().forEach(chat -> {
-            chat.setSessions(findSessions(chat.getId(), 0));
+            chat.setSessions(findSessions(chat.getId(), null));
 
             UserModel loggedUser = chat.getFirstUser();
             if (loggedUser.getId() != userId) {
@@ -96,16 +95,22 @@ public class ChatServiceImpl implements ChatService {
     public Chat findUsersChat(long firstUser, long secondUser){
         Chat chat = chatRepository.findUsersChat(firstUser, secondUser);
         if(chat != null){
-            chat.setSessions(findSessions(chat.getId(), 0));
+            chat.setSessions(findSessions(chat.getId(), null));
         }
 
         return chat;
     }
 
+
     @Override
-    public List<Session> findSessions(long chatId, int page){
-        return sessionRepository.findSessions(chatRepository.getById(chatId),
-                PageRequest.of(page, sessionsSize, Sort.Direction.DESC, "session_date"));
+    public List<Session> findSessions(long chatId, String lastSession){
+        if(lastSession == null){
+            return sessionRepository.findSessions(chatRepository.getById(chatId),
+                    PageRequest.of(0, sessionsSize, Sort.Direction.DESC, "session_date"));
+        }
+
+        return sessionRepository.findNextSessions(chatRepository.getById(chatId), lastSession,
+                PageRequest.of(0, sessionsSize, Sort.Direction.DESC, "session_date"));
     }
 
     @Override
@@ -124,13 +129,15 @@ public class ChatServiceImpl implements ChatService {
         return messageRepository.save(message);
     }
 
-    private void verifyMessage(MessageSpec message, Chat chat) {
+    private boolean verifyMessage(MessageSpec message, Chat chat) {
         long sender = message.getSenderId();
         long receiver = message.getReceiverId();
 
-        if (!chat.hasUser(sender) || !chat.hasUser(receiver)) {
-            throw new UnauthorizedException("Users don't match the given chat.");
+        if (chat.hasUser(sender) && chat.hasUser(receiver)) {
+            return true;
         }
+
+        throw new UnauthorizedException("Users don't match the given chat.");
     }
 
     @Override
