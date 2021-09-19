@@ -41,11 +41,11 @@ CREATE TABLE IF NOT EXISTS `users` (
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` (`id`, `age`, `country`, `firstName`, `lastName`, `password`, `role`, `username`, `email`, `profile_image`, `is_enabled`) VALUES
 	(1, 25, 'Bulgaria', 'firstName', 'lastName', '$2a$04$PFraPHMqOOa7qiBJX5Mmq.STptiykt4m1H.p7rfpzzg/x1mQ9Ega6', 'ROLE_ADMIN', 'adminUser', 'adminUser@gmail.com', 1, true),
-	(2, 30, 'Bulgaria', 'firsNameSecond', 'lastName2', '$2a$04$MRJSj9OWmmaWeDLPIHxU6.en5D8n10XTpFvgPQY5g.r61z0SFRkJW', 'ROLE_ADMIN', 'testUser', 'testUser@gmail.com', 2, true),
-	(3, 25, 'Bulgaria', 'firstNameThird', 'lastName3', '$2a$04$JrrsioMxE3HE7bJ/sXLWD.0Ty8iJB1W4zgxumoFmn9rWl5a0vATa6', 'ROLE_USER', 'testUser1', 'testUser1@gmail.com', 3, true),
-	(4, 24, 'Spain', 'First', 'Last', '$2a$04$CMuyMiF6Wo5a4lbSdA68X.pj7jzYD6OPtv2KMLm.jl.B61waR/e9W', 'ROLE_USER', 'user1', 'user1@gmail.com', 4, true),
+	(2, 30, 'Bulgaria', 'First', 'testA', '$2a$04$MRJSj9OWmmaWeDLPIHxU6.en5D8n10XTpFvgPQY5g.r61z0SFRkJW', 'ROLE_ADMIN', 'testUser', 'testUser@gmail.com', 2, true),
+	(3, 25, 'Bulgaria', 'FirstD', 'test', '$2a$04$JrrsioMxE3HE7bJ/sXLWD.0Ty8iJB1W4zgxumoFmn9rWl5a0vATa6', 'ROLE_USER', 'testUser1', 'testUser1@gmail.com', 3, true),
+	(4, 24, 'Spain', 'First', 'testC', '$2a$04$CMuyMiF6Wo5a4lbSdA68X.pj7jzYD6OPtv2KMLm.jl.B61waR/e9W', 'ROLE_USER', 'user1', 'user1@gmail.com', 4, true),
 	(5, 32, 'Italy', 'test', 'testLast', '$2a$04$CMuyMiF6Wo5a4lbSdA68X.pj7jzYD6OPtv2KMLm.jl.B61waR/e9W', 'ROLE_USER', 'firstTest', 'firstTest@gmail.com', 5, true),
-	(6, 24, 'Spain', 'secondFirst', 'secondLast', '$2a$04$CMuyMiF6Wo5a4lbSdA68X.pj7jzYD6OPtv2KMLm.jl.B61waR/e9W', 'ROLE_USER', 'secondTest', 'secondTest@gmail.com', 6, false),
+	(6, 24, 'Spain', 'First', 'testB', '$2a$04$CMuyMiF6Wo5a4lbSdA68X.pj7jzYD6OPtv2KMLm.jl.B61waR/e9W', 'ROLE_USER', 'secondTest', 'secondTest@gmail.com', 6, false),
 	(7, 29, 'Italy', 'test', 'testThirdLast', '$2a$04$CMuyMiF6Wo5a4lbSdA68X.pj7jzYD6OPtv2KMLm.jl.B61waR/e9W', 'ROLE_USER', 'testThird', 'testThird@gmail.com', 7, true),
 	(8, 29, 'Italy', 'test', 'testForthLast', '$2a$04$CMuyMiF6Wo5a4lbSdA68X.pj7jzYD6OPtv2KMLm.jl.B61waR/e9W', 'ROLE_USER', 'testForth', 'testForth@gmail.com', 8, true),
 	(9, 40, 'Spain', 'test', 'testFifthLast', '$2a$04$CMuyMiF6Wo5a4lbSdA68X.pj7jzYD6OPtv2KMLm.jl.B61waR/e9W', 'ROLE_USER', 'testFifth', 'testFifth@gmail.com', 9, true);

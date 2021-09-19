@@ -348,8 +348,8 @@ public class Users {
 
         assertEquals(page.getCount(), 8);
         assertEquals(users.get(0).getId(), 2);
-        assertEquals(users.get(1).getId(), 4);
-        assertEquals(last.getId(), 3);
+        assertEquals(users.get(1).getId(), 6);
+        assertEquals(last.getId(), 4);
 
         String nextResponse = mockMvc.perform(get(String.format("/api/users/auth/searchForUsers/3/%s/%s",
                         last.getFirstName() + ' ' + last.getLastName(), last.getId()))
@@ -363,7 +363,7 @@ public class Users {
         List<UserDto> nextUsers = nextPage.getData();
 
         assertEquals(nextPage.getCount(), 5);
-        assertEquals(nextUsers.get(0).getId(), 6);
+        assertEquals(nextUsers.get(0).getId(), 3);
         assertEquals(nextUsers.get(1).getId(), 9);
         assertEquals(nextUsers.get(2).getId(), 8);
     }

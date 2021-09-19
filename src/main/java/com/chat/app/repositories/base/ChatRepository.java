@@ -8,24 +8,24 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
-    @Query(value="SELECT c FROM Chat as c LEFT JOIN c.firstUserModel as firstUser LEFT JOIN c.secondUserModel as secondUser " +
-            "WHERE first_user = :user AND lower(concat(secondUser.firstName, ' ', secondUser.lastName)) " +
+    @Query(value="SELECT * FROM chats as c LEFT JOIN users firstUser ON c.first_user = firstUser.id LEFT JOIN users secondUser ON c.second_user = secondUser.id " +
+            "WHERE c.first_user = :user AND lower(concat(secondUser.firstName, ' ', secondUser.lastName)) " +
             "LIKE lower(concat(:name, '%')) or second_user = :user AND lower(concat(firstUser.firstName, ' ', firstUser.lastName)) " +
             "LIKE lower(concat(:name, '%')) " +
-            "ORDER BY LEAST(firstUser.firstName, secondUser.firstName) || LEAST(firstUser.lastName, secondUser.lastName) ASC, c.id")
+            "ORDER BY IF(second_user = :user, lower(concat(firstUser.firstName, ' ', firstUser.lastName)), lower(concat(secondUser.firstName, ' ', secondUser.lastName))) ASC, c.id", nativeQuery = true)
     Page<Chat> findUserChatsByName(
             @Param("user") long id,
             @Param("name") String name,
             Pageable pageable);
 
-    @Query(value="SELECT c FROM Chat as c LEFT JOIN c.firstUserModel as firstUser LEFT JOIN c.secondUserModel as secondUser " +
+    @Query(value="SELECT * FROM chats as c LEFT JOIN users firstUser ON c.first_user = firstUser.id LEFT JOIN users secondUser ON c.second_user = secondUser.id " +
             "WHERE first_user LIKE :user AND (lower(concat(secondUser.firstName, ' ', secondUser.lastName)) " +
             "LIKE lower(concat(:name, '%')) AND (lower(concat(secondUser.firstName, ' ', secondUser.lastName)) " +
             "LIKE lower(:lastName) AND c.id > :lastId OR lower(concat(secondUser.firstName, ' ', secondUser.lastName)) " +
             "LIKE lower(concat(:name, '%')) AND lower(concat(secondUser.firstName, ' ', secondUser.lastName)) > lower(:lastName))) " +
             "OR second_user = :user AND (lower(concat(firstUser.firstName, ' ', firstUser.lastName)) LIKE lower(concat(:name, '%')) AND (lower(concat(firstUser.firstName, ' ', firstUser.lastName)) " +
             "LIKE lower(:lastName) AND c.id > :lastId OR lower(concat(firstUser.firstName, ' ', firstUser.lastName)) LIKE lower(concat(:name, '%')) AND lower(concat(firstUser.firstName, ' ', firstUser.lastName)) > lower(:lastName))) " +
-            "ORDER BY LEAST(firstUser.firstName, secondUser.firstName) || LEAST(firstUser.lastName, secondUser.lastName) ASC, c.id")
+            "ORDER BY IF(second_user = :user, lower(concat(firstUser.firstName, ' ', firstUser.lastName)), lower(concat(secondUser.firstName, ' ', secondUser.lastName))) ASC, c.id", nativeQuery = true)
     Page<Chat> findNextUserChatsByName(
             @Param("user") long id,
             @Param("name") String name,

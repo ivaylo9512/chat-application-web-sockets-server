@@ -18,8 +18,8 @@ public class ChatDto {
 
     public ChatDto(Chat chat) {
         this.id = chat.getId();
-        this.firstUser = new UserDto(chat.getFirstUserModel());
-        this.secondUser = new UserDto(chat.getSecondUserModel());
+        this.firstUser = new UserDto(chat.getFirstUser());
+        this.secondUser = new UserDto(chat.getSecondUser());
         this.updatedAt = chat.getUpdatedAt().toString();
         this.createdAt = chat.getCreatedAt().toString();
         toSessionsDto(chat.getSessions());

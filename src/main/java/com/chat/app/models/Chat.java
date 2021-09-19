@@ -15,11 +15,11 @@ public class Chat {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "first_user", updatable = false)
-    private UserModel firstUserModel;
+    private UserModel firstUser;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "second_user", updatable = false)
-    private UserModel secondUserModel;
+    private UserModel secondUser;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "chat", cascade = CascadeType.ALL)
     private List<Session> sessions;
@@ -35,25 +35,25 @@ public class Chat {
     public Chat() {
     }
 
-    public Chat(UserModel firstUserModel, UserModel secondUserModel) {
-        this.firstUserModel = firstUserModel;
-        this.secondUserModel = secondUserModel;
+    public Chat(UserModel firstUser, UserModel secondUser) {
+        this.firstUser = firstUser;
+        this.secondUser = secondUser;
     }
 
-    public UserModel getFirstUserModel() {
-        return firstUserModel;
+    public UserModel getFirstUser() {
+        return firstUser;
     }
 
-    public void setFirstUserModel(UserModel firstUserModel) {
-        this.firstUserModel = firstUserModel;
+    public void setFirstUser(UserModel firstUser) {
+        this.firstUser = firstUser;
     }
 
-    public UserModel getSecondUserModel() {
-        return secondUserModel;
+    public UserModel getSecondUser() {
+        return secondUser;
     }
 
-    public void setSecondUserModel(UserModel secondUserModel) {
-        this.secondUserModel = secondUserModel;
+    public void setSecondUser(UserModel secondUserModel) {
+        this.secondUser = secondUserModel;
     }
 
     public long getId() {
@@ -86,5 +86,9 @@ public class Chat {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean hasUser(long userId){
+        return firstUser.getId() == userId || secondUser.getId() == userId;
     }
 }

@@ -78,7 +78,15 @@ public class ChatController {
             @RequestParam(name = "chatId") int chatId,
             @RequestParam(name = "page") int page,
             @RequestParam(name = "pageSize") int pageSize){
-        return chatService.findSessions(chatId, page, pageSize);
+        return chatService.findSessions(chatId, page);
+    }
+
+    @DeleteMapping(value = "/delete/{id}")
+    public void delete(@PathVariable("id") long id){
+        UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getDetails();
+
+        chatService.delete(id, userService.findById(loggedUser.getId()));
     }
 
     @MessageMapping("/message")

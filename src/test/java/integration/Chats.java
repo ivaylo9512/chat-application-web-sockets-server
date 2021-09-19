@@ -175,6 +175,91 @@ public class Chats {
     }
 
     @Test
+    public void findChatsByName() throws Exception {
+        String response = mockMvc.perform(get("/api/chats/auth/findChatsByName/2/first")
+                .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        PageDto<ChatDto> page = objectMapper.readValue(response, new TypeReference<>(){});
+        List<ChatDto> chats = page.getData();
+        List<SessionDto> sessions = chats.get(0).getSessions();
+
+        assertEquals(page.getCount(), 3);
+        assertEquals(chats.size(), 2);
+        assertEquals(chats.get(0).getId(), 1);
+        assertEquals(chats.get(1).getId(), 6);
+
+        assertEquals(sessions.get(0).getDate().toString(), "2021-09-18");
+        assertEquals(sessions.get(1).getDate().toString(), "2021-09-17");
+        assertEquals(sessions.get(2).getDate().toString(), "2021-09-16");
+
+        MessageDto message = sessions.get(0).getMessages().get(0);
+        assertEquals(message.getMessage(), "testMessage");
+        assertEquals(message.getReceiverId(), 1);
+        assertEquals(message.getTime().toString(), "23:57:16");
+        assertEquals(message.getChatId(), 1);
+        assertEquals(message.getSession().toString(), "2021-09-18");
+    }
+
+    @Test
+    public void findNextChatsByName() throws Exception {
+        String response = mockMvc.perform(get("/api/chats/auth/findChatsByName/2/first/First testB/1")
+                        .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        PageDto<ChatDto> page = objectMapper.readValue(response, new TypeReference<>(){});
+        List<ChatDto> chats = page.getData();
+
+        assertEquals(page.getCount(), 2);
+        assertEquals(chats.size(), 2);
+        assertEquals(chats.get(0).getId(), 6);
+        assertEquals(chats.get(1).getId(), 2);
+    }
+
+    @Test
+    public void findChatsByDefaultName() throws Exception {
+        String response = mockMvc.perform(get("/api/chats/auth/findChatsByName/3")
+                        .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        PageDto<ChatDto> page = objectMapper.readValue(response, new TypeReference<>() {});
+        List<ChatDto> chats = page.getData();
+
+        assertEquals(page.getCount(), 5);
+        assertEquals(chats.size(), 3);
+        assertEquals(chats.get(0).getId(), 1);
+        assertEquals(chats.get(1).getId(), 6);
+        assertEquals(chats.get(2).getId(), 2);
+    }
+
+    @Test
+    public void findNextChatsByDefaultName() throws Exception {
+        String response = mockMvc.perform(get("/api/chats/auth/findChatsByName/3/FirstC Last/2")
+                        .header("Authorization", adminToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        PageDto<ChatDto> page = objectMapper.readValue(response, new TypeReference<>() {});
+        List<ChatDto> chats = page.getData();
+
+        assertEquals(page.getCount(), 2);
+        assertEquals(chats.size(), 2);
+        assertEquals(chats.get(0).getId(), 11);
+        assertEquals(chats.get(1).getId(), 5);
+    }
+
+    @Test
     public void findUsersChat_WithIncorrectToken() throws Exception {
         mockMvc.perform(get("/api/chats/auth/findByUser/2")
                 .header("Authorization", "Token incorrect"))

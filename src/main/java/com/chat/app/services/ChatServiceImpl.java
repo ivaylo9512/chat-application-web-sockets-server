@@ -24,6 +24,7 @@ public class ChatServiceImpl implements ChatService {
     private final SessionRepository sessionRepository;
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final int sessionsSize = 3;
 
     ChatServiceImpl(ChatRepository chatRepository, SessionRepository sessionRepository, MessageRepository messageRepository, UserRepository userRepository){
         this.chatRepository = chatRepository;
@@ -37,8 +38,8 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = chatRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException("Chat not found."));
 
-        if(chat.getFirstUserModel().getId() != loggedUser &&
-                chat.getSecondUserModel().getId() != loggedUser){
+        if(chat.getFirstUser().getId() != loggedUser &&
+                chat.getSecondUser().getId() != loggedUser){
             throw new UnauthorizedException("Unauthorized.");
         }
         return chat;
@@ -58,10 +59,10 @@ public class ChatServiceImpl implements ChatService {
             chat.setSessions(sessionRepository.findSessions(chat, PageRequest.of(0, pageSize,
                     Sort.Direction.DESC, "session_date")));
 
-            UserModel loggedUser = chat.getFirstUserModel();
+            UserModel loggedUser = chat.getFirstUser();
             if (loggedUser.getId() != userId) {
-                chat.setFirstUserModel(chat.getSecondUserModel());
-                chat.setSecondUserModel(loggedUser);
+                chat.setFirstUser(chat.getSecondUser());
+                chat.setSecondUser(loggedUser);
             }
         });
 
@@ -79,13 +80,12 @@ public class ChatServiceImpl implements ChatService {
         }
 
         chatsPage.getContent().forEach(chat -> {
-            chat.setSessions(sessionRepository.findSessions(chat, PageRequest.of(0, pageSize,
-                    Sort.Direction.DESC, "session_date")));
+            chat.setSessions(findSessions(chat.getId(), 0));
 
-            UserModel loggedUser = chat.getFirstUserModel();
+            UserModel loggedUser = chat.getFirstUser();
             if (loggedUser.getId() != userId) {
-                chat.setFirstUserModel(chat.getSecondUserModel());
-                chat.setSecondUserModel(loggedUser);
+                chat.setFirstUser(chat.getSecondUser());
+                chat.setSecondUser(loggedUser);
             }
         });
 
@@ -96,16 +96,16 @@ public class ChatServiceImpl implements ChatService {
     public Chat findUsersChat(long firstUser, long secondUser){
         Chat chat = chatRepository.findUsersChat(firstUser, secondUser);
         if(chat != null){
-            chat.setSessions(findSessions(chat.getId(), 0, 5));
+            chat.setSessions(findSessions(chat.getId(), 0));
         }
 
         return chat;
     }
 
     @Override
-    public List<Session> findSessions(long chatId, int page, int pageSize){
+    public List<Session> findSessions(long chatId, int page){
         return sessionRepository.findSessions(chatRepository.getById(chatId),
-                PageRequest.of(page, pageSize, Sort.Direction.DESC, "session_date"));
+                PageRequest.of(page, sessionsSize, Sort.Direction.DESC, "session_date"));
     }
 
     @Override
@@ -128,10 +128,7 @@ public class ChatServiceImpl implements ChatService {
         long sender = message.getSenderId();
         long receiver = message.getReceiverId();
 
-        long chatFirstUser = chat.getFirstUserModel().getId();
-        long chatSecondUser = chat.getSecondUserModel().getId();
-
-        if ((sender != chatFirstUser && sender != chatSecondUser) || (receiver != chatFirstUser && receiver != chatSecondUser)) {
+        if (!chat.hasUser(sender) || !chat.hasUser(receiver)) {
             throw new UnauthorizedException("Users don't match the given chat.");
         }
     }
@@ -139,5 +136,15 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public Chat create(UserModel firstUser, UserModel secondUser){
         return chatRepository.save(new Chat(firstUser, secondUser));
+    }
+
+    @Override
+    public void delete(long id, UserModel user) {
+        if(user.getRole().equals("ROLE_ADMIN")){
+            chatRepository.deleteById(id);
+            return;
+        }
+
+        chatRepository.delete(findById(id, user.getId()));
     }
 }

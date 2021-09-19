@@ -113,8 +113,8 @@ public class ChatServiceTest {
         receiver.setId(5);
 
         Chat chat = new Chat();
-        chat.setFirstUserModel(sender);
-        chat.setSecondUserModel(receiver);
+        chat.setFirstUser(sender);
+        chat.setSecondUser(receiver);
 
         MessageSpec messageSpec = new MessageSpec(1, 2, 5, "message");
 
@@ -136,8 +136,8 @@ public class ChatServiceTest {
         receiver.setId(5);
 
         Chat chat = new Chat();
-        chat.setFirstUserModel(receiver);
-        chat.setSecondUserModel(sender);
+        chat.setFirstUser(receiver);
+        chat.setSecondUser(sender);
 
         MessageSpec messageSpec = new MessageSpec(1, 2, 5, "message");
 
@@ -159,8 +159,8 @@ public class ChatServiceTest {
         receiver.setId(1);
 
         Chat chat = new Chat();
-        chat.setFirstUserModel(sender);
-        chat.setSecondUserModel(receiver);
+        chat.setFirstUser(sender);
+        chat.setSecondUser(receiver);
 
         MessageSpec messageSpec = new MessageSpec(1, 2, 5, "message");
 
@@ -182,8 +182,8 @@ public class ChatServiceTest {
         receiver.setId(1);
 
         Chat chat = new Chat();
-        chat.setFirstUserModel(receiver);
-        chat.setSecondUserModel(sender);
+        chat.setFirstUser(receiver);
+        chat.setSecondUser(sender);
 
         MessageSpec messageSpec = new MessageSpec(1, 2, 5, "message");
 
@@ -207,8 +207,8 @@ public class ChatServiceTest {
         Session session = new Session();
 
         Chat chat = new Chat();
-        chat.setFirstUserModel(sender);
-        chat.setSecondUserModel(receiver);
+        chat.setFirstUser(sender);
+        chat.setSecondUser(receiver);
 
         MessageSpec messageSpec = new MessageSpec(1, 2, 3, "message");
         Message message = new Message(sender, LocalTime.now(), messageSpec.getMessage(), session);
@@ -233,8 +233,8 @@ public class ChatServiceTest {
         Session session = new Session();
 
         Chat chat = new Chat();
-        chat.setFirstUserModel(receiver);
-        chat.setSecondUserModel(sender);
+        chat.setFirstUser(receiver);
+        chat.setSecondUser(sender);
 
         MessageSpec messageSpec = new MessageSpec(1, 2, 3, "message");
         Message message = new Message(sender, LocalTime.now(), messageSpec.getMessage(), session);
@@ -257,7 +257,7 @@ public class ChatServiceTest {
 
         when(chatRepository.findUsersChat(1, 2)).thenReturn(chat);
         when(sessionRepository.findSessions(chatRepository.getById(1L),
-                PageRequest.of(0, 5, Sort.Direction.DESC, "session_date"))).thenReturn(sessions);
+                PageRequest.of(0, 3, Sort.Direction.DESC, "session_date"))).thenReturn(sessions);
 
         Chat foundChat = chatService.findUsersChat(1, 2);
 
@@ -298,10 +298,10 @@ public class ChatServiceTest {
         assertEquals(chatPage.getTotalElements(), chats.size());
         assertEquals(chatPage.getContent().get(0).getSessions(), sessions);
         assertEquals(chatPage.getContent(), chats);
-        assertEquals(chat.getFirstUserModel(), user);
-        assertEquals(chat.getSecondUserModel(), user2);
-        assertEquals(chat1.getFirstUserModel(), user);
-        assertEquals(chat1.getSecondUserModel(), user3);
+        assertEquals(chat.getFirstUser(), user);
+        assertEquals(chat.getSecondUser(), user2);
+        assertEquals(chat1.getFirstUser(), user);
+        assertEquals(chat1.getSecondUser(), user3);
     }
 
     @Test
@@ -338,10 +338,10 @@ public class ChatServiceTest {
         assertEquals(chatPage.getTotalElements(), chats.size());
         assertEquals(chatPage.getContent().get(0).getSessions(), sessions);
         assertEquals(chatPage.getContent(), chats);
-        assertEquals(chat.getFirstUserModel(), user);
-        assertEquals(chat.getSecondUserModel(), user2);
-        assertEquals(chat1.getFirstUserModel(), user);
-        assertEquals(chat1.getSecondUserModel(), user3);
+        assertEquals(chat.getFirstUser(), user);
+        assertEquals(chat.getSecondUser(), user2);
+        assertEquals(chat1.getFirstUser(), user);
+        assertEquals(chat1.getSecondUser(), user3);
     }
 
     @Test()
@@ -369,18 +369,17 @@ public class ChatServiceTest {
 
         when(chatRepository.findUserChatsByName(1, "name", PageRequest.of(0, 5)))
                 .thenReturn(page);
-        when(sessionRepository.findSessions(chat, PageRequest.of(0, 5,
-                Sort.Direction.DESC, "session_date"))).thenReturn(sessions);
+        when(chatService.findSessions(chat.getId(), 0)).thenReturn(sessions);
 
         Page<Chat> chatPage = chatService.findUserChatsByName(1, 5, "name", null, 0);
 
         assertEquals(chatPage.getTotalElements(), chats.size());
         assertEquals(chatPage.getContent().get(0).getSessions(), sessions);
         assertEquals(chatPage.getContent(), chats);
-        assertEquals(chat.getFirstUserModel(), user);
-        assertEquals(chat.getSecondUserModel(), user2);
-        assertEquals(chat1.getFirstUserModel(), user);
-        assertEquals(chat1.getSecondUserModel(), user3);
+        assertEquals(chat.getFirstUser(), user);
+        assertEquals(chat.getSecondUser(), user2);
+        assertEquals(chat1.getFirstUser(), user);
+        assertEquals(chat1.getSecondUser(), user3);
     }
 
     @Test()
@@ -408,17 +407,16 @@ public class ChatServiceTest {
 
         when(chatRepository.findNextUserChatsByName(1, "name", "lastName", 0, PageRequest.of(0, 5)))
                 .thenReturn(page);
-        when(sessionRepository.findSessions(chat, PageRequest.of(0, 5,
-                Sort.Direction.DESC, "session_date"))).thenReturn(sessions);
+        when(chatService.findSessions(chat.getId(), 0)).thenReturn(sessions);
 
         Page<Chat> chatPage = chatService.findUserChatsByName(1, 5, "name", "lastName", 0);
 
         assertEquals(chatPage.getTotalElements(), chats.size());
         assertEquals(chatPage.getContent().get(0).getSessions(), sessions);
         assertEquals(chatPage.getContent(), chats);
-        assertEquals(chat.getFirstUserModel(), user);
-        assertEquals(chat.getSecondUserModel(), user2);
-        assertEquals(chat1.getFirstUserModel(), user);
-        assertEquals(chat1.getSecondUserModel(), user3);
+        assertEquals(chat.getFirstUser(), user);
+        assertEquals(chat.getSecondUser(), user2);
+        assertEquals(chat1.getFirstUser(), user);
+        assertEquals(chat1.getSecondUser(), user3);
     }
 }
