@@ -59,4 +59,12 @@ public class Jwt {
         }
         return user;
     }
+
+    public static int getJwtExpirationInMs(){
+        return jwtExpirationInMs;
+    }
+
+    public static void setJwtExpirationInMs(int jwtExpirationInMs) {
+        Jwt.jwtExpirationInMs = jwtExpirationInMs;
+    }
 }

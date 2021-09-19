@@ -224,6 +224,32 @@ public class ChatServiceTest {
     }
 
     @Test
+    public void addNewMessage_WithReceiver() {
+        UserModel sender = new UserModel();
+        sender.setId(2);
+        UserModel receiver = new UserModel();
+        receiver.setId(3);
+
+        Session session = new Session();
+
+        Chat chat = new Chat();
+        chat.setFirstUserModel(receiver);
+        chat.setSecondUserModel(sender);
+
+        MessageSpec messageSpec = new MessageSpec(1, 2, 3, "message");
+        Message message = new Message(sender, LocalTime.now(), messageSpec.getMessage(), session);
+
+        when(chatRepository.findById(1L)).thenReturn(Optional.of(chat));
+        when(sessionRepository.findById(new SessionPK(chat, LocalDate.now()))).thenReturn(Optional.of(session));
+        when(messageRepository.save(any(Message.class))).thenReturn(message);
+        when(userRepository.getById(3L)).thenReturn(new UserModel());
+
+        Message savedMessage = chatService.addNewMessage(messageSpec);
+
+        assertEquals(message, savedMessage);
+    }
+
+    @Test
     public void findUsersChats() {
         List<Session> sessions = new ArrayList<>(Arrays.asList(new Session(), new Session()));
         Chat chat = new Chat();

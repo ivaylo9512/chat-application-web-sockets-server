@@ -18,6 +18,7 @@ public class Message{
     @JoinColumns({@JoinColumn(name = "chat", referencedColumnName="chat"),
             @JoinColumn(name = "session_date", referencedColumnName = "session_date")})
     private Session session;
+    
     private LocalTime time;
     private String message;
 
@@ -27,6 +28,7 @@ public class Message{
         this.message = message;
         this.session = session;
     }
+
     public Message() {
     }
 
@@ -34,39 +36,19 @@ public class Message{
         return receiver;
     }
 
-    public void setReceiver(UserModel receiverId) {
-        this.receiver = receiverId;
-    }
-
     public LocalTime getTime() {
         return time;
-    }
-
-    public void setTime(LocalTime time) {
-        this.time = time;
     }
 
     public Session getSession() {
         return session;
     }
 
-    public void setSession(Session session) {
-        this.session = session;
-    }
-
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public long getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 }

@@ -72,7 +72,7 @@ public class Users {
     private DataSource dataSource;
 
     private MockMvc mockMvc;
-    private static String adminToken, userToken;
+    private static String adminToken, userToken, expiredToken;
     private ObjectMapper objectMapper;
 
     @BeforeEach
@@ -100,8 +100,17 @@ public class Users {
         adminToken = "Token " + Jwt.generate(new UserDetails(admin, Collections
                 .singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))));
 
+
         userToken = "Token " + Jwt.generate(new UserDetails(user, Collections
                 .singletonList(new SimpleGrantedAuthority("ROLE_USER"))));
+
+        int expiration = Jwt.getJwtExpirationInMs();
+        Jwt.setJwtExpirationInMs(-20);
+
+        expiredToken = "Token " + Jwt.generate(new UserDetails(admin, Collections
+                .singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+
+        Jwt.setJwtExpirationInMs(expiration);
 
         objectMapper = new ObjectMapper();
         mockMvc = MockMvcBuilders
@@ -515,7 +524,7 @@ public class Users {
     }
 
     @Test
-    void registerAdmin_WithoutToken_Unauthorized() throws Exception{
+    void registerAdmin_WithoutToken() throws Exception{
         mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
                         "username", "username@gmail.com", null, true))
                 .andExpect(status().isUnauthorized())
@@ -523,7 +532,7 @@ public class Users {
     }
 
     @Test
-    void registerAdmin_WithIncorrectToken_Unauthorized() throws Exception{
+    void registerAdmin_WithIncorrectToken() throws Exception{
         mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
                         "username", "username@gmail.com", "Token incorrect", true))
                 .andExpect(status().isUnauthorized())
@@ -531,14 +540,22 @@ public class Users {
     }
 
     @Test
-    void changeUserInfo_WithoutToken_Unauthorized() throws Exception{
+    void registerAdmin_WithExpiredToken() throws Exception{
+        mockMvc.perform(createMediaRegisterRequest("/api/users/auth/registerAdmin", "ROLE_ADMIN",
+                        "username", "username@gmail.com", expiredToken, true))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Jwt token has expired."));
+    }
+
+    @Test
+    void changeUserInfo_WithoutToken() throws Exception{
         mockMvc.perform(post("/api/users/auth/changeUserInfo"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is missing"));
     }
 
     @Test
-    void changeUserInfo_WithTokenWithoutPrefix_Unauthorized() throws Exception{
+    void changeUserInfo_WithTokenWithoutPrefix() throws Exception{
         mockMvc.perform(post("/api/users/auth/changeUserInfo")
                 .header("Authorization", "Incorrect token"))
                 .andExpect(status().isUnauthorized())
@@ -546,7 +563,7 @@ public class Users {
     }
 
     @Test
-    void changeUserInfo_WithIncorrectToken_Unauthorized() throws Exception{
+    void changeUserInfo_WithIncorrectToken() throws Exception{
         mockMvc.perform(post("/api/users/auth/changeUserInfo")
                 .header("Authorization", "Token incorrect"))
                 .andExpect(status().isUnauthorized())
@@ -554,14 +571,14 @@ public class Users {
     }
 
     @Test
-    void searchForUsers_WithoutToken_Unauthorized() throws Exception{
+    void searchForUsers_WithoutToken() throws Exception{
         mockMvc.perform(get("/api/users/auth/searchForUsers/2"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is missing"));
     }
 
     @Test
-    void searchForUsers_WithIncorrectToken_Unauthorized() throws Exception{
+    void searchForUsers_WithIncorrectToken() throws Exception{
         mockMvc.perform(get("/api/users/auth/searchForUsers/2")
                 .header("Authorization", "Token incorrect"))
                 .andExpect(status().isUnauthorized())
@@ -569,14 +586,14 @@ public class Users {
     }
 
     @Test
-    void changePassword_WithoutToken_Unauthorized() throws Exception{
+    void changePassword_WithoutToken() throws Exception{
         mockMvc.perform(post("/api/users/auth/changePassword"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is missing"));
     }
 
     @Test
-    void changePassword_WithIncorrectToken_Unauthorized() throws Exception{
+    void changePassword_WithIncorrectToken() throws Exception{
         mockMvc.perform(get("/api/users/auth/changePassword")
                 .header("Authorization", "Token incorrect"))
                 .andExpect(status().isUnauthorized())
