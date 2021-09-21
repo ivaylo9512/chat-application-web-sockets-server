@@ -27,7 +27,6 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    @Autowired
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -145,8 +144,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void setEnabled(boolean state, long id){
-        UserModel user = userRepository.getById(id);
-        user.setEnabled(true);
+        UserModel user = userRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("UserModel not found."));
+        user.setEnabled(state);
 
         userRepository.save(user);
     }

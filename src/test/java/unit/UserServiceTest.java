@@ -46,13 +46,15 @@ public class UserServiceTest {
     }
 
     @Test()
-    public void findById_withExistingUser() {
+    public void findById() {
         UserModel user = new UserModel("Test", "Test", "ROLE_ADMIN");
         user.setEnabled(true);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         userService.findById(1L);
+
+        verify(userRepository, times(1)).findById(1L);
     }
 
     @Test()
@@ -69,7 +71,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void registerUser_WithAlreadyTakenUsername() {
+    public void register_WithAlreadyTakenUsername() {
         UserModel existingUser = new UserModel("test", "test@gmail.com", "test", "ROLE_ADMIN");
         UserModel user = new UserModel("test", "nonexistent@gmail.com", "test", "ROLE_ADMIN");
 
@@ -84,7 +86,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void registerUser_WithAlreadyTakenEmail() {
+    public void register_WithAlreadyTakenEmail() {
         UserModel existingUser = new UserModel("test", "test@gmail.com", "test", "ROLE_ADMIN");
         UserModel user = new UserModel("nonexistent", "test@gmail.com", "test", "ROLE_ADMIN");
 
@@ -100,7 +102,7 @@ public class UserServiceTest {
 
 
     @Test
-    public void registerUser() {
+    public void register() {
         UserModel user = new UserModel("test", "test@gmail.com", "test", "ROLE_ADMIN");
 
         when(userRepository.findByUsernameOrEmail("test", "test@gmail.com")).thenReturn(null);
@@ -112,7 +114,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void registerUser_RoleAdmin() {
+    public void registerAdmin() {
         UserModel user = new UserModel("test", "test@gmail.com", "test", "ROLE_ADMIN");
 
         when(userRepository.findByUsernameOrEmail("test", "test@gmail.com")).thenReturn(null);
@@ -124,7 +126,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void changePasswords(){
+    public void changePassword(){
         NewPasswordSpec passwordSpec = new NewPasswordSpec("user", "currentPassword", "newTestPassword");
 
         UserModel userModel = new UserModel();
@@ -139,7 +141,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void changePasswordState_WithWrongPassword_ShouldThrow(){
+    public void changePassword_WithWrongPassword(){
         NewPasswordSpec passwordSpec = new NewPasswordSpec("user", "InvalidPassword","newTestPassword" );
 
         UserModel userModel = new UserModel();
@@ -157,7 +159,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void ChangePasswordState_WithNonExistentUser_EntityNotFound(){
+    public void changePasswordState_WithNonExistentUser(){
         NewPasswordSpec passwordSpec = new NewPasswordSpec("username",
                 "current", "newTestPassword");
 
@@ -172,7 +174,7 @@ public class UserServiceTest {
     }
 
     @Test()
-    public void changeUserInfo_WithNonExistentUser_ShouldThrow(){
+    public void changeUserInfo_WithNonExistentUser(){
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         UserSpec userSpec = new UserSpec();
@@ -285,7 +287,7 @@ public class UserServiceTest {
     }
 
     @Test()
-    public void changeUserInfo_WhenUsernameAndEmailAreTheSame(){
+    public void changeUserInfo_WhenUsernameAndEmailsAreTheSame(){
         UserSpec newUser = new UserSpec(1, "oldUsername", "email@gmail.com", "firstName",
                 "lastName", 25, "Country");
 
@@ -337,8 +339,32 @@ public class UserServiceTest {
         assertEquals(thrown.getMessage(), "Email is already taken.");
     }
 
+    @Test()
+    public void setEnabled(){
+        UserModel user = new UserModel();
+        user.setEnabled(false);
+        user.setId(1);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        userService.setEnabled(true, 1);
+
+        assertTrue(user.isEnabled());
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test()
+    public void setEnabled_withNonExistent(){
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class,
+                () -> userService.setEnabled(true, 1));
+
+        assertEquals(thrown.getMessage(), "UserModel not found.");
+    }
+
     @Test
-    public void loadByUsername_WithNonExistentUsername_BadCredentials(){
+    public void loadByUsername_WithNonExistentUsername(){
         when(userRepository.findByUsername("username")).thenReturn(null);
 
         BadCredentialsException thrown = assertThrows(
@@ -363,7 +389,7 @@ public class UserServiceTest {
     }
 
     @Test()
-    public void delete_WithNonExistentUsername_shouldThrow(){
+    public void delete_WithNonExistentUsername(){
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         EntityNotFoundException thrown = assertThrows(
@@ -375,7 +401,7 @@ public class UserServiceTest {
     }
 
     @Test()
-    public void delete_WithDifferentLoggedId_ThatIsNotAdmin_shouldThrow(){
+    public void delete_WithDifferentLoggedId_ThatIsNotAdmin(){
         List<SimpleGrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_USER"));
         UserDetails userDetails = new UserDetails("username", "password", authorities, 2);

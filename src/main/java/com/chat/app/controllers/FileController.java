@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @RestController
-@RequestMapping(value = "api/files")
+@RequestMapping(value = "/api/files")
 public class FileController {
     private final FileService fileService;
     private final UserService userService;

@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/register")
-    public boolean register(@Valid @ModelAttribute RegisterSpec registerSpec) throws IOException{
+    public void register(@Valid @ModelAttribute RegisterSpec registerSpec) throws IOException{
         MultipartFile profileImage = registerSpec.getProfileImage();
         File file = null;
 
@@ -53,8 +53,6 @@ public class UserController {
         if(file != null){
             fileService.save(file.getResourceType() + newUser.getId(), registerSpec.getProfileImage());
         }
-
-        return true;
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -115,7 +113,7 @@ public class UserController {
         return new PageDto<>(page.getTotalElements(), users);
     }
 
-    @PostMapping(value = "/auth/changeUserInfo")
+    @PatchMapping(value = "/auth/changeUserInfo")
     public UserDto changeUserInfo(@Valid @RequestBody UserSpec userModel){
         UserDetails loggedUser = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getDetails();

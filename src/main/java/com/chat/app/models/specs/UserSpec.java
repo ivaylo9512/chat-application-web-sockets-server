@@ -5,7 +5,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 public class UserSpec {
-    @NotNull(message = "You must provide first id")
+    @NotNull(message = "You must provide id")
     private long id;
 
     @Length(min = 8, max=20, message = "Username must be between 8 and 20 characters.")
@@ -13,7 +13,7 @@ public class UserSpec {
     private String username;
 
     @Email(message = "Must be a valid email.")
-    @NotNull(message = "You must provide first email.")
+    @NotNull(message = "You must provide email.")
     private String email;
 
     @NotNull(message = "You must provide first name.")
@@ -23,7 +23,7 @@ public class UserSpec {
     private String lastName;
 
     @NotNull(message = "You must provide age.")
-    private int age;
+    private Integer age;
 
     @NotNull(message = "You must provide country.")
     private String country;

@@ -30,7 +30,7 @@ public class RegisterSpec {
     private String country;
 
     @NotNull(message = "You must provide age.")
-    private int age;
+    private Integer age;
 
 
     public RegisterSpec(String username, String password, String email, MultipartFile profileImage, String firstName, String lastName, String country, int age) {

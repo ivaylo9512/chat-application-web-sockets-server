@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 @Component
 public class Jwt {
     private static int jwtExpirationInMs = 10000000;
-    static String jwtSecret = "MyJwtSecret";
-    private static byte[] encodedJwtSecret = Base64.getEncoder().encode(jwtSecret.getBytes());
+    private static String jwtSecret = "MyJwtSecret";
+    private final static byte[] encodedJwtSecret = Base64.getEncoder().encode(jwtSecret.getBytes());
 
     public static String generate(UserDetails user) {
         Date now = new Date();

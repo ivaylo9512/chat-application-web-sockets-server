@@ -20,7 +20,7 @@ public class ChatApplicationTest {
         try (MockedStatic<SpringApplication> mocked = mockStatic(SpringApplication.class)) {
 
             mocked.when(() -> SpringApplication.run(ChatApplication.class,
-                            "foo", "bar"))
+                            "arg1", "arg2"))
                     .thenReturn(Mockito.mock(ConfigurableApplicationContext.class));
 
             ChatApplication.main(new String[] { "arg1", "arg2" });

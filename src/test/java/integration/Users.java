@@ -293,7 +293,7 @@ public class Users {
         UserDto userDto = new UserDto(userSpec, "ROLE_ADMIN");
         userDto.setProfileImage("profileImage1.png");
 
-        mockMvc.perform(post("/api/users/auth/changeUserInfo")
+        mockMvc.perform(patch("/api/users/auth/changeUserInfo")
                 .header("Authorization", adminToken)
                 .contentType("Application/json")
                 .content(objectMapper.writeValueAsString(userSpec)))
@@ -307,10 +307,8 @@ public class Users {
     public void changeUserInfo_WhenUsernameIsTaken() throws Exception {
         UserSpec userSpec = new UserSpec(1, "testUser", "newUsername@gmail.com", "newFirstName",
                 "newLastName", 26, "newCountry");
-        UserDto userDto = new UserDto(userSpec, "ROLE_ADMIN");
-        userDto.setProfileImage("profileImage1.png");
 
-        mockMvc.perform(post("/api/users/auth/changeUserInfo")
+        mockMvc.perform(patch("/api/users/auth/changeUserInfo")
                 .header("Authorization", adminToken)
                 .contentType("Application/json")
                 .content(objectMapper.writeValueAsString(userSpec)))
@@ -322,10 +320,8 @@ public class Users {
     public void changeUserInfo_WhenEmailIsTaken() throws Exception {
         UserSpec userSpec = new UserSpec(1, "newUsername", "testUser@gmail.com", "newFirstName",
                 "newLastName", 26, "newCountry");
-        UserDto userDto = new UserDto(userSpec, "ROLE_ADMIN");
-        userDto.setProfileImage("profileImage1.png");
 
-        mockMvc.perform(post("/api/users/auth/changeUserInfo")
+        mockMvc.perform(patch("/api/users/auth/changeUserInfo")
                         .header("Authorization", adminToken)
                         .contentType("Application/json")
                         .content(objectMapper.writeValueAsString(userSpec)))
@@ -500,9 +496,31 @@ public class Users {
         assertEquals(errors.get("username"), "Username must be between 8 and 20 characters.");
         assertEquals(errors.get("password"), "Password must be between 10 and 25 characters.");
         assertEquals(errors.get("country"), "You must provide country.");
+        assertEquals(errors.get("age"), "You must provide age.");
         assertEquals(errors.get("firstName"), "You must provide first name.");
         assertEquals(errors.get("lastName"), "You must provide last name.");
         assertEquals(errors.get("email"), "You must provide an email.");
+    }
+
+    @Test
+    void changeUserInfo_WithWrongFields() throws Exception {
+        String response = mockMvc.perform(patch("/api/users/auth/changeUserInfo")
+                        .content("{\"username\": \"short\", \"email\": \"incorrect\"}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", adminToken))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Map<String, String> errors = objectMapper.readValue(response, new TypeReference<>() {});
+
+        assertEquals(errors.get("username"), "Username must be between 8 and 20 characters.");
+        assertEquals(errors.get("email"), "Must be a valid email.");
+        assertEquals(errors.get("firstName"), "You must provide first name.");
+        assertEquals(errors.get("lastName"), "You must provide last name.");
+        assertEquals(errors.get("country"), "You must provide country.");
+        assertEquals(errors.get("age"), "You must provide age.");
     }
 
     @Test
@@ -549,14 +567,14 @@ public class Users {
 
     @Test
     void changeUserInfo_WithoutToken() throws Exception{
-        mockMvc.perform(post("/api/users/auth/changeUserInfo"))
+        mockMvc.perform(patch("/api/users/auth/changeUserInfo"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is missing"));
     }
 
     @Test
     void changeUserInfo_WithTokenWithoutPrefix() throws Exception{
-        mockMvc.perform(post("/api/users/auth/changeUserInfo")
+        mockMvc.perform(patch("/api/users/auth/changeUserInfo")
                 .header("Authorization", "Incorrect token"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is missing"));
@@ -564,7 +582,7 @@ public class Users {
 
     @Test
     void changeUserInfo_WithIncorrectToken() throws Exception{
-        mockMvc.perform(post("/api/users/auth/changeUserInfo")
+        mockMvc.perform(patch("/api/users/auth/changeUserInfo")
                 .header("Authorization", "Token incorrect"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is incorrect"));
@@ -587,14 +605,14 @@ public class Users {
 
     @Test
     void changePassword_WithoutToken() throws Exception{
-        mockMvc.perform(post("/api/users/auth/changePassword"))
+        mockMvc.perform(patch("/api/users/auth/changePassword"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is missing"));
     }
 
     @Test
     void changePassword_WithIncorrectToken() throws Exception{
-        mockMvc.perform(get("/api/users/auth/changePassword")
+        mockMvc.perform(patch("/api/users/auth/changePassword")
                 .header("Authorization", "Token incorrect"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Jwt token is incorrect"));
