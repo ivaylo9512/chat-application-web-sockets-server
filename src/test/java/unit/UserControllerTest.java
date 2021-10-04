@@ -10,6 +10,7 @@ import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
 import com.chat.app.services.FileServiceImpl;
 import com.chat.app.services.UserServiceImpl;
+import com.chat.app.services.base.EmailTokenService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -20,6 +21,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.List;
 
@@ -34,6 +36,9 @@ public class UserControllerTest {
 
     @Mock
     private FileServiceImpl fileService;
+
+    @Mock
+    private EmailTokenService emailTokenService;
 
     @InjectMocks
     private UserController userController;
@@ -65,7 +70,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void register() throws IOException {
+    public void register() throws IOException, MessagingException {
         RegisterSpec register = new RegisterSpec("username", "email@gmail.com", "password", multipartFile, "firstName", "lastName", "Bulgaria", 25);
 
         userModel.setProfileImage(profileImage);
@@ -74,10 +79,12 @@ public class UserControllerTest {
         ArgumentCaptor<UserModel> captor = ArgumentCaptor.forClass(UserModel.class);
         when(userService.create(any(UserModel.class))).thenReturn(userModel);
         when(fileService.generate(multipartFile, "profileImage", "image")).thenReturn(profileImage);
+        doNothing().when(emailTokenService).sendVerificationEmail(userModel);
 
         userController.register(register);
 
         verify(fileService, times(1)).save("profileImage1", multipartFile);
+        verify(emailTokenService, times(1)).sendVerificationEmail(userModel);
         verify(userService).create(captor.capture());
         UserModel passedToCreate = captor.getValue();
 

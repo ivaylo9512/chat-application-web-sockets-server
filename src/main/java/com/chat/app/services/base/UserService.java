@@ -17,7 +17,11 @@ public interface UserService extends UserDetailsService {
 
     UserModel create(UserModel user);
 
+    UserModel save(UserModel user);
+
     void delete(long id, UserDetails loggedUser);
+
+    void delete(UserModel user);
 
     UserModel changeUserInfo(UserSpec userSpec, UserDetails loggedUser);
 

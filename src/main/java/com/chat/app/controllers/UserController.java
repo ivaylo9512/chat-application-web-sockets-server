@@ -1,6 +1,7 @@
 package com.chat.app.controllers;
 
 import com.chat.app.exceptions.EmailExistsException;
+import com.chat.app.exceptions.UnauthorizedException;
 import com.chat.app.exceptions.UsernameExistsException;
 import com.chat.app.models.*;
 import com.chat.app.models.Dtos.PageDto;
@@ -8,10 +9,7 @@ import com.chat.app.models.Dtos.UserDto;
 import com.chat.app.models.specs.NewPasswordSpec;
 import com.chat.app.models.specs.RegisterSpec;
 import com.chat.app.models.specs.UserSpec;
-import com.chat.app.services.base.ChatService;
-import com.chat.app.services.base.FileService;
-import com.chat.app.services.base.RequestService;
-import com.chat.app.services.base.UserService;
+import com.chat.app.services.base.*;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +17,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,16 +32,18 @@ public class UserController {
     private final ChatService chatService;
     private final FileService fileService;
     private final RequestService requestService;
+    private final EmailTokenService emailTokenService;
 
-    public UserController(UserService userService, ChatService chatService, FileService fileService, RequestService requestService) {
+    public UserController(UserService userService, ChatService chatService, FileService fileService, RequestService requestService, EmailTokenService emailTokenService) {
         this.userService = userService;
         this.chatService = chatService;
         this.fileService = fileService;
         this.requestService = requestService;
+        this.emailTokenService = emailTokenService;
     }
 
     @PostMapping(value = "/register")
-    public void register(@Valid @ModelAttribute RegisterSpec registerSpec) throws IOException{
+    public void register(@Valid @ModelAttribute RegisterSpec registerSpec) throws IOException, MessagingException {
         MultipartFile profileImage = registerSpec.getProfileImage();
         File file = null;
 
@@ -53,6 +56,28 @@ public class UserController {
         if(file != null){
             fileService.save(file.getResourceType() + newUser.getId(), registerSpec.getProfileImage());
         }
+
+        emailTokenService.sendVerificationEmail(newUser);
+    }
+
+    @GetMapping(value = "/activate/{token}")
+    public void activate(@PathVariable("token") String token, HttpServletResponse httpServletResponse) throws IOException {
+        EmailToken emailToken = emailTokenService.getToken(token);
+        UserModel user = emailToken.getUser();
+
+        if(emailToken.getExpiryDate().isBefore(LocalDateTime.now())){
+            emailTokenService.delete(emailToken);
+            userService.delete(emailToken.getUser());
+
+            throw new UnauthorizedException("Token has expired. Repeat your registration.");
+        }
+
+        user.setEnabled(true);
+
+        userService.save(user);
+        emailTokenService.delete(emailToken);
+
+        httpServletResponse.sendRedirect("https://localhost:4200");
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

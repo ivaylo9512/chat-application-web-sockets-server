@@ -74,6 +74,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserModel save(UserModel user) {
+        return userRepository.save(user);
+    }
+
+    @Override
     public void delete(long id, UserDetails loggedUser) {
         UserModel user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("UserModel not found."));
@@ -83,6 +88,11 @@ public class UserServiceImpl implements UserService {
             throw new UnauthorizedException("You are not allowed to modify the user.");
         }
 
+        userRepository.delete(user);
+    }
+
+    @Override
+    public void delete(UserModel user) {
         userRepository.delete(user);
     }
 
