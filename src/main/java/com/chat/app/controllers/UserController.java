@@ -62,7 +62,7 @@ public class UserController {
 
     @GetMapping(value = "/activate/{token}")
     public void activate(@PathVariable("token") String token, HttpServletResponse httpServletResponse) throws IOException {
-        EmailToken emailToken = emailTokenService.getToken(token);
+        EmailToken emailToken = emailTokenService.findByToken(token);
         UserModel user = emailToken.getUser();
 
         if(emailToken.getExpiryDate().isBefore(LocalDateTime.now())){
