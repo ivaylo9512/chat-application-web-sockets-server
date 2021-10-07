@@ -16,7 +16,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
-
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.List;

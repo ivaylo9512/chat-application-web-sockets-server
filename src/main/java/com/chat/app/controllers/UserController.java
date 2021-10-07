@@ -77,7 +77,7 @@ public class UserController {
         userService.save(user);
         emailTokenService.delete(emailToken);
 
-        httpServletResponse.sendRedirect("https://localhost:4200");
+        httpServletResponse.sendRedirect("https://localhost:3000");
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

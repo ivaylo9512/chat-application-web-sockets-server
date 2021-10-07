@@ -16,11 +16,13 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 
@@ -72,6 +74,11 @@ public class AppConfig {
     @Bean
     public PersistenceExceptionTranslationPostProcessor exceptionTranslation(){
         return new PersistenceExceptionTranslationPostProcessor();
+    }
+
+    @PostConstruct
+    public void init() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
     public static final DateTimeFormatter FORMATTER = ofPattern("yyyy-MM-dd@HH:mm:ss.SSS");

@@ -1,5 +1,6 @@
 package unit;
 
+import com.chat.app.exceptions.InvalidInputException;
 import com.chat.app.models.EmailToken;
 import com.chat.app.models.UserModel;
 import com.chat.app.repositories.base.EmailTokenRepository;
@@ -9,18 +10,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,15 +34,12 @@ public class EmailTokenServiceTest {
     @Mock
     private MimeMessage mimeMessage;
 
-    @Mock
-    private MimeMessageHelper mimeMessageHelper;
-
     @InjectMocks
     @Spy
     private EmailTokenServiceImpl emailTokenService;
 
     @Test
-    public void sendVerificationEmail() throws MessagingException, IOException {
+    public void sendVerificationEmail() throws MessagingException {
         UUID uuid = UUID.randomUUID();
         ServletUriComponentsBuilder builder = ServletUriComponentsBuilder.fromContextPath(new MockHttpServletRequest());
         builder.path("port");
@@ -87,7 +84,7 @@ public class EmailTokenServiceTest {
     }
 
     @Test
-    public void getToken() {
+    public void findByToken() {
         EmailToken token = new EmailToken();
         token.setToken("token");
 
@@ -96,6 +93,16 @@ public class EmailTokenServiceTest {
         EmailToken foundToken = emailTokenService.findByToken(token.getToken());
 
         assertEquals(foundToken, token);
+    }
+
+    @Test
+    public void findByToken_WithNotFound() {
+        when(emailTokenRepository.findByToken("token")).thenReturn(Optional.empty());
+
+        InvalidInputException thrown = assertThrows(InvalidInputException.class,
+                () -> emailTokenService.findByToken("token"));
+
+        assertEquals(thrown.getMessage(), "Incorrect token.");
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.chat.app.services;
 
+import com.chat.app.exceptions.InvalidInputException;
 import com.chat.app.models.EmailToken;
 import com.chat.app.models.UserModel;
 import com.chat.app.repositories.base.EmailTokenRepository;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.persistence.EntityNotFoundException;
 import java.util.UUID;
 
 @Service
@@ -31,7 +31,7 @@ public class EmailTokenServiceImpl implements EmailTokenService {
     @Override
     public EmailToken findByToken(String token) {
         return tokenRepository.findByToken(token).orElseThrow(() ->
-                new EntityNotFoundException("Incorrect token."));
+                new InvalidInputException("Incorrect token."));
     }
 
     @Override

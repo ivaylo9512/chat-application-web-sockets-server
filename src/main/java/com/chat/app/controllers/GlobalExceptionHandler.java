@@ -2,6 +2,7 @@ package com.chat.app.controllers;
 
 import com.chat.app.exceptions.DisabledUserException;
 import com.chat.app.exceptions.FileFormatException;
+import com.chat.app.exceptions.InvalidInputException;
 import com.chat.app.exceptions.UnauthorizedException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -93,16 +94,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler
-    ResponseEntity<String> disabledUserException(DisabledUserException e){
+    ResponseEntity<String> badCredentialsException(BadCredentialsException e){
         return ResponseEntity
-                .status(HttpStatus.LOCKED)
+                .status(HttpStatus.FORBIDDEN)
                 .body(e.getMessage());
     }
 
     @ExceptionHandler
-    ResponseEntity<String> badCredentialsException(BadCredentialsException e){
+    ResponseEntity<String> handleInvalidInputException(InvalidInputException e){
         return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
     }
 }

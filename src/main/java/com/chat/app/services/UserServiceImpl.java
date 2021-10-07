@@ -36,8 +36,8 @@ public class UserServiceImpl implements UserService {
         UserModel user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("UserModel not found."));
 
-        if(!user.isEnabled()){
-            throw new DisabledUserException("You must complete the registration. Check your email.");
+        if (!user.isEnabled()) {
+            throw new UnauthorizedException("User is unavailable.");
         }
 
         return user;
@@ -98,15 +98,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserModel userModel = userRepository.findByUsername(username);
-        if(userModel == null){
-            throw new BadCredentialsException("Bad credentials");
+        UserModel user = userRepository.findByUsername(username).orElseThrow(
+                () -> new BadCredentialsException("Bad credentials."));
+
+        if(!user.isEnabled()){
+            throw new DisabledUserException("You must complete the registration. Check your email.");
         }
 
         List<SimpleGrantedAuthority> authorities =
-                Collections.singletonList(new SimpleGrantedAuthority(userModel.getRole()));
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole()));
 
-        return new UserDetails(userModel, authorities);
+        return new UserDetails(user, authorities);
     }
 
     @Override
